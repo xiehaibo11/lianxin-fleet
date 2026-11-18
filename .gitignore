@@ -7,4 +7,3 @@ dist/
 **/bin/
 **/obj/
 .vs/
-server-*.txt
