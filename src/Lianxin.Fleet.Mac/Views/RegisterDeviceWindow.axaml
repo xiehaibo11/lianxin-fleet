@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Lianxin.Fleet.Mac.Views.RegisterDeviceWindow"
+        Title="登记设备" Width="460" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="22" Spacing="8">
+        <TextBlock Classes="heading" Text="登记 iPhone 或 iPad" />
+        <TextBox x:Name="DeviceNameInput" PlaceholderText="设备名称" MaxLength="80"
+                 AutomationProperties.Name="设备名称" />
+        <TextBox x:Name="UdidInput" PlaceholderText="设备 UDID" MaxLength="80"
+                 AutomationProperties.Name="设备 UDID" />
+        <TextBox x:Name="PortInput" PlaceholderText="WDA 本地端口" MaxLength="5"
+                 AutomationProperties.Name="WDA 本地端口" />
+        <TextBox x:Name="DeviceGroupInput" PlaceholderText="分组" Text="未分组" MaxLength="60"
+                 AutomationProperties.Name="设备分组" />
+        <TextBlock x:Name="ErrorText" Foreground="Salmon" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="取消" IsCancel="True" Click="CancelClicked" />
+            <Button Content="登记" Classes="primary" IsDefault="True" Click="RegisterClicked" />
+        </StackPanel>
+    </StackPanel>
+</Window>

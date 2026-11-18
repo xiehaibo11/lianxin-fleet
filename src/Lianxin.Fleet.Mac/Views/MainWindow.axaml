@@ -1,0 +1,218 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Lianxin.Fleet.Mac.ViewModels"
+        x:Class="Lianxin.Fleet.Mac.Views.MainWindow"
+        Title="联信设备工作站 · macOS" Width="1500" Height="940"
+        MinWidth="990" MinHeight="660" WindowStartupLocation="CenterScreen"
+        Background="{StaticResource WorkstationBackground}">
+    <Grid Margin="18" RowDefinitions="Auto,*,170,Auto" RowSpacing="12">
+        <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="3">
+                <TextBlock Text="联信设备工作站" FontWeight="Bold" FontSize="25" />
+                <TextBlock x:Name="EnvironmentLabel" Classes="muted" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Button x:Name="DiscoverButton" Classes="primary" Content="扫描 USB" Click="DiscoverClicked" />
+                <Button x:Name="RegisterButton" Content="登记设备" Click="RegisterClicked" />
+                <Button x:Name="ExportButton" Content="导出连接配置" Click="ExportClicked" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,240,262" ColumnSpacing="12">
+            <Border Classes="panel">
+                <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Classes="heading" Text="设备列表" />
+                        <TextBlock Grid.Column="1" x:Name="CountsLabel" Classes="muted" VerticalAlignment="Center" />
+                    </Grid>
+                    <Grid Grid.Row="1" ColumnDefinitions="*,124,112" ColumnSpacing="6">
+                        <TextBox x:Name="SearchInput" PlaceholderText="搜索名称或 UDID" TextChanged="SearchChanged"
+                                 AutomationProperties.Name="搜索设备名称或 UDID" />
+                        <ComboBox Grid.Column="1" x:Name="GroupFilter" SelectionChanged="FilterChanged"
+                                  HorizontalAlignment="Stretch" AutomationProperties.Name="筛选设备分组" />
+                        <ComboBox Grid.Column="2" x:Name="StateFilter" SelectedIndex="0" SelectionChanged="FilterChanged"
+                                  HorizontalAlignment="Stretch" AutomationProperties.Name="筛选设备状态">
+                            <ComboBoxItem Content="所有状态" />
+                            <ComboBoxItem Content="可控制" />
+                            <ComboBoxItem Content="未连接" />
+                        </ComboBox>
+                    </Grid>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
+                        <Button Content="全选可见" Click="SelectVisibleClicked" />
+                        <Button Content="清除选中" Click="ClearSelectionClicked" />
+                        <Button x:Name="CastButton" Content="停止投屏" Click="CastClicked"
+                                AutomationProperties.Name="开始或停止实时投屏" />
+                    </StackPanel>
+                    <Grid Grid.Row="3">
+                        <ListBox x:Name="DeviceList" SelectionMode="Single" SelectionChanged="MasterChanged"
+                                 Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 AutomationProperties.Name="设备墙，选中设备作为主控">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DeviceCard">
+                                    <StackPanel Width="150" Spacing="5">
+                                        <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="5">
+                                            <Ellipse Width="8" Height="8" Fill="{Binding StatusBrush}"
+                                                     VerticalAlignment="Center" />
+                                            <CheckBox Grid.Column="1" IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      MinWidth="0" Padding="0" VerticalAlignment="Center"
+                                                      AutomationProperties.Name="{Binding SelectionLabel}" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Name}" FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        </Grid>
+                                        <Border Height="300" Background="#0B0F18" CornerRadius="6" ClipToBounds="True">
+                                            <Grid>
+                                                <Image Source="{Binding Preview}" Stretch="Uniform" />
+                                                <TextBlock Text="{Binding Placeholder}" IsVisible="{Binding ShowPlaceholder}"
+                                                           Classes="muted" Margin="8" TextWrapping="Wrap"
+                                                           TextAlignment="Center" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </Border>
+                                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="3">
+                                            <TextBox Text="{Binding QuickText, Mode=TwoWay}" PlaceholderText="信息框"
+                                                     MaxLength="1000" MinWidth="0" Padding="5,3"
+                                                     AutomationProperties.Name="输入到这台设备的文字" />
+                                            <Button Grid.Column="1" Content="发送" Padding="6,3" Click="TileSendClicked"
+                                                    AutomationProperties.Name="把文字输入到这台设备" />
+                                            <Button Grid.Column="2" Content="⌂" Padding="6,3" Click="TileHomeClicked"
+                                                    AutomationProperties.Name="这台设备返回主屏幕" />
+                                        </Grid>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock x:Name="EmptyLabel" Classes="muted" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                                   Margin="20" IsHitTestVisible="False" />
+                    </Grid>
+                    <Grid Grid.Row="4" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <TextBox x:Name="GroupNameInput" PlaceholderText="新分组名称" MaxLength="60"
+                                 AutomationProperties.Name="批量分组名称" />
+                        <Button Grid.Column="1" Content="为选中分组" Click="GroupClicked" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Classes="panel">
+                <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="9">
+                    <StackPanel Spacing="3">
+                        <TextBlock x:Name="MasterTitle" Classes="heading" TextTrimming="CharacterEllipsis" />
+                        <TextBlock x:Name="MasterDetails" Classes="muted" TextWrapping="Wrap" MaxLines="3" />
+                    </StackPanel>
+                    <Border Grid.Row="1" x:Name="MasterSurface" Background="#0B0F18" CornerRadius="9"
+                            Focusable="True" ClipToBounds="True" AutomationProperties.Name="主控屏幕，按回车点击中心"
+                            PointerPressed="ScreenPressed" PointerReleased="ScreenReleased"
+                            PointerCaptureLost="ScreenCaptureLost" KeyDown="ScreenKeyDown">
+                        <Grid>
+                            <Image x:Name="MasterImage" Stretch="Uniform" />
+                            <TextBlock x:Name="MasterPlaceholder" Classes="muted" Margin="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       TextAlignment="Center" TextWrapping="Wrap" />
+                        </Grid>
+                    </Border>
+                    <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <TextBlock Text="点击方式" Classes="muted" VerticalAlignment="Center" />
+                        <ComboBox Grid.Column="1" x:Name="TapMode" SelectedIndex="0" HorizontalAlignment="Stretch"
+                                  AutomationProperties.Name="主控画面点击方式">
+                            <ComboBoxItem Content="单击" />
+                            <ComboBoxItem Content="双击" />
+                            <ComboBoxItem Content="长按" />
+                        </ComboBox>
+                    </Grid>
+                    <TextBlock Grid.Row="3" Classes="muted" Text="点击或拖动主控画面以操作设备" TextWrapping="Wrap" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Classes="panel">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="8">
+                        <TextBlock Classes="heading" Text="设备操作" />
+                        <CheckBox x:Name="SyncEnabled" Content="同步到选中设备" IsCheckedChanged="SyncChanged" />
+                        <TextBlock x:Name="TargetLabel" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Classes="muted" Text="系统" />
+                        <UniformGrid Columns="4">
+                            <Button Content="Home" Tag="Home" Click="ActionClicked" AutomationProperties.Name="返回主屏幕" />
+                            <Button Content="返回" Click="BackClicked" AutomationProperties.Name="从左边缘滑动返回" />
+                            <Button Content="多任务" Tag="AppSwitcher" Click="ActionClicked" />
+                            <Button Content="锁屏" Tag="Lock" Click="ActionClicked" />
+                            <Button Content="解锁" Tag="Unlock" Click="ActionClicked" />
+                            <Button Content="音量+" Tag="VolumeUp" Click="ActionClicked" AutomationProperties.Name="音量加" />
+                            <Button Content="音量-" Tag="VolumeDown" Click="ActionClicked" AutomationProperties.Name="音量减" />
+                        </UniformGrid>
+                        <UniformGrid Columns="4">
+                            <Button Content="↑" Tag="up" Click="SwipeClicked" AutomationProperties.Name="向上滑动" />
+                            <Button Content="↓" Tag="down" Click="SwipeClicked" AutomationProperties.Name="向下滑动" />
+                            <Button Content="←" Tag="left" Click="SwipeClicked" AutomationProperties.Name="向左滑动" />
+                            <Button Content="→" Tag="right" Click="SwipeClicked" AutomationProperties.Name="向右滑动" />
+                        </UniformGrid>
+                        <TextBlock Classes="muted" Text="文本" />
+                        <TextBox x:Name="DeviceTextInput" PlaceholderText="要输入的文字" MaxLength="1000"
+                                 AutomationProperties.Name="要输入的文字" />
+                        <UniformGrid Columns="2">
+                            <Button Content="输入文字" Tag="Text" Click="TextActionClicked" HorizontalAlignment="Stretch" />
+                            <Button Content="写入剪贴板" Tag="Clipboard" Click="TextActionClicked" HorizontalAlignment="Stretch" />
+                        </UniformGrid>
+                        <TextBlock Classes="muted" Text="链接" />
+                        <TextBox x:Name="UrlInput" PlaceholderText="https://… 或 app://…" MaxLength="2000"
+                                 AutomationProperties.Name="要打开的链接" />
+                        <Button Content="打开链接" Click="OpenUrlClicked" HorizontalAlignment="Stretch" />
+                        <TextBlock Classes="muted" Text="应用" />
+                        <TextBox x:Name="LaunchBundleInput" PlaceholderText="目标应用 Bundle ID" MaxLength="160"
+                                 AutomationProperties.Name="目标应用 Bundle ID" />
+                        <UniformGrid Columns="2">
+                            <Button Content="启动应用" Tag="Launch" Click="AppActionClicked" HorizontalAlignment="Stretch" />
+                            <Button Content="关闭应用" Tag="Terminate" Click="AppActionClicked" HorizontalAlignment="Stretch" />
+                        </UniformGrid>
+                        <TextBlock Classes="heading" Text="安装应用" Margin="0,8,0,0" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                            <TextBox x:Name="AppPathInput" PlaceholderText="批准目录内的 .ipa 或 .app"
+                                     AutomationProperties.Name="签名安装包绝对路径" />
+                            <Button Grid.Column="1" Content="选择" Click="BrowsePackageClicked"
+                                    AutomationProperties.Name="选择签名安装包" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                            <Button Classes="primary" Content="安装到选中" Click="InstallClicked"
+                                    HorizontalAlignment="Stretch" />
+                            <Button Grid.Column="1" Content="批准目录" Click="OpenApprovedClicked" />
+                        </Grid>
+                        <TextBlock Classes="heading" Text="WDA 控制通道" Margin="0,8,0,0" />
+                        <TextBox x:Name="WdaBundleInput" PlaceholderText="已安装 Runner 的 Bundle ID" MaxLength="160"
+                                 AutomationProperties.Name="已安装 WDA Runner 的 Bundle ID" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="StartWdaButton" Content="启动通道" Click="StartWdaClicked" />
+                            <Button x:Name="StopWdaButton" Content="停止通道" Click="StopWdaClicked" />
+                        </StackPanel>
+                        <TextBlock x:Name="WdaLog" Classes="muted" TextWrapping="Wrap" MaxLines="5" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Classes="panel">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="18">
+                <Grid RowDefinitions="Auto,*" RowSpacing="6">
+                    <TextBlock Classes="heading" Text="任务记录" />
+                    <ListBox x:Name="JobList" Grid.Row="1" SelectionChanged="JobChanged"
+                             Background="Transparent" AutomationProperties.Name="任务记录">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:JobCard">
+                                <TextBlock Text="{Binding Summary}" TextTrimming="CharacterEllipsis" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+                <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="6">
+                    <TextBlock Classes="heading" Text="执行详情" />
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                        <TextBlock x:Name="JobDetails" TextWrapping="Wrap" Classes="muted" />
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Border>
+        <TextBlock Grid.Row="3" x:Name="StatusLabel" Classes="muted" TextWrapping="Wrap" />
+    </Grid>
+</Window>

@@ -1,0 +1,29 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <SolidColorBrush x:Key="WorkstationBackground" Color="#11151E" />
+        <SolidColorBrush x:Key="WorkstationPanel" Color="#1B2230" />
+        <SolidColorBrush x:Key="WorkstationRule" Color="#343D50" />
+        <SolidColorBrush x:Key="WorkstationMuted" Color="#ADB8CA" />
+        <SolidColorBrush x:Key="WorkstationAccent" Color="#A7A4FF" />
+    </Styles.Resources>
+    <Style Selector="Border.panel">
+        <Setter Property="Background" Value="{StaticResource WorkstationPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource WorkstationRule}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="14" />
+    </Style>
+    <Style Selector="TextBlock.heading">
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{StaticResource WorkstationMuted}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="#6961D2" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+</Styles>

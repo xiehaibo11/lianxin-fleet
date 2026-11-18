@@ -1,0 +1,114 @@
+<Window x:Class="Lianxin.Fleet.Desktop.Views.Main.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="联信 Fleet · Windows 设备工作站" Width="1530" Height="1000" MinWidth="1180" MinHeight="760"
+ Background="#10131B" WindowStartupLocation="CenterScreen" Loaded="WindowLoaded" Closing="WindowClosing">
+ <Window.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
+  <ResourceDictionary Source="../../Resources/Styles.xaml" /><ResourceDictionary Source="../../Resources/DeviceTemplates.xaml" />
+ </ResourceDictionary.MergedDictionaries></ResourceDictionary></Window.Resources>
+ <Grid>
+  <Grid.RowDefinitions><RowDefinition Height="65" /><RowDefinition Height="*" /><RowDefinition Height="34" /></Grid.RowDefinitions>
+  <Grid.ColumnDefinitions><ColumnDefinition Width="190" /><ColumnDefinition Width="*" /><ColumnDefinition Width="340" /></Grid.ColumnDefinitions>
+  <Border Grid.ColumnSpan="3" Background="#171B26" BorderBrush="#2C3245" BorderThickness="0,0,0,1">
+   <DockPanel Margin="22,0"><TextBlock Text="◫  联信 FLEET" FontSize="21" FontWeight="Bold" VerticalAlignment="Center" />
+    <TextBlock Name="EnvironmentLabel" DockPanel.Dock="Right" Foreground="#C0B8FF" VerticalAlignment="Center" TextAlignment="Right" />
+   </DockPanel>
+  </Border>
+  <Border Grid.Row="1" Background="#151924" BorderBrush="#2C3245" BorderThickness="0,0,1,0">
+   <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom">
+     <TextBlock Text="WINDOWS DEVICE HOST" Foreground="#817EAB" FontSize="10" />
+     <TextBlock Text="本机 USB · 独立任务记录" FontSize="11" Foreground="#A5ABC2" Margin="0,8,0,10" />
+     <Button Content="打开应用批准目录" Click="OpenAppsClicked" AutomationProperties.Name="打开应用批准目录" />
+    </StackPanel>
+    <StackPanel>
+     <TextBlock Text="工作空间" Style="{StaticResource SectionTitle}" />
+     <TextBlock Text="设备群控台" FontSize="17" FontWeight="SemiBold" Margin="0,8,0,22" />
+     <TextBlock Text="设备分组" Foreground="#A5ABC2" />
+     <ComboBox Name="GroupFilter" ItemsSource="{Binding Groups}" SelectionChanged="FilterChanged" AutomationProperties.Name="设备分组筛选" />
+     <TextBlock Text="分组名称" Style="{StaticResource SectionTitle}" />
+     <TextBox Name="GroupNameInput" MaxLength="50" AutomationProperties.Name="新的分组名称" />
+     <Button Content="选中设备加入分组" Click="GroupClicked" />
+     <TextBlock Text="同一设备操作依次执行。任务结果待确认时，请核对手机后再操作。" Foreground="#878EA7" FontSize="11" Margin="0,22,0,0" />
+    </StackPanel>
+   </DockPanel>
+  </Border>
+  <Grid Grid.Row="1" Grid.Column="1" Margin="22,18,14,10">
+   <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="205" /></Grid.RowDefinitions>
+   <StackPanel>
+    <TextBlock Text="所有设备，尽在掌握" FontSize="27" FontWeight="SemiBold" />
+    <TextBlock Text="实时投屏墙 · 分组管理 · 同步操作" Foreground="#A5ABC2" Margin="0,7,0,14" />
+    <WrapPanel><Button Content="扫描 USB" Click="DiscoverClicked" Style="{StaticResource Primary}" />
+     <Button Content="登记设备" Click="RegisterClicked" /><Button Content="导出连接配置" Click="ExportClicked" />
+     <Button Name="CastButton" Content="停止投屏" Click="CastClicked" AutomationProperties.Name="开始或停止实时投屏" /></WrapPanel>
+   </StackPanel>
+   <Grid Grid.Row="1" Margin="0,8,0,12">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="140" /></Grid.ColumnDefinitions>
+    <CheckBox Name="SelectVisible" Content="全选当前" IsThreeState="True" Click="SelectVisibleClicked" VerticalAlignment="Center" Margin="0,0,15,0" />
+    <TextBox Name="SearchInput" Grid.Column="1" TextChanged="SearchChanged" AutomationProperties.Name="搜索设备名称或 UDID" Margin="0,0,10,0" ToolTip="搜索设备名称或 UDID" />
+    <ComboBox Name="StateFilter" Grid.Column="2" SelectedIndex="0" SelectionChanged="FilterChanged" Margin="0" AutomationProperties.Name="设备在线状态筛选">
+     <ComboBoxItem Content="全部状态" /><ComboBoxItem Content="可控制" /><ComboBoxItem Content="未连接" />
+    </ComboBox>
+   </Grid>
+   <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <Grid><ItemsControl ItemsSource="{Binding DeviceView}" ItemTemplate="{StaticResource DeviceTemplate}">
+     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+    </ItemsControl><TextBlock Name="EmptyLabel" Text="连接第一台 iPhone：通过 USB 连接并解锁信任，然后扫描设备。" Foreground="#9DA4BE" Margin="15" /></Grid>
+   </ScrollViewer>
+   <DockPanel Grid.Row="3" Margin="0,10,0,0">
+    <TextBlock DockPanel.Dock="Top" Text="最近任务 · 展开查看逐设备结果" Foreground="#B8B5E3" Margin="0,0,0,7" />
+    <ListBox ItemsSource="{Binding Jobs}" ItemTemplate="{StaticResource JobTemplate}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+   </DockPanel>
+  </Grid>
+  <Border Grid.Row="1" Grid.Column="2" Background="#171B26" BorderBrush="#2C3245" BorderThickness="1,0,0,0">
+   <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="17">
+    <TextBlock Text="主控与同步操作" FontSize="16" FontWeight="SemiBold" />
+    <TextBlock Name="MasterLabel" Text="选择一台主控设备" Margin="0,10,0,3" />
+    <TextBlock Name="MasterDetails" Foreground="#969EB9" FontSize="10" Margin="0,0,0,9" />
+    <Border Name="MasterSurface" Height="295" Background="#0B0E15" CornerRadius="9" Focusable="True"
+     MouseLeftButtonDown="ScreenDown" MouseLeftButtonUp="ScreenUp" LostMouseCapture="ScreenLostCapture" KeyDown="ScreenKeyDown"
+     AutomationProperties.Name="主控手机屏幕，点击或拖动操作；回车点击中心">
+     <Grid><Image Name="MasterImage" Stretch="Uniform" /><TextBlock Name="MasterPlaceholder" Text="设备屏幕尚未就绪" Foreground="#9397AF" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" /></Grid>
+    </Border>
+    <DockPanel Margin="0,8,0,0"><TextBlock Text="点击方式" Foreground="#A5ABC2" VerticalAlignment="Center" Margin="0,0,10,0" />
+     <ComboBox Name="ClickMode" SelectedIndex="0" Margin="0" AutomationProperties.Name="主控画面点击方式">
+      <ComboBoxItem Content="单击" /><ComboBoxItem Content="双击" /><ComboBoxItem Content="长按" />
+     </ComboBox>
+    </DockPanel>
+    <CheckBox Name="SyncEnabled" Content="同步到全部选中设备" Margin="0,12,0,5" Checked="SelectionChanged" Unchecked="SelectionChanged" />
+    <TextBlock Name="TargetLabel" Foreground="#A5ABC2" FontSize="10" />
+    <TextBlock Text="系统" Style="{StaticResource SectionTitle}" />
+    <WrapPanel>
+     <Button Content="Home" Tag="Home" Click="CommandClicked" /><Button Content="返回" Tag="Back" Click="CommandClicked" />
+     <Button Content="多任务" Tag="AppSwitcher" Click="CommandClicked" /><Button Content="锁屏" Tag="Lock" Click="CommandClicked" />
+     <Button Content="解锁" Tag="Unlock" Click="CommandClicked" /><Button Content="音量+" Tag="VolumeUp" Click="CommandClicked" AutomationProperties.Name="音量加" />
+     <Button Content="音量-" Tag="VolumeDown" Click="CommandClicked" AutomationProperties.Name="音量减" />
+    </WrapPanel>
+    <WrapPanel>
+     <Button Content="↑" Tag="up" Click="SwipeClicked" AutomationProperties.Name="向上滑动" /><Button Content="↓" Tag="down" Click="SwipeClicked" AutomationProperties.Name="向下滑动" />
+     <Button Content="←" Tag="left" Click="SwipeClicked" AutomationProperties.Name="向左滑动" /><Button Content="→" Tag="right" Click="SwipeClicked" AutomationProperties.Name="向右滑动" />
+    </WrapPanel>
+    <TextBlock Text="文本" Style="{StaticResource SectionTitle}" />
+    <TextBox Name="PhoneTextInput" MaxLength="1000" Height="54" AcceptsReturn="True" TextWrapping="Wrap" AutomationProperties.Name="输入到手机的文字" />
+    <WrapPanel><Button Content="输入文字" Tag="Text" Click="CommandClicked" /><Button Content="写入剪贴板" Tag="Clipboard" Click="CommandClicked" /></WrapPanel>
+    <TextBlock Text="链接" Style="{StaticResource SectionTitle}" />
+    <TextBox Name="UrlInput" MaxLength="2000" AutomationProperties.Name="要在手机上打开的链接" />
+    <WrapPanel><Button Content="打开链接" Tag="OpenUrl" Click="CommandClicked" /></WrapPanel>
+    <TextBlock Text="应用 · Bundle ID" Style="{StaticResource SectionTitle}" />
+    <TextBox Name="BundleInput" MaxLength="160" AutomationProperties.Name="应用的 Bundle ID" />
+    <WrapPanel><Button Content="启动应用" Tag="Launch" Click="CommandClicked" /><Button Content="关闭应用" Tag="Terminate" Click="CommandClicked" /></WrapPanel>
+    <TextBlock Text="安装已签名应用" Style="{StaticResource SectionTitle}" />
+    <TextBox Name="AppPathInput" MaxLength="1000" AutomationProperties.Name="批准目录中的 IPA 或 APP 路径" />
+    <WrapPanel><Button Content="选择 IPA" Click="BrowseAppClicked" /><Button Content="安装到选中设备" Click="InstallClicked" /></WrapPanel>
+    <TextBlock Text="WDA Runner · Bundle ID" Style="{StaticResource SectionTitle}" />
+    <TextBox Name="WdaBundleInput" MaxLength="160" AutomationProperties.Name="已安装 WDA Runner 的 Bundle ID" />
+    <WrapPanel><Button Content="启动通道" Click="StartWdaClicked" /><Button Content="停止通道" Click="StopWdaClicked" /></WrapPanel>
+    <TextBlock Name="WdaLog" Foreground="#949CB7" FontSize="10" MaxHeight="105" Margin="0,4,0,14" />
+    <TextBlock Text="投屏时显示约 5 帧/秒的实时画面；停止投屏后改为每 3 秒快照，最多预览 12 台。同步操作会跳过未连接设备，请保持目标设备的页面与方向一致。开发签名需登记 UDID；企业签名需企业账号。" Foreground="#878FA8" FontSize="10" />
+   </StackPanel></ScrollViewer>
+  </Border>
+  <Border Grid.Row="2" Grid.ColumnSpan="3" Background="#202536">
+   <DockPanel Margin="18,0"><TextBlock Name="StatusLabel" Text="正在初始化…" VerticalAlignment="Center" /><TextBlock Name="CountsLabel" DockPanel.Dock="Right" TextAlignment="Right" Foreground="#B5ACF5" VerticalAlignment="Center" /></DockPanel>
+  </Border>
+ </Grid>
+</Window>

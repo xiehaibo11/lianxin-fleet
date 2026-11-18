@@ -1,0 +1,10 @@
+data/
+node_modules/
+.DS_Store
+*.xcuserstate
+xcuserdata/
+dist/
+**/bin/
+**/obj/
+.vs/
+server-*.txt

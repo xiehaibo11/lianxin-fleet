@@ -1,0 +1,23 @@
+<Project>
+    <UsingTask TaskName="SourceGovernance" TaskFactory="RoslynCodeTaskFactory"
+               AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+        <Task>
+            <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)build/SourceGovernance.cs" />
+        </Task>
+    </UsingTask>
+    <Target Name="ValidateSourceGovernance" BeforeTargets="PrepareForBuild"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+        <SourceGovernance RepositoryRoot="$(MSBuildThisFileDirectory)"
+                          Sources="@(Compile);@(Page);@(ApplicationDefinition);@(AvaloniaXaml);@(EmbeddedResource)" />
+    </Target>
+    <Target Name="ValidateRepositoryGovernance">
+        <ItemGroup>
+            <_GovernedSource Include="$(MSBuildThisFileDirectory)src/**/*.cs;$(MSBuildThisFileDirectory)src/**/*.xaml;$(MSBuildThisFileDirectory)src/**/*.axaml;$(MSBuildThisFileDirectory)src/**/*.sql;$(MSBuildThisFileDirectory)checks/**/*.cs;$(MSBuildThisFileDirectory)ios/**/*.swift;$(MSBuildThisFileDirectory)scripts/**/*.ps1;$(MSBuildThisFileDirectory)scripts/**/*.sh;$(MSBuildThisFileDirectory)build/**/*.cs;$(MSBuildThisFileDirectory)Start*.cmd"
+                             Exclude="$(MSBuildThisFileDirectory)**/bin/**;$(MSBuildThisFileDirectory)**/obj/**" />
+        </ItemGroup>
+        <SourceGovernance RepositoryRoot="$(MSBuildThisFileDirectory)" Sources="@(_GovernedSource)" />
+    </Target>
+    <Target Name="ValidateGovernanceRules">
+        <SourceGovernance RepositoryRoot="$(MSBuildThisFileDirectory)" SelfTest="true" />
+    </Target>
+</Project>

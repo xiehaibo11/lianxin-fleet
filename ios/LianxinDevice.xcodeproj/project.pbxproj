@@ -1,0 +1,70 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+		CE1470000000000000000001 = {isa = PBXProject; buildConfigurationList = CE1470000000000000000002; compatibilityVersion = "Xcode 14.0"; developmentRegion = "zh-Hans"; hasScannedForEncodings = 0; knownRegions = ("zh-Hans", Base); mainGroup = CE1470000000000000000003; productRefGroup = CE1470000000000000000004; projectDirPath = ""; projectRoot = ""; targets = (CE1470000000000000000005); };
+		CE1470000000000000000002 = {isa = XCConfigurationList; buildConfigurations = (CE1470000000000000000006, CE1470000000000000000007); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		CE1470000000000000000003 = {isa = PBXGroup; children = (CE1470000000000000000020, CE1470000000000000000021, CE1470000000000000000022, CE1470000000000000000023, CE1470000000000000000024, CE1470000000000000000004); sourceTree = "<group>"; };
+		CE1470000000000000000004 = {isa = PBXGroup; children = (CE1470000000000000000009); name = Products; sourceTree = "<group>"; };
+		CE1470000000000000000005 = {isa = PBXNativeTarget; buildConfigurationList = CE1470000000000000000010; buildPhases = (CE1470000000000000000011); buildRules = (); dependencies = (); name = LianxinDevice; productName = LianxinDevice; productReference = CE1470000000000000000009; productType = "com.apple.product-type.application"; };
+		CE1470000000000000000006 = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; IPHONEOS_DEPLOYMENT_TARGET = 15.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; }; name = Debug; };
+		CE1470000000000000000007 = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; IPHONEOS_DEPLOYMENT_TARGET = 15.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; }; name = Release; };
+		CE1470000000000000000008 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CE1470000000000000000009 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LianxinDevice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE1470000000000000000010 = {isa = XCConfigurationList; buildConfigurations = (CE1470000000000000000012, CE1470000000000000000013); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		CE1470000000000000000011 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (CE1470000000000000000014, CE1470000000000000000040, CE1470000000000000000041, CE1470000000000000000042, CE1470000000000000000043, CE1470000000000000000044); runOnlyForDeploymentPostprocessing = 0; };
+		CE1470000000000000000012 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "联信设备";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "用于连接同一局域网内的联信服务。";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lianxin.device;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CE1470000000000000000013 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "联信设备";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "用于连接同一局域网内的联信服务。";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lianxin.device;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		CE1470000000000000000014 = {isa = PBXBuildFile; fileRef = CE1470000000000000000008; };
+		CE1470000000000000000020 = {isa = PBXGroup; children = (CE1470000000000000000030); path = App; sourceTree = "<group>"; };
+		CE1470000000000000000030 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LianxinDeviceApp.swift; sourceTree = "<group>"; };
+		CE1470000000000000000040 = {isa = PBXBuildFile; fileRef = CE1470000000000000000030; };
+		CE1470000000000000000021 = {isa = PBXGroup; children = (CE1470000000000000000031); path = Models; sourceTree = "<group>"; };
+		CE1470000000000000000031 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceModels.swift; sourceTree = "<group>"; };
+		CE1470000000000000000041 = {isa = PBXBuildFile; fileRef = CE1470000000000000000031; };
+		CE1470000000000000000022 = {isa = PBXGroup; children = (CE1470000000000000000032); path = Networking; sourceTree = "<group>"; };
+		CE1470000000000000000032 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gateway.swift; sourceTree = "<group>"; };
+		CE1470000000000000000042 = {isa = PBXBuildFile; fileRef = CE1470000000000000000032; };
+		CE1470000000000000000023 = {isa = PBXGroup; children = (CE1470000000000000000033); path = Security; sourceTree = "<group>"; };
+		CE1470000000000000000033 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceKey.swift; sourceTree = "<group>"; };
+		CE1470000000000000000043 = {isa = PBXBuildFile; fileRef = CE1470000000000000000033; };
+		CE1470000000000000000024 = {isa = PBXGroup; children = (CE1470000000000000000008, CE1470000000000000000034); path = Views; sourceTree = "<group>"; };
+		CE1470000000000000000034 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageComposer.swift; sourceTree = "<group>"; };
+		CE1470000000000000000044 = {isa = PBXBuildFile; fileRef = CE1470000000000000000034; };
+	};
+	rootObject = CE1470000000000000000001;
+}

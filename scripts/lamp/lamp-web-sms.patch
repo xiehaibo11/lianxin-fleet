@@ -1,0 +1,115 @@
+diff --git a/.env.production b/.env.production
+index 4bd2e5e..2a9262a 100644
+--- a/.env.production
++++ b/.env.production
+@@ -16,7 +16,9 @@ VITE_BUILD_COMPRESS = 'gzip'
+ VITE_BUILD_COMPRESS_DELETE_ORIGIN_FILE = false
+ 
+ # Basic interface address SPA
+-VITE_GLOB_API_URL=/api
++VITE_GLOB_API_URL=/lamp-api
++VITE_GLOB_APP_TITLE=联信管理后台
++VITE_GLOB_PREVIEW_URL_PREFIX=""
+ 
+ # File upload address， optional
+ # 4.0 不在读取此参数
+diff --git a/src/layouts/default/header/components/user-dropdown/index.vue b/src/layouts/default/header/components/user-dropdown/index.vue
+index 8f19958..ce31a9b 100644
+--- a/src/layouts/default/header/components/user-dropdown/index.vue
++++ b/src/layouts/default/header/components/user-dropdown/index.vue
+@@ -22,19 +22,9 @@
+             icon="ant-design:user-outlined"
+           />
+           <MenuItem
+-            key="vben5demo"
+-            text="体验网址-vben5版"
+-            icon="ant-design:global-outlined"
+-          />
+-          <MenuItem
+-            key="vben2demo"
+-            text="体验网址-vben2版"
+-            icon="ant-design:global-outlined"
+-          />
+-          <MenuItem
+-            key="soybeandemo"
+-            text="体验网址-soybean版"
+-            icon="ant-design:global-outlined"
++            key="sms"
++            text="短信工作台"
++            icon="ant-design:message-outlined"
+           />
+           <MenuDivider v-if="getShowDoc" />
+           <MenuItem
+@@ -90,7 +80,7 @@
+ 
+   import { createAsyncComponent } from '/@/utils/factory/createAsyncComponent';
+ 
+-  type MenuEvent = 'logout' | 'doc' | 'lock' | 'soybeandemo' | 'vben2demo' | 'vben5demo' | 'profile' | 'vbenDoc' | 'registerTenant';
++  type MenuEvent = 'logout' | 'doc' | 'lock' | 'sms' | 'profile' | 'vbenDoc';
+ 
+   export default defineComponent({
+     name: 'UserDropdown',
+@@ -110,6 +100,7 @@
+       const { t } = useI18n();
+       const { getShowDoc, getUseLockPage } = useHeaderSetting();
+       const userStore = useUserStore();
++      const { createMessage } = useMessage();
+       const { replace } = useRouter();
+       const avatarUrl = ref<string>('');
+ 
+@@ -152,6 +143,38 @@
+         });
+       }
+ 
++      let openingSms = false;
++      async function openSms() {
++        const token = userStore.getToken;
++        if (!token) {
++          createMessage.error('请先登录管理后台。');
++          return;
++        }
++        if (openingSms) return;
++        openingSms = true;
++        try {
++          const response = await fetch('/portal/lamp-session', {
++            method: 'POST',
++            credentials: 'same-origin',
++            redirect: 'error',
++            headers: { Token: token },
++          });
++          if (response.status === 204) {
++            window.location.assign('/sms');
++          } else if (response.status === 401) {
++            createMessage.error('登录已失效，请重新登录。');
++          } else if (response.status === 403) {
++            createMessage.error('当前账号未开通短信权限。');
++          } else {
++            createMessage.error('短信工作台暂不可用，请稍后重试。');
++          }
++        } catch {
++          createMessage.error('短信工作台暂不可用，请稍后重试。');
++        } finally {
++          openingSms = false;
++        }
++      }
++
+       function handleMenuClick(e: MenuInfo) {
+         switch (e.key as MenuEvent) {
+           case 'profile':
+@@ -163,14 +186,8 @@
+           case 'doc':
+             openDoc(true);
+             break;
+-          case 'soybeandemo':
+-            openWindow('https://soy-datasource.tangyh.top');
+-            break;
+-          case 'vben2demo':
+-            openWindow('https://none.tangyh.top');
+-            break;
+-          case 'vben5demo':
+-            openWindow('https://max-datasource.tangyh.top');
++          case 'sms':
++            void openSms();
+             break;
+           case 'vbenDoc':
+             openDoc(false);
