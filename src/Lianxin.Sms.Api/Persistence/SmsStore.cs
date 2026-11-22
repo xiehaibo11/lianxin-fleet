@@ -48,8 +48,7 @@ internal sealed partial class SmsStore : IDisposable
             {
                 if (configured is not null || One("SELECT 1 FROM users LIMIT 1") is not null)
                     throw new InvalidOperationException("Database mode does not match the selected environment.");
-                var password = Credentials.Password(Demo ? "Demo-lianxin-2026"
-                    : options.LampInternalOrigin is null ? options.AdminPassword : Credentials.Token());
+                var password = Credentials.Password(Demo ? "Demo-lianxin-2026" : options.AdminPassword);
                 Atomic(() =>
                 {
                     Run("INSERT INTO app_config VALUES(1,$p0)", mode);

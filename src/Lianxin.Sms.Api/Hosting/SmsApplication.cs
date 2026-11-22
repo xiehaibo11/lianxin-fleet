@@ -2,7 +2,6 @@ using System.Text.Json;
 using Lianxin.Sms.Api.Persistence;
 using Lianxin.Sms.Api.Protocol;
 using Lianxin.Sms.Api.Routing;
-using Lianxin.Sms.Api.Security;
 using Lianxin.Sms.Api.Validation;
 using Microsoft.AspNetCore.HttpOverrides;
 
@@ -16,12 +15,10 @@ public static class SmsApplication
         var suppliedPath = Value(args, "--db-path") ?? Environment.GetEnvironmentVariable("DB_PATH");
         options ??= new(suppliedPath ?? (demo ? "data/sms-demo-native.sqlite" : "data/sms-native.sqlite"), demo,
             Environment.GetEnvironmentVariable("ADMIN_PASSWORD"), Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? "admin@lianxin.local",
-            Environment.GetEnvironmentVariable("PUBLIC_ORIGIN"), Environment.GetEnvironmentVariable("LAMP_INTERNAL_ORIGIN"),
-            LampSessions.TryId(Environment.GetEnvironmentVariable("LAMP_ADMIN_USER_ID"), out var lampAdmin) ? lampAdmin : null);
+            Environment.GetEnvironmentVariable("PUBLIC_ORIGIN"));
         if (options.PublicOrigin is { } origin && (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)
             || uri.Scheme != "https" || uri.GetLeftPart(UriPartial.Authority) != origin))
             throw new ArgumentException("PUBLIC_ORIGIN must be an HTTPS origin without a trailing slash.");
-        LampSessions.ValidateOptions(options);
         var builder = WebApplication.CreateSlimBuilder(new WebApplicationOptions { Args = [] });
         builder.Logging.ClearProviders();
         builder.WebHost.ConfigureKestrel(server => server.Limits.MaxRequestBodySize = 40_000);
@@ -33,13 +30,10 @@ public static class SmsApplication
         builder.Services.Configure<ForwardedHeadersOptions>(forwarded => forwarded.ForwardedHeaders = ForwardedHeaders.XForwardedFor);
         builder.Services.AddSingleton(options);
         builder.Services.AddSingleton<SmsStore>();
-        if (options.LampInternalOrigin is not null)
-            builder.Services.AddSingleton<LampSessions>();
         builder.Services.AddHostedService<SmsTicker>();
         var app = builder.Build();
         var store = app.Services.GetRequiredService<SmsStore>();
-        var lamp = app.Services.GetService<LampSessions>();
-        var router = new SmsRouter(store, options, lamp);
+        var router = new SmsRouter(store, options);
         app.UseForwardedHeaders();
         app.Run(async context =>
         {
@@ -63,35 +57,6 @@ public static class SmsApplication
                 if (HttpMethods.IsPost(context.Request.Method))
                     InputValidation.Require(!context.Request.Headers.ContainsKey("Origin")
                     || context.Request.Headers.Origin == expectedOrigin, 403, "请求来源无效。");
-                if (lamp is not null)
-                {
-                    if (route == "/portal/lamp-session")
-                    {
-                        InputValidation.Require(HttpMethods.IsPost(context.Request.Method), 405, "请求方法无效。");
-                        var id = await lamp.ExchangeIdentity(context, expectedOrigin);
-                        InputValidation.Require(store.Use(() => router.LampAccountFor(id)) is not null, 403, "此灯灯账号尚未获分配短信权限。");
-                        lamp.Issue(context);
-                        context.Response.StatusCode = StatusCodes.Status204NoContent;
-                        return;
-                    }
-                    if (route is "/api/login" or "/portal/login")
-                        throw new HttpFailure(401, "请通过灯灯管理系统登录。");
-                    if (!route.StartsWith("/api/device/", StringComparison.Ordinal) && route != "/api/config")
-                        await lamp.LoadIdentity(context);
-                }
-                if (route is "/" or "/sms" || route.StartsWith("/portal/", StringComparison.Ordinal))
-                {
-                    context.Response.Headers["Referrer-Policy"] = "same-origin";
-                    IFormCollection? form = null;
-                    if (HttpMethods.IsPost(context.Request.Method))
-                    {
-                        InputValidation.Require(context.Request.ContentType?.Split(';')[0] == "application/x-www-form-urlencoded", 415, "请从工作台提交表单。");
-                        form = await context.Request.ReadFormAsync(context.RequestAborted);
-                    }
-                    var page = store.Use(() => router.Portal(context, expectedOrigin, form));
-                    await page.ExecuteAsync(context);
-                    return;
-                }
                 InputValidation.Require(route.StartsWith("/api/", StringComparison.Ordinal), 404, "接口不存在。");
                 var data = HttpMethods.IsPost(context.Request.Method) ? await ReadJson(context.Request) : default;
                 var result = store.Use(() => router.Handle(context, data, expectedOrigin));

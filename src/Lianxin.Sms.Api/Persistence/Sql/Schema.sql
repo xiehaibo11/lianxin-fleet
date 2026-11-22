@@ -22,10 +22,6 @@ CREATE TABLE IF NOT EXISTS sessions (
   user_id INTEGER NOT NULL REFERENCES users(id),
   expires_at INTEGER NOT NULL
 );
-CREATE TABLE IF NOT EXISTS lamp_user_links (
-  lamp_user_id INTEGER PRIMARY KEY CHECK(lamp_user_id > 0),
-  sms_user_id INTEGER NOT NULL UNIQUE REFERENCES users(id)
-);
 CREATE TABLE IF NOT EXISTS devices (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,

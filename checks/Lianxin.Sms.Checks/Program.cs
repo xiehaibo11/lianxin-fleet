@@ -12,9 +12,7 @@ internal static class Program
             ("设备任务领取、回信归属、原设备续发和失败幂等退款", GatewayChecks.Run),
             ("旧版 scrypt 密码、SHA256 设备凭据和会话兼容", CompatibilityChecks.Run),
             ("请求来源、JSON 媒体类型和请求大小边界", BoundaryChecks.Run),
-            ("反向代理转发地址与登录限流按真实客户端计数", ProxyChecks.Run),
-            ("浏览器登录、租户手机隔离和单机短信", PortalChecks.Run),
-            ("灯灯会话、显式用户绑定与短信设备兼容", LampChecks.Run)
+            ("反向代理转发地址与登录限流按真实客户端计数", ProxyChecks.Run)
         };
         var failed = 0;
         foreach (var check in checks)

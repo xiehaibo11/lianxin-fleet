@@ -61,8 +61,7 @@ internal sealed partial class SmsRouter
         {
             var name = InputValidation.Text(data.String("name"), 50, "用户名");
             var email = InputValidation.Email(data.String("email"));
-            var lampUserId = lamp is null ? (long?)null : LampSessions.ReadId(data, "lampUserId");
-            var password = Credentials.Password(lampUserId is null ? data.String("password") : Credentials.Token());
+            var password = Credentials.Password(data.String("password"));
             var quota = data.Integer("quota", 0, 1_000_000);
             return Results.Json(store.Atomic(() =>
             {
@@ -76,8 +75,6 @@ internal sealed partial class SmsRouter
                 else
                     tenant = store.Insert("INSERT INTO tenants(name) VALUES($p0)", InputValidation.Text(data.String("tenant"), 60, "租户名称"));
                 var id = store.Insert("INSERT INTO users(tenant_id,email,name,password) VALUES($p0,$p1,$p2,$p3)", tenant, email, name, password);
-                if (lampUserId is long external)
-                    LinkLampUser(external, id);
                 if (quota != 0)
                     store.Quota(id, quota, "initial");
                 return new
@@ -85,14 +82,6 @@ internal sealed partial class SmsRouter
                     id
                 };
             }), statusCode: 201);
-        }
-        if (post && route == "/api/admin/lamp-link" && lamp is not null)
-        {
-            LinkLampUser(LampSessions.ReadId(data, "lampUserId"), data.Integer("id"));
-            return Results.Json(new
-            {
-                ok = true
-            });
         }
         if (post && route == "/api/admin/quota")
         {
@@ -118,18 +107,6 @@ internal sealed partial class SmsRouter
             });
         }
         throw new HttpFailure(404, "接口不存在。");
-    }
-
-    private void LinkLampUser(long lampUserId, long smsUserId)
-    {
-        InputValidation.Require(lampUserId != options.LampAdminUserId, 409, "灯灯平台管理员不能绑定为租户成员。");
-        InputValidation.Require(store.One("SELECT 1 FROM users WHERE id=$p0 AND tenant_id IS NOT NULL",
-            smsUserId) is not null, 404, "短信成员不存在。");
-        InputValidation.Require(store.One("""
-            SELECT 1 FROM lamp_user_links WHERE (lamp_user_id=$p0 OR sms_user_id=$p1)
-            AND NOT (lamp_user_id=$p0 AND sms_user_id=$p1)
-            """, lampUserId, smsUserId) is null, 409, "该灯灯账号或短信成员已与其他账号绑定。");
-        store.Run("INSERT OR IGNORE INTO lamp_user_links(lamp_user_id,sms_user_id) VALUES($p0,$p1)", lampUserId, smsUserId);
     }
 
     private (long Id, string Token) RegisterPhone(JsonElement data)

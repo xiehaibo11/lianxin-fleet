@@ -81,15 +81,6 @@ internal sealed class HttpFixture : IAsyncDisposable
 
 internal sealed class ApiClient(HttpClient http)
 {
-    public async Task<string> Portal(string path, int expected = 200, Dictionary<string, string>? fields = null)
-    {
-        using var data = fields is null ? null : new FormUrlEncodedContent(fields);
-        using var response = data is null ? await http.GetAsync(path) : await http.PostAsync(path, data);
-        var content = await response.Content.ReadAsStringAsync();
-        Assert.True((int)response.StatusCode == expected, $"{path}: expected HTTP {expected}, got {(int)response.StatusCode}");
-        return content;
-    }
-
     public async Task Raw(string path, HttpMethod method, string content, string mediaType, int expected)
     {
         using var request = new HttpRequestMessage(method, "/api" + path)

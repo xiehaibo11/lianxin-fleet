@@ -7,7 +7,7 @@ using Lianxin.Sms.Api.Validation;
 
 namespace Lianxin.Sms.Api.Routing;
 
-internal sealed partial class SmsRouter(SmsStore store, SmsOptions options, LampSessions? lamp)
+internal sealed partial class SmsRouter(SmsStore store, SmsOptions options)
 {
     private readonly Dictionary<string, (int Count, long Until)> attempts = [];
     private readonly string placeholder = Credentials.Password(Credentials.Token());
@@ -28,7 +28,7 @@ internal sealed partial class SmsRouter(SmsStore store, SmsOptions options, Lamp
             return Login(context, data, origin, session);
         if (post && route.StartsWith("/api/device/", StringComparison.Ordinal))
             return Device(context, route, data);
-        var user = AccountFor(context, session);
+        var user = AccountFor(session);
         InputValidation.Require(user is not null, 401, "请先登录。");
         if (get && route == "/api/me")
             return Results.Json(new
@@ -58,33 +58,16 @@ internal sealed partial class SmsRouter(SmsStore store, SmsOptions options, Lamp
         InputValidation.Require(user!["tenantId"] is not null, 403, "请使用租户账号进入短信工作台。");
         return User(context.Request, route, data, user);
     }
-    private Dictionary<string, object?>? AccountFor(HttpContext context, string? session)
+    private Dictionary<string, object?>? AccountFor(string? session)
     {
-        if (lamp is not null)
-            return LampSessions.UserId(context) is long id ? LampAccountFor(id) : null;
         return session is not null && Regex.IsMatch(session, "^[\\w-]{43}$") ? store.One("""
             SELECT u.id,u.name,u.email,u.quota,u.tenant_id AS tenantId,t.name AS tenant FROM sessions s
             JOIN users u ON u.id=s.user_id LEFT JOIN tenants t ON t.id=u.tenant_id WHERE s.token=$p0 AND s.expires_at>$p1
             """, Credentials.Hash(session), SmsStore.Now) : null;
     }
 
-    public Dictionary<string, object?>? LampAccountFor(long id) => id == options.LampAdminUserId
-        ? store.One("""
-            SELECT id,name,email,quota,tenant_id AS tenantId,NULL AS tenant FROM users
-            WHERE email=$p0 AND tenant_id IS NULL
-            """, InputValidation.Email(options.AdminEmail))
-        : store.One("""
-            SELECT u.id,u.name,u.email,u.quota,u.tenant_id AS tenantId,t.name AS tenant FROM lamp_user_links l
-            JOIN users u ON u.id=l.sms_user_id JOIN tenants t ON t.id=u.tenant_id WHERE l.lamp_user_id=$p0
-            """, id);
-
     private void Logout(HttpContext context, string origin, string session)
     {
-        if (lamp is not null)
-        {
-            lamp.Logout(context);
-            return;
-        }
         store.Run("DELETE FROM sessions WHERE token=$p0", Credentials.Hash(session));
         SetCookie(context, "", origin, TimeSpan.Zero);
     }
