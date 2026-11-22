@@ -10,11 +10,17 @@ public enum JobState
     Queued, Running, Succeeded, Partial, Failed, Unknown, Cancelled
 }
 public sealed record FleetDevice(long Id, string Name, string Udid, int WdaPort,
-    string GroupName = "未分组", int Width = 390, int Height = 844, DateTimeOffset? LastSeen = null);
-public sealed record DiscoveredDevice(string Udid, string Name);
+    string GroupName = "未分组", int Width = 390, int Height = 844, DateTimeOffset? LastSeen = null,
+    string? Alias = null, string? Ecid = null, string? ProductType = null, string? OsVersion = null)
+{
+    public string DisplayName => string.IsNullOrWhiteSpace(Alias) ? Name : Alias;
+}
+public sealed record DiscoveredDevice(string Udid, string Name, string? Ecid = null, string? ProductType = null,
+    string? OsVersion = null, string ConnectionType = "USB");
 public sealed record DeviceStatus(bool Online, int Width = 390, int Height = 844,
     string DeviceName = "", string? Error = null);
-public sealed record DeviceSnapshot(FleetDevice Device, DeviceStatus Status);
+public sealed record DeviceSnapshot(FleetDevice Device, DeviceStatus Status, bool? UsbConnected = null,
+    bool? NetworkConnected = null);
 public sealed record FleetSnapshot(IReadOnlyList<DeviceSnapshot> Devices, IReadOnlyList<FleetJob> Jobs);
 public sealed record ActionParameters(double? X = null, double? Y = null,
     double? FromX = null, double? FromY = null, double? ToX = null, double? ToY = null,

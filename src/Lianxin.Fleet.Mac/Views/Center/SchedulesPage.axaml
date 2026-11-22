@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Lianxin.Fleet.Mac.ViewModels"
+             x:Class="Lianxin.Fleet.Mac.Views.Center.SchedulesPage">
+    <DockPanel Margin="16,12">
+        <StackPanel DockPanel.Dock="Top" Spacing="4">
+            <TextBlock Text="定时任务" Classes="title" />
+            <TextBlock Classes="muted" FontSize="13" TextWrapping="Wrap" Margin="0,2,0,8"
+                       Text="到点后按本机时间对目标设备运行脚本。只在中控运行期间生效；中控关闭期间错过的任务不会补跑。目标设备需要已启动自动化。" />
+            <WrapPanel Classes="toolbar">
+                <Button Content="新建" Classes="primary" Click="AddClicked" />
+                <Button Content="编辑" Click="EditClicked" />
+                <Button Content="启用 / 停用" Click="ToggleClicked" />
+                <Button Content="立即运行一次" Click="RunNowClicked" />
+                <Button Content="删除" Click="DeleteClicked" />
+            </WrapPanel>
+            <TextBlock x:Name="LastLabel" Foreground="#B8B5E3" Margin="0,0,0,8" TextWrapping="Wrap" />
+        </StackPanel>
+        <DataGrid x:Name="ScheduleGrid" x:DataType="vm:ScheduleItem" IsReadOnly="True" SelectionMode="Single"
+                  DoubleTapped="EditClicked" AutomationProperties.Name="定时任务列表">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="180" />
+                <DataGridTextColumn Header="脚本" Binding="{Binding ScriptName}" Width="160" />
+                <DataGridTextColumn Header="目标" Binding="{Binding Target}" Width="160" />
+                <DataGridTextColumn Header="规则" Binding="{Binding Rule}" Width="*" />
+                <DataGridTextColumn Header="状态" Binding="{Binding Enabled}" Width="70" />
+                <DataGridTextColumn Header="上次运行" Binding="{Binding LastRun}" Width="120" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

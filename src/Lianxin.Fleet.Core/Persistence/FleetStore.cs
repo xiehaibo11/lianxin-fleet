@@ -53,6 +53,7 @@ public sealed partial class FleetStore : IDisposable
                 // 演示模式已移除；旧版演示库只含模拟设备，拒绝打开以免当成真机数据。
                 throw new InvalidOperationException("这是旧版演示数据库，不能用于真机。");
             }
+            Migrate();
         }
         catch
         {
@@ -114,7 +115,7 @@ public sealed partial class FleetStore : IDisposable
     {
         lock (gate)
         {
-            using var command = Command("SELECT id,name,udid,wda_port,group_name,width,height,last_seen FROM native_devices ORDER BY id");
+            using var command = Command($"SELECT {DeviceColumns} FROM native_devices ORDER BY id");
             using var reader = command.ExecuteReader();
             var devices = new List<FleetDevice>();
             while (reader.Read())
@@ -128,14 +129,17 @@ public sealed partial class FleetStore : IDisposable
             throw new ArgumentException("设备编号无效。");
         lock (gate)
         {
-            using var command = Command("SELECT id,name,udid,wda_port,group_name,width,height,last_seen FROM native_devices WHERE id=$p0", id);
+            using var command = Command($"SELECT {DeviceColumns} FROM native_devices WHERE id=$p0", id);
             using var reader = command.ExecuteReader();
             return reader.Read() ? ReadDevice(reader) : throw new KeyNotFoundException("设备不存在。");
         }
     }
+    private const string DeviceColumns = "id,name,udid,wda_port,group_name,width,height,last_seen,alias,ecid,product_type,os_version";
     private static FleetDevice ReadDevice(SqliteDataReader reader) => new(reader.GetInt64(0), reader.GetString(1),
         reader.GetString(2), reader.GetInt32(3), reader.GetString(4), reader.GetInt32(5), reader.GetInt32(6),
-        reader.IsDBNull(7) ? null : DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(7)));
+        reader.IsDBNull(7) ? null : DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(7)),
+        Optional(reader, 8), Optional(reader, 9), Optional(reader, 10), Optional(reader, 11));
+    private static string? Optional(SqliteDataReader reader, int index) => reader.IsDBNull(index) ? null : reader.GetString(index);
 
     public FleetDevice RegisterDevice(string name, string udid, int wdaPort, string groupName = "未分组")
     {

@@ -19,16 +19,17 @@
 | Fleet.Core / Validation | 输入、坐标和安装目录校验 |
 | Fleet.Core / Infrastructure | USB 工具与受控子进程 |
 | Fleet.Core / Serialization | 序列化约定 |
-| Fleet.Mac / Views | macOS Avalonia 窗口及其代码后置 |
-| Fleet.Mac / ViewModels | 设备和任务显示状态 |
-| Fleet.Mac / Interaction | 命令与屏幕坐标换算 |
+| Fleet.Core / Agents | AI 助手：模型请求、看屏与操作循环 |
+| Fleet.Mac / Views | macOS Avalonia 窗口、标签页、对话框及其代码后置 |
+| Fleet.Mac / ViewModels | 设备、脚本、定时任务和任务显示状态 |
+| Fleet.Mac / Interaction | 命令、屏幕坐标换算、AI 截图缩放与本机密钥保存 |
 | Fleet.Mac / Resources | Avalonia 样式与模板 |
 | Fleet.Cli / Commands | 命令行参数 |
 | Fleet.Cli / Signing | iOS 描述文件与签名导出 |
 | Fleet.Cli / Properties | 程序集元数据 |
 | Fleet.Desktop / Views | 原生窗口及其代码后置 |
 | Fleet.Desktop / ViewModels | 设备和任务显示状态 |
-| Fleet.Desktop / Interaction | 命令与屏幕坐标换算 |
+| Fleet.Desktop / Interaction | 命令、屏幕坐标换算、AI 截图缩放与本机密钥保护 |
 | Fleet.Desktop / Resources | WPF 样式与模板 |
 | Sms.Api / Hosting | 启动、配置和定时任务 |
 | Sms.Api / Routing | 认证、管理员、设备和用户协议路由 |

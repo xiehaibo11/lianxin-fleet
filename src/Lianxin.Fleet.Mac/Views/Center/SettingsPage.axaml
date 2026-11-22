@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Lianxin.Fleet.Mac.Views.Center.SettingsPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16,12" MaxWidth="760" HorizontalAlignment="Left" Spacing="4">
+            <TextBlock Text="设置" Classes="title" />
+            <TextBlock Text="设备工具" Classes="section" />
+            <TextBlock Classes="muted" FontSize="13" TextWrapping="Wrap"
+                       Text="安装了 pymobiledevice3 的 Python（例如 /opt/homebrew/bin/python3）。从访达启动时不会读取终端里的 PATH，请填写完整路径。留空时使用环境变量 PYTHON_PATH 或 python3。修改后重启中控生效。" />
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox x:Name="PythonInput" AutomationProperties.Name="Python 路径" />
+                <Button Grid.Column="1" Content="选择…" Click="BrowsePythonClicked" Margin="8,0,0,0" />
+            </Grid>
+            <TextBlock x:Name="PythonStatus" Classes="muted" FontSize="11" />
+            <TextBlock Text="WDA Runner Bundle ID" Classes="section" />
+            <TextBox x:Name="BundleInput" MaxLength="160" AutomationProperties.Name="WDA Runner Bundle ID" />
+            <TextBlock Text="WDA 安装包（一键配置时安装，必须在应用批准目录内）" Classes="section" />
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox x:Name="PackageInput" AutomationProperties.Name="WDA 安装包" />
+                <Button Grid.Column="1" Content="选择…" Click="BrowsePackageClicked" Margin="8,0,0,0" />
+            </Grid>
+            <TextBlock Text="目录" Classes="section" />
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox x:Name="AppsLabel" IsReadOnly="True" ToolTip.Tip="应用批准目录" AutomationProperties.Name="应用批准目录" />
+                <Button Grid.Column="1" Content="打开" Click="OpenAppsClicked" Margin="8,0,0,0" />
+            </Grid>
+            <TextBox x:Name="DataLabel" IsReadOnly="True" ToolTip.Tip="数据目录" AutomationProperties.Name="数据目录" />
+            <TextBlock Text="AI 助手" Classes="section" />
+            <TextBlock Classes="muted" FontSize="13" TextWrapping="Wrap"
+                       Text="Anthropic API 密钥只保存在本机数据目录的 agent-key 文件里，只有当前 macOS 用户可读。也可以不填，改用环境变量 ANTHROPIC_API_KEY 或 ant auth login 登录。" />
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox x:Name="KeyInput" PasswordChar="●" PlaceholderText="留空表示不修改已保存的密钥"
+                         AutomationProperties.Name="Anthropic API 密钥" />
+                <Button Grid.Column="1" Content="清除密钥" Click="ClearKeyClicked" Margin="8,0,0,0" />
+            </Grid>
+            <TextBlock x:Name="KeyStatus" Classes="muted" FontSize="11" />
+            <WrapPanel Margin="0,6,0,0">
+                <StackPanel Margin="0,0,16,0" Spacing="4">
+                    <TextBlock Text="模型" Foreground="#C9CDE0" />
+                    <ComboBox x:Name="ModelInput" Width="220" AutomationProperties.Name="模型">
+                        <ComboBoxItem Content="claude-opus-5-5" />
+                        <ComboBoxItem Content="claude-sonnet-5-5" />
+                        <ComboBoxItem Content="claude-haiku-5-5" />
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="最多轮数（1–200）" Foreground="#C9CDE0" />
+                    <TextBox x:Name="StepsInput" Width="100" AutomationProperties.Name="最多轮数" />
+                </StackPanel>
+            </WrapPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
+                <Button Content="保存设置" Classes="primary" Click="SaveClicked" />
+                <TextBlock x:Name="SaveStatus" VerticalAlignment="Center" Foreground="#B8B5E3" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

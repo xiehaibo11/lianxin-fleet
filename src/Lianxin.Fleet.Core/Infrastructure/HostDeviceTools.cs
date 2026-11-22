@@ -4,8 +4,35 @@ using Lianxin.Fleet.Core.Domain;
 
 namespace Lianxin.Fleet.Core.Infrastructure;
 
-internal sealed class HostDeviceTools(string? pythonPath, string platform, IProcessRunner runner)
+internal sealed partial class HostDeviceTools(string? pythonPath, string platform, IProcessRunner runner)
 {
+    private const int MaxScreenshotBytes = 24 * 1024 * 1024;
+    private const string CaptureUsbScreenshot = """
+        import asyncio
+        import sys
+        import tempfile
+        from pathlib import Path
+
+        from pymobiledevice3.exceptions import PyMobileDevice3Exception
+        from pymobiledevice3.lockdown import create_using_usbmux
+        from pymobiledevice3.services.screenshot import ScreenshotService
+
+        async def capture(serial, output):
+            async with await create_using_usbmux(serial=serial, connection_type="USB", autopair=False) as lockdown:
+                if not lockdown.paired:
+                    raise SystemExit("请先在 iPhone 上信任此电脑。")
+                async with ScreenshotService(lockdown) as service:
+                    data = await service.take_screenshot()
+                output.write_bytes(data)
+
+        output = Path(sys.argv[2])
+        tempfile.tempdir = str(output.parent)
+        try:
+            asyncio.run(capture(sys.argv[1], output))
+        except PyMobileDevice3Exception as error:
+            raise SystemExit(f"{type(error).__name__}: {error}") from None
+        """;
+
     private readonly string python = pythonPath ?? Environment.GetEnvironmentVariable("PYTHON_PATH")
         ?? (platform == "win32" ? "python" : "python3");
 
@@ -34,10 +61,11 @@ internal sealed class HostDeviceTools(string? pythonPath, string platform, IProc
         using var json = JsonDocument.Parse(output.StandardOutput);
         if (json.RootElement.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("设备工具未返回 JSON 数组。");
-        return json.RootElement.EnumerateArray().Where(item => String(item, "DeviceClass") is "iPhone" or "iPad")
+        var devices = json.RootElement.EnumerateArray().Where(item => String(item, "DeviceClass") is "iPhone" or "iPad")
             .Select(item => new DiscoveredDevice(String(item, "UniqueDeviceID") ?? String(item, "Identifier") ?? "",
-                String(item, "DeviceName") ?? "iPhone"))
+                String(item, "DeviceName") ?? "iPhone", null, String(item, "ProductType"), String(item, "ProductVersion")))
             .Where(device => DeviceBridge.ValidUdid(device.Udid)).DistinctBy(device => device.Udid).ToArray();
+        return await EnrichAsync(devices, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<IReadOnlyList<DiscoveredDevice>> DiscoverDevicectlAsync(CancellationToken cancellationToken)
@@ -62,16 +90,62 @@ internal sealed class HostDeviceTools(string? pythonPath, string platform, IProc
         await PythonAsync(["apps", "install", "--udid", device.Udid, appPath], true, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<byte[]> GetUsbScreenshotAsync(string udid, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var directory = Directory.CreateTempSubdirectory("lianxin-usb-frame-");
+        var output = Path.Combine(directory.FullName, "frame");
+        try
+        {
+            // Use the same screenshot service as the CLI, with explicit USB transport and existing trust only.
+            var result = await runner.RunAsync(python, ["-c", CaptureUsbScreenshot, udid, output],
+                TimeSpan.FromSeconds(15), cancellationToken).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (result.ExitCode != 0)
+                throw new DeviceOperationException("USB 画面获取失败，请检查 Python、USB 信任及开发者磁盘映像。"
+                    + Short(result.StandardError.Trim()));
+            using var input = File.OpenRead(output);
+            var length = input.Length;
+            if (length is < 8 or > MaxScreenshotBytes)
+                throw new InvalidDataException("USB 截图大小无效。");
+            var image = new byte[(int)length];
+            await input.ReadExactlyAsync(image, cancellationToken).ConfigureAwait(false);
+            if (!IsScreenshot(image))
+                throw new InvalidDataException("USB 截图格式无效。");
+            return image;
+        }
+        catch (ProcessRunException error)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new DeviceOperationException(error.Message, false, error);
+        }
+        finally
+        {
+            try
+            {
+                directory.Delete(recursive: true);
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+        }
+    }
+
+    private static bool IsScreenshot(ReadOnlySpan<byte> image) =>
+        image.StartsWith(new byte[] { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a })
+        || image.StartsWith(new byte[] { 0xff, 0xd8, 0xff })
+        || image.StartsWith("II*\0"u8) || image.StartsWith("MM\0*"u8);
+
     private bool AbsolutePath(string path) => platform == "win32"
         ? System.Text.RegularExpressions.Regex.IsMatch(path, @"^(?:[A-Za-z]:[\\/]|\\\\[^\\]+\\[^\\]+)")
-        : Path.IsPathFullyQualified(path);
+        : path.StartsWith('/');
 
-    private async Task<ProcessResult> PythonAsync(string[] arguments, bool installing, CancellationToken cancellationToken)
+    // installing：中断时操作可能已在手机上生效，结果标为待确认。
+    private async Task<ProcessResult> PythonAsync(string[] arguments, bool installing, CancellationToken cancellationToken,
+        TimeSpan? timeout = null)
     {
         try
         {
             var result = await runner.RunAsync(python, ["-m", "pymobiledevice3", "--no-color", .. arguments],
-                TimeSpan.FromSeconds(installing ? 125 : 15), cancellationToken).ConfigureAwait(false);
+                timeout ?? TimeSpan.FromSeconds(installing ? 125 : 15), cancellationToken).ConfigureAwait(false);
             if (result.ExitCode != 0)
                 throw new DeviceOperationException("设备工具拒绝操作，请检查驱动、USB 信任、签名及设备状态。"
                 + Short(result.StandardError));

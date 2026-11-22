@@ -48,7 +48,7 @@ public sealed partial class DeviceBridge
             FleetAction.Tap => ("/wda/tap", new { x = X(p.X), y = Y(p.Y) }, true),
             FleetAction.DoubleTap => ("/wda/doubleTap", new { x = X(p.X), y = Y(p.Y) }, true),
             FleetAction.LongPress => ("/wda/touchAndHold", new { x = X(p.X), y = Y(p.Y), duration = p.Duration }, true),
-            FleetAction.Swipe => ("/wda/dragfromtoforduration", new { fromX = X(p.FromX), fromY = Y(p.FromY), toX = X(p.ToX), toY = Y(p.ToY), duration = p.Duration }, true),
+            FleetAction.Swipe => ("/actions", SwipeGesture(X(p.FromX), Y(p.FromY), X(p.ToX), Y(p.ToY), p.Duration), true),
             // shortcut: 从底边上滑后停住以打开多任务，参数未在真机校准；若打开的是主屏，调大 holdDuration 或降低 velocity。
             FleetAction.AppSwitcher => ("/wda/pressAndDragWithVelocity", new { fromX = X(.5), fromY = Y(1), toX = X(.5), toY = Y(.6), pressDuration = .05, holdDuration = .8, velocity = 1000 }, true),
             FleetAction.Text => ("/wda/keys", new { value = new[] { p.Text } }, true),
@@ -59,5 +59,18 @@ public sealed partial class DeviceBridge
             FleetAction.VolumeDown => ("/wda/pressButton", new { name = "volumeDown" }, true),
             _ => throw new ArgumentException("不支持此设备动作。")
         };
+    }
+
+    private static object SwipeGesture(int fromX, int fromY, int toX, int toY, double seconds)
+    {
+        // The move takes the requested time. Keeping a finger pressed at the start can trigger iOS long-press.
+        object[] steps =
+        [
+            new { type = "pointerMove", origin = "viewport", duration = 0, x = fromX, y = fromY },
+            new { type = "pointerDown", button = 0 },
+            new { type = "pointerMove", origin = "viewport", duration = (int)Math.Round(seconds * 1000), x = toX, y = toY },
+            new { type = "pointerUp", button = 0 }
+        ];
+        return new { actions = new[] { new { type = "pointer", id = "finger", parameters = new { pointerType = "touch" }, actions = steps } } };
     }
 }

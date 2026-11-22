@@ -3,6 +3,7 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Anthropic" Version="13.12.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.15" />
     <InternalsVisibleTo Include="Lianxin.Fleet.Checks" />
   </ItemGroup>

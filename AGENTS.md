@@ -2,9 +2,9 @@
 
 ## Project Structure & Module Organization
 
-- `src/Lianxin.Fleet.Core/`: domain models, device bridges, persistence, services, validation, infrastructure, and serialization.
-- `src/Lianxin.Fleet.Desktop/`: WPF views, view models, interaction, and resources.
-- `src/Lianxin.Fleet.Mac/`: Avalonia 12 macOS workstation (`Views`, `ViewModels`, `Interaction`, `Resources`, plus root `App.axaml`/`App.axaml.cs`/`Program.cs`); uses `~/Library/Application Support/LianxinFleet.Mac/`, shared with the CLI on macOS, and is bundled as `LianxinFleet-Mac.app`.
+- `src/Lianxin.Fleet.Core/`: domain models, device bridges, persistence, services, validation, infrastructure, serialization, and `Agents` (AI phone assistant on the official `Anthropic` NuGet SDK; default model `claude-opus-5-5`). `Services/FleetRuntime` owns the store, bridge, job queue, WDA host, script runner, and scheduler for one process.
+- `src/Lianxin.Fleet.Desktop/`: WPF views, view models, interaction, and resources. `Views/Center/CenterWindow` is the main window (devices, AI assistant, schedules, settings); `Views/Main/MainWindow` is the screen-mirroring wall opened from it and shares the same runtime.
+- `src/Lianxin.Fleet.Mac/`: Avalonia 12 macOS workstation (`Views`, `ViewModels`, `Interaction`, `Resources`, plus root `App.axaml`/`App.axaml.cs`/`Program.cs`) with the same center as Windows: `Views/Center/CenterWindow` (devices, AI assistant, schedules, settings), `Views/Dialogs`, and `Views/MainWindow` as the mirroring wall sharing the runtime. Uses `~/Library/Application Support/LianxinFleet.Mac/`, shared with the CLI on macOS, and is bundled as `LianxinFleet-Mac.app` by `scripts/publish-mac.sh` (on a Mac) or `scripts/publish-mac.ps1` (cross-build on Windows). Avalonia also runs on Windows, so the Mac UI can be smoke-tested there with `FLEET_DATA_DIR` pointing at a temporary directory.
 - `src/Lianxin.Fleet.Cli/`: diagnostics, commands, and Mac iOS signing tools.
 - `src/Lianxin.Sms.Api/`: ASP.NET Core SMS service with hosting, routing, persistence, security, validation, and protocol categories.
 - `checks/`: executable C# checks; scenarios belong in `Scenarios/`, reusable fixtures in `Infrastructure/`.

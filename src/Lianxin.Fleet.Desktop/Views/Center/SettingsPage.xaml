@@ -1,0 +1,55 @@
+<UserControl x:Class="Lianxin.Fleet.Desktop.Views.Center.SettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16,12" MaxWidth="760" HorizontalAlignment="Left">
+            <TextBlock Text="设置" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock Text="设备工具" Style="{StaticResource SectionTitle}" />
+            <TextBlock Foreground="#9DA4BE" Text="安装了 pymobiledevice3 的 Python。留空时使用环境变量 PYTHON_PATH 或系统 python。修改后重启中控生效。" />
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="选择…" Click="BrowsePythonClicked" Margin="8,5,0,8" />
+                <TextBox x:Name="PythonInput" />
+            </DockPanel>
+            <TextBlock x:Name="PythonStatus" Foreground="#9DA4BE" FontSize="11" />
+            <TextBlock Text="WDA Runner Bundle ID" Style="{StaticResource SectionTitle}" />
+            <TextBox x:Name="BundleInput" MaxLength="160" />
+            <TextBlock Text="WDA 安装包（一键配置时安装，必须在应用批准目录内）" Style="{StaticResource SectionTitle}" />
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="选择…" Click="BrowsePackageClicked" Margin="8,5,0,8" />
+                <TextBox x:Name="PackageInput" />
+            </DockPanel>
+            <TextBlock Text="目录" Style="{StaticResource SectionTitle}" />
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="打开" Click="OpenAppsClicked" Margin="8,5,0,8" />
+                <TextBox x:Name="AppsLabel" IsReadOnly="True" ToolTip="应用批准目录" />
+            </DockPanel>
+            <TextBox x:Name="DataLabel" IsReadOnly="True" ToolTip="数据目录" />
+            <TextBlock Text="AI 助手" Style="{StaticResource SectionTitle}" />
+            <TextBlock Foreground="#9DA4BE"
+                       Text="Anthropic API 密钥只保存在本机，按当前 Windows 用户加密。也可以不填，改用环境变量 ANTHROPIC_API_KEY 或 ant auth login 登录。" />
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="清除密钥" Click="ClearKeyClicked" Margin="8,5,0,8" />
+                <PasswordBox x:Name="KeyInput" ToolTip="留空表示不修改已保存的密钥" />
+            </DockPanel>
+            <TextBlock x:Name="KeyStatus" Foreground="#9DA4BE" FontSize="11" />
+            <WrapPanel Margin="0,6,0,0">
+                <StackPanel Margin="0,0,16,0">
+                    <TextBlock Text="模型" Foreground="#C9CDE0" />
+                    <ComboBox x:Name="ModelInput" IsEditable="True" Width="220">
+                        <ComboBoxItem Content="claude-opus-5-5" />
+                        <ComboBoxItem Content="claude-sonnet-5-5" />
+                        <ComboBoxItem Content="claude-haiku-5-5" />
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="最多轮数（1–200）" Foreground="#C9CDE0" />
+                    <TextBox x:Name="StepsInput" Width="100" />
+                </StackPanel>
+            </WrapPanel>
+            <WrapPanel Margin="0,12,0,0">
+                <Button Content="保存设置" Click="SaveClicked" Style="{StaticResource AccentButton}" />
+                <TextBlock x:Name="SaveStatus" VerticalAlignment="Center" Margin="8,0,0,6" Foreground="#B8B5E3" />
+            </WrapPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

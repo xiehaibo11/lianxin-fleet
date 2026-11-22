@@ -1,83 +1,185 @@
 using System.IO;
-using System.Windows.Media.Imaging;
 using System.Windows;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Lianxin.Fleet.Desktop.ViewModels;
 
 namespace Lianxin.Fleet.Desktop.Views.Main;
 
 public partial class MainWindow
 {
-    // 仅在 UI 线程读写；每台在线设备一个画面循环。
-    private readonly Dictionary<long, (CancellationTokenSource Source, Task Loop)> _casts = [];
+    private static readonly TimeSpan SnapshotInterval = TimeSpan.FromSeconds(3);
+    private static readonly TimeSpan StreamFrameTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan StreamRetryInterval = TimeSpan.FromSeconds(15);
+    private readonly SemaphoreSlim _snapshotSlots = new(4);
+    private readonly Dictionary<long, PreviewSession> _casts = [];
+    private readonly Dictionary<long, Task> _stoppingCasts = [];
     private bool _casting = true;
+
+    private readonly record struct PreviewPolicy(bool Live, bool Usb, bool Wda)
+    {
+        public static PreviewPolicy From(DeviceCard card, bool live) =>
+            new(live && card.CanControl, card.UsbConnected == true, card.CanControl);
+    }
+
+    private sealed record PreviewSession(PreviewPolicy Policy, CancellationTokenSource Source, Task Loop);
 
     private void CastClicked(object sender, RoutedEventArgs e)
     {
-        _casting = !_casting;
-        CastButton.Content = _casting ? "停止投屏" : "开始投屏";
-        SyncCasting();
-        StatusLabel.Text = _casting ? "已开始投屏，在线设备显示实时画面。" : "已停止投屏，改为每 3 秒刷新快照。";
+        SetCasting(!_casting);
+        StatusLabel.Text = _casting ? "已启用实时投屏，USB 快照作为备用。" : "已切换为定时快照。";
     }
 
-    // 每次快照更新后调用：在线设备启动画面循环，离线、停止投屏或关闭时取消。
+    private void SetCasting(bool enabled)
+    {
+        _casting = enabled;
+        CastButton.Content = _casting ? "切换到快照" : "启用实时投屏";
+        SyncCasting();
+    }
+
+    // Only the UI thread changes the session registry.
     private void SyncCasting()
     {
+        if (_closing)
+            return;
+        var eligible = DeviceCards.Where(card => card.CanPreview).ToDictionary(card => card.Id);
         foreach (var (id, cast) in _casts.ToArray())
         {
-            var card = DeviceCards.FirstOrDefault(item => item.Id == id);
-            if (_casting && !_closing && card?.Status.Online == true && !cast.Loop.IsCompleted)
+            if (eligible.TryGetValue(id, out var card) && cast.Policy == PreviewPolicy.From(card, _casting))
                 continue;
-            cast.Source.Cancel();
             _casts.Remove(id);
-            _ = cast.Loop.ContinueWith(_ => cast.Source.Dispose(), TaskScheduler.Default);
+            cast.Source.Cancel();
+            _stoppingCasts[id] = ReleaseCastAsync(cast);
         }
-        if (!_casting || _closing)
-            return;
-        foreach (var card in DeviceCards.Where(card => card.Status.Online && !_casts.ContainsKey(card.Id)))
+        foreach (var id in _stoppingCasts.Where(item => item.Value.IsCompletedSuccessfully).Select(item => item.Key).ToArray())
+            _stoppingCasts.Remove(id);
+        foreach (var (id, card) in eligible)
         {
+            if (_casts.ContainsKey(id))
+                continue;
+            var policy = PreviewPolicy.From(card, _casting);
             var source = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
-            _casts[card.Id] = (source, Task.Run(() => CastAsync(card, source.Token)));
+            var predecessor = _stoppingCasts.GetValueOrDefault(id);
+            var loop = Task.Run(async () =>
+            {
+                if (predecessor is not null)
+                    await predecessor;
+                await CastAsync(card, policy, source.Token);
+            });
+            _casts[id] = new(policy, source, loop);
         }
     }
 
-    // 在线程池运行：解码不占用 UI 线程，只把冻结后的图片交给 UI 线程显示。
-    private async Task CastAsync(DeviceCard card, CancellationToken token)
+    private async Task CastAsync(DeviceCard card, PreviewPolicy policy, CancellationToken token)
     {
         try
         {
+            var retryStreamAt = 0L;
             while (!token.IsCancellationRequested)
             {
-                try
+                if (policy.Live && Environment.TickCount64 >= retryStreamAt)
                 {
-                    Task? pending = null;
-                    await foreach (var frame in _service.StreamAsync(card.Id, token))
+                    try
                     {
-                        // 上一帧尚未显示就丢弃本帧，避免几十台手机的画面在 UI 线程堆积。
-                        if (pending is { IsCompleted: false })
-                            continue;
-                        var image = Decode(frame);
-                        pending = Dispatcher.InvokeAsync(() => ShowFrame(card, image, null)).Task;
+                        await ShowStreamAsync(card, token);
+                    }
+                    catch (Exception error) when (!token.IsCancellationRequested)
+                    {
+                        retryStreamAt = Environment.TickCount64 + (long)StreamRetryInterval.TotalMilliseconds;
+                        ShowPreviewError(card, "实时画面中断：" + error.Message, token);
                     }
                 }
-                catch (OperationCanceledException) when (token.IsCancellationRequested) { return; }
-                catch (Exception error)
+
+                try
                 {
-                    _ = Dispatcher.InvokeAsync(() => ShowFrame(card, null, "画面中断：" + error.Message));
+                    var (frame, usb) = await CapturePreviewAsync(card.Id, policy, token);
+                    await Dispatcher.InvokeAsync(() => ShowFrame(card, frame, usb, token),
+                        DispatcherPriority.Background, token).Task;
                 }
-                await Task.Delay(3000, token);
+                catch (Exception error) when (!token.IsCancellationRequested)
+                {
+                    ShowPreviewError(card, (policy.Usb ? "USB 快照读取失败：" : "快照读取失败：") + error.Message, token);
+                }
+                await Task.Delay(SnapshotInterval, token);
             }
         }
-        catch (OperationCanceledException) { }
+        catch (Exception) when (token.IsCancellationRequested) { }
     }
 
-    private void ShowFrame(DeviceCard card, BitmapImage? image, string? error)
+    private async Task ShowStreamAsync(DeviceCard card, CancellationToken token)
     {
-        if (_closing || !_casting || !card.Status.Online)
+        using var attempt = CancellationTokenSource.CreateLinkedTokenSource(token);
+        await using var frames = _service.StreamAsync(card.Id, attempt.Token).GetAsyncEnumerator();
+        Task? pending = null;
+        try
+        {
+            while (true)
+            {
+                attempt.CancelAfter(StreamFrameTimeout);
+                if (!await frames.MoveNextAsync())
+                    throw new IOException("画面通道已结束。");
+                attempt.CancelAfter(Timeout.InfiniteTimeSpan);
+                // At most one WDA frame waits in the dispatcher for each phone.
+                if (pending is { IsCompleted: false })
+                    continue;
+                var image = Decode(frames.Current);
+                pending = Dispatcher.InvokeAsync(() => ShowFrame(card, image, false, attempt.Token),
+                    DispatcherPriority.Background, attempt.Token).Task;
+            }
+        }
+        catch (OperationCanceledException) when (!token.IsCancellationRequested && attempt.IsCancellationRequested)
+        {
+            throw new TimeoutException("等待实时画面超时。");
+        }
+        finally
+        {
+            attempt.Cancel();
+            if (pending is not null)
+                try { await pending; } catch (OperationCanceledException) when (attempt.IsCancellationRequested) { }
+        }
+    }
+
+    private async Task<(BitmapImage Image, bool Usb)> CapturePreviewAsync(long id, PreviewPolicy policy, CancellationToken token)
+    {
+        await _snapshotSlots.WaitAsync(token);
+        try
+        {
+            if (policy.Usb)
+            {
+                try { return (Decode(await _service.GetUsbScreenshotAsync(id, token)), true); }
+                catch (Exception) when (policy.Wda && !token.IsCancellationRequested)
+                {
+                    // A signed WDA can still provide a frame when the USB screenshot service is unavailable.
+                }
+            }
+            return (Decode(await _service.GetScreenshotAsync(id, token)), false);
+        }
+        finally { _snapshotSlots.Release(); }
+    }
+
+    private void ShowFrame(DeviceCard card, BitmapImage image, bool usb, CancellationToken token)
+    {
+        if (_closing || token.IsCancellationRequested || !card.CanPreview)
             return;
-        card.Preview = image;
-        card.SetPreviewError(error);
+        card.SetPreviewFrame(image, usb);
         if (_master == card)
             UpdateMaster();
+    }
+
+    private void ShowPreviewError(DeviceCard card, string error, CancellationToken token) =>
+        Dispatcher.InvokeAsync(() =>
+        {
+            if (_closing || token.IsCancellationRequested || !card.CanPreview)
+                return;
+            card.SetPreviewError(error);
+            if (_master == card)
+                UpdateMaster();
+        }, DispatcherPriority.Background, token);
+
+    private static async Task ReleaseCastAsync(PreviewSession cast)
+    {
+        try { await cast.Loop; }
+        finally { cast.Source.Dispose(); }
     }
 
     private async Task StopCastingAsync()
@@ -86,9 +188,8 @@ public partial class MainWindow
         _casts.Clear();
         foreach (var cast in casts)
             cast.Source.Cancel();
-        await Task.WhenAll(casts.Select(cast => cast.Loop));
-        foreach (var cast in casts)
-            cast.Source.Dispose();
+        try { await Task.WhenAll(casts.Select(ReleaseCastAsync).Concat(_stoppingCasts.Values)); }
+        finally { _snapshotSlots.Dispose(); }
     }
 
     private static BitmapImage Decode(byte[] data)

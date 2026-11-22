@@ -206,7 +206,8 @@ public sealed partial class MainWindow
     {
         var selected = cards.Values.Where(card => card.IsSelected).Select(card => card.Device).ToArray();
         var devices = selected.Length == 0 ? cards.Values.Select(card => card.Device).ToArray() : selected;
-        await host.StartAsync(devices, WdaBundleInput.Text?.Trim() ?? "", lifetime.Token);
+        // 中控可能已为部分设备建立通道，这里只补齐缺少的设备。
+        await host.EnsureStartedAsync(devices, WdaBundleInput.Text?.Trim() ?? "", lifetime.Token);
         StatusLabel.Text = "已请求启动通道，实际连接状态见设备列表。";
         BeginRefresh();
     });
@@ -214,13 +215,13 @@ public sealed partial class MainWindow
     private void StopWdaClicked(object? sender, RoutedEventArgs args) => Run(async () =>
     {
         await host.StopAsync();
-        StatusLabel.Text = "已停止本工作站启动的控制通道。";
+        StatusLabel.Text = "已停止本工作站启动的控制通道（含中控启动的）。";
         BeginRefresh();
     });
 
     private void UpdateHostButtons()
     {
-        StartWdaButton.IsEnabled = !closing && !host.IsRunning;
+        StartWdaButton.IsEnabled = !closing;
         StopWdaButton.IsEnabled = !closing && host.IsRunning;
     }
 }

@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 using Lianxin.Fleet.Checks.Infrastructure;
 using Lianxin.Fleet.Core.Devices;
@@ -48,6 +50,54 @@ internal static class HostDeviceChecks
         }
         await MacFallbackAsync();
         await InvalidOutputAsync();
+        await UsbScreenshotAsync();
+    }
+
+    private static async Task UsbScreenshotAsync()
+    {
+        var png = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lzkAAAAASUVORK5CYII=");
+        var image = png;
+        string? output = null;
+        var runner = new Runner(async (file, arguments, timeout, token) =>
+        {
+            Assert.Equal("capture-python", file);
+            Assert.Equal(TimeSpan.FromSeconds(15), timeout);
+            Assert.Equal(4, arguments.Count);
+            Assert.Equal("-c", arguments[0]);
+            Assert.True(arguments[1].Contains("connection_type=\"USB\", autopair=False", StringComparison.Ordinal));
+            Assert.Equal(LegacyUdid, arguments[2]);
+            output = arguments[3];
+            await File.WriteAllTextAsync(Path.Combine(Path.GetDirectoryName(output)!, "transient"), "", token);
+            await File.WriteAllBytesAsync(output, image, token);
+            return new(0, "", "");
+        });
+        using var bridge = new DeviceBridge("capture-python", platform: "win32", processRunner: runner);
+        var device = new FleetDevice(1, "Legacy phone", LegacyUdid, 0);
+
+        Assert.True((await bridge.GetUsbScreenshotAsync(device)).SequenceEqual(png));
+        Assert.True(output is not null && !Directory.Exists(Path.GetDirectoryName(output)));
+
+        image = "not an image"u8.ToArray();
+        await Assert.ThrowsAsync<InvalidDataException>(() => bridge.GetUsbScreenshotAsync(device));
+        Assert.True(output is not null && !Directory.Exists(Path.GetDirectoryName(output)));
+    }
+
+    public static async Task OccupiedWdaPortAsync()
+    {
+        using var folder = new TemporaryFolder();
+        using var occupied = new TcpListener(IPAddress.Loopback, 0);
+        occupied.Start();
+        var port = ((IPEndPoint)occupied.LocalEndpoint).Port;
+        var device = new FleetDevice(1, "Legacy phone", LegacyUdid, port);
+        var logs = new List<string>();
+        var absentPython = Path.Combine(folder.Path, "must-not-launch-python");
+        await using var host = new WdaHost(pythonPath: absentPython, log: logs.Add);
+
+        var started = await host.EnsureStartedAsync([device], WdaHost.DefaultRunnerBundleId);
+
+        Assert.Equal(0, started.Count);
+        Assert.Equal(1, logs.Count);
+        Assert.True(logs[0].StartsWith("[Legacy phone/USB]", StringComparison.Ordinal));
     }
 
     private static async Task MacFallbackAsync()

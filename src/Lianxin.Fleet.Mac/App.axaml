@@ -1,9 +1,12 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Lianxin.Fleet.Mac.App"
+             Name="联信 Fleet"
              RequestedThemeVariant="Dark">
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
         <StyleInclude Source="/Resources/FleetStyles.axaml" />
+        <StyleInclude Source="/Resources/CenterStyles.axaml" />
     </Application.Styles>
 </Application>

@@ -1,0 +1,56 @@
+<Window x:Class="Lianxin.Fleet.Desktop.Views.Center.CenterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:center="clr-namespace:Lianxin.Fleet.Desktop.Views.Center"
+        Title="联信 Fleet · iOS 免越狱群控中控" Width="1560" Height="940" MinWidth="1160" MinHeight="700"
+        Background="#10131B" Foreground="#E6E8F4" WindowStartupLocation="CenterScreen" Loaded="WindowLoaded" Closing="WindowClosing">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="38" />
+        </Grid.RowDefinitions>
+        <Border Background="#171B26" BorderBrush="#2C3245" BorderThickness="0,0,0,1">
+            <DockPanel Margin="16,0">
+                <TextBlock Text="◫  联信 FLEET" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,24,0" />
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <RadioButton x:Name="DevicesTab" Content="设备" Style="{StaticResource TabButton}" GroupName="Tabs" IsChecked="True" Checked="TabChanged" />
+                    <RadioButton x:Name="AgentTab" Content="AI 助手" Style="{StaticResource TabButton}" GroupName="Tabs" Checked="TabChanged" />
+                    <RadioButton x:Name="SchedulesTab" Content="定时任务" Style="{StaticResource TabButton}" GroupName="Tabs" Checked="TabChanged" />
+                    <RadioButton x:Name="SettingsTab" Content="设置" Style="{StaticResource TabButton}" GroupName="Tabs" Checked="TabChanged" />
+                </StackPanel>
+                <TextBlock x:Name="DataLabel" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center"
+                           Foreground="#7F86A3" FontSize="11" TextTrimming="CharacterEllipsis" />
+            </DockPanel>
+        </Border>
+        <Grid Grid.Row="1">
+            <center:DevicesPage x:Name="DevicesView" />
+            <center:AgentPage x:Name="AgentView" Visibility="Collapsed" />
+            <center:SchedulesPage x:Name="SchedulesView" Visibility="Collapsed" />
+            <center:SettingsPage x:Name="SettingsView" Visibility="Collapsed" />
+        </Grid>
+        <Border Grid.Row="2" Background="#171B26" BorderBrush="#2C3245" BorderThickness="0,1,0,0">
+            <DockPanel Margin="12,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border x:Name="CenterChip" Style="{StaticResource Chip}"><TextBlock x:Name="CenterText" Text="中控 启动中" FontSize="12" /></Border>
+                    <Border x:Name="BridgeChip" Style="{StaticResource Chip}"><TextBlock x:Name="BridgeText" Text="桥接 检查中" FontSize="12" /></Border>
+                    <TextBlock x:Name="VersionText" Foreground="#9AA1BC" VerticalAlignment="Center" Margin="4,0,14,0" />
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="刷新" Foreground="#9AA1BC" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox x:Name="RefreshBox" Width="70" MinHeight="26" Margin="0,0,10,0" Padding="4,2" SelectionChanged="RefreshIntervalChanged">
+                        <ComboBoxItem Content="1s" Tag="1" /><ComboBoxItem Content="3s" Tag="3" />
+                        <ComboBoxItem Content="5s" Tag="5" /><ComboBoxItem Content="10s" Tag="10" />
+                    </ComboBox>
+                    <Border Style="{StaticResource Chip}" Background="#1F2433" BorderBrush="#3B425A"><TextBlock x:Name="TotalText" FontSize="12" /></Border>
+                    <Border x:Name="ErrorChip" Style="{StaticResource Chip}" Background="#3A1F24" BorderBrush="#7A3A44"><TextBlock x:Name="ErrorText" FontSize="12" /></Border>
+                    <Border Style="{StaticResource Chip}"><TextBlock x:Name="OnlineText" FontSize="12" /></Border>
+                    <Border Style="{StaticResource Chip}" Background="#1E2A44" BorderBrush="#3B5A9A"><TextBlock x:Name="ScriptsText" FontSize="12" /></Border>
+                    <Button Content="⟳ 刷新" Click="ReloadClicked" MinHeight="26" Padding="10,2" Margin="0" />
+                </StackPanel>
+                <TextBlock x:Name="StatusText" Text="正在初始化…" Foreground="#C9CDE0" VerticalAlignment="Center" Margin="6,0,12,0"
+                           TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

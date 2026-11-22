@@ -5,7 +5,6 @@ using System.Windows.Data;
 using System.Windows.Threading;
 using System.Windows;
 using Lianxin.Fleet.Core.Devices;
-using Lianxin.Fleet.Core.Persistence;
 using Lianxin.Fleet.Core.Services;
 using Lianxin.Fleet.Desktop.ViewModels;
 
@@ -14,10 +13,10 @@ namespace Lianxin.Fleet.Desktop.Views.Main;
 public partial class MainWindow : Window
 {
     private readonly string _appDirectory;
-    private readonly FleetStore _store;
+    private readonly FleetRuntime _runtime;
     private readonly FleetService _service;
-    private readonly IDisposable? _bridgeLifetime;
     private readonly WdaHost _host;
+    private readonly Action<string> _hostLog;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(3) };
     private readonly Dictionary<string, string> _requests = [];
@@ -31,28 +30,27 @@ public partial class MainWindow : Window
         get;
     }
 
-    public MainWindow()
+    // 集控投屏窗口与中控共用同一个运行时（数据库、任务队列、WDA 通道），关闭窗口不会停止它们。
+    public MainWindow(FleetRuntime runtime)
     {
         DeviceView = CollectionViewSource.GetDefaultView(DeviceCards);
         DeviceView.Filter = Matches;
         InitializeComponent();
-        WdaBundleInput.Text = WdaHost.DefaultRunnerBundleId;
-        var dataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LianxinFleet");
-        Directory.CreateDirectory(dataDirectory);
-        _appDirectory = Environment.GetEnvironmentVariable("FLEET_APP_DIR") ?? Path.Combine(dataDirectory, "apps");
-        Directory.CreateDirectory(_appDirectory);
-        _store = new FleetStore(Path.Combine(dataDirectory, "fleet.sqlite"));
-        var bridge = new DeviceBridge();
-        _bridgeLifetime = bridge;
-        _service = new FleetService(_store, bridge, _appDirectory);
-        _host = new WdaHost(log: message =>
+        _runtime = runtime;
+        _runnerBundleFile = Path.Combine(runtime.DataDirectory, "wda-runner.txt");
+        WdaBundleInput.Text = LoadRunnerBundleId(_runnerBundleFile);
+        _appDirectory = runtime.AppDirectory;
+        _service = runtime.Service;
+        _host = runtime.Host;
+        _hostLog = message =>
         {
             if (!_closing && !Dispatcher.HasShutdownStarted)
                 Dispatcher.BeginInvoke(new Action(() => HostLog(message)));
-        });
+        };
+        runtime.HostLog += _hostLog;
         DataContext = this;
         GroupFilter.SelectedIndex = 0;
-        EnvironmentLabel.Text = "Windows 原生工作站 · USB 直连";
+        EnvironmentLabel.Text = "集控投屏 · 与中控共用设备、任务和自动化通道";
         _timer.Tick += async (_, _) => await RefreshAsync();
         ApplySnapshot(_service.GetSnapshot());
     }
@@ -61,7 +59,11 @@ public partial class MainWindow : Window
     {
         await RefreshAsync();
         if (!_closing)
+        {
+            if (StatusLabel.Text == "正在初始化…")
+                StatusLabel.Text = "工作站就绪";
             _timer.Start();
+        }
     }
 
     private async void WindowClosing(object? sender, CancelEventArgs e)
@@ -71,42 +73,38 @@ public partial class MainWindow : Window
         e.Cancel = true;
         if (_closing)
             return;
+        await StopForCloseAsync();
+        _closed = true;
+        // 清理可能同步完成，此时仍在 Closing 事件里，不能直接再次 Close。
+        _ = Dispatcher.BeginInvoke(new Action(Close));
+    }
+
+    // 中控关闭时调用：先结束画面循环，再关闭窗口；共享服务由中控统一释放。
+    public async Task ShutdownAsync()
+    {
+        if (_closed)
+            return;
+        await StopForCloseAsync();
+        _closed = true;
+        Close();
+    }
+
+    private async Task StopForCloseAsync()
+    {
+        if (_closing)
+            return;
         _closing = true;
         IsEnabled = false;
         _timer.Stop();
+        _runtime.HostLog -= _hostLog;
         _lifetime.Cancel();
-        var errors = new List<string>();
         try
         {
-            // 画面循环使用服务，必须在释放服务前全部结束。
+            // 画面循环使用服务，必须在服务释放前全部结束。
             await StopCastingAsync();
         }
-        catch (Exception error) { errors.Add(error.Message); }
-        try
-        {
-            await _host.DisposeAsync();
-        }
-        catch (Exception error) { errors.Add(error.Message); }
-        try
-        {
-            await _service.DisposeAsync();
-        }
-        catch (Exception error) { errors.Add(error.Message); }
-        try
-        {
-            _bridgeLifetime?.Dispose();
-        }
-        catch (Exception error) { errors.Add(error.Message); }
-        try
-        {
-            _store.Dispose();
-        }
-        catch (Exception error) { errors.Add(error.Message); }
-        if (errors.Count > 0)
-            MessageBox.Show(string.Join("\n", errors), "关闭工作站时发生错误");
+        catch (Exception error) when (error is OperationCanceledException or ObjectDisposedException) { }
         _lifetime.Dispose();
-        _closed = true;
-        Close();
     }
 
     private async Task RunAsync(Func<Task> action)
@@ -140,8 +138,9 @@ public partial class MainWindow : Window
             (query.Length == 0 || (card.Name + " " + card.Device.Udid).Contains(query, StringComparison.OrdinalIgnoreCase)) &&
             (StateFilter?.SelectedIndex switch
             {
-                1 => card.Status.Online,
-                2 => !card.Status.Online,
+                1 => card.UsbConnected == true,
+                2 => card.CanControl,
+                3 => !card.CanControl,
                 _ => true
             });
     }
@@ -158,6 +157,8 @@ public partial class MainWindow : Window
     {
         if (e.PropertyName == nameof(DeviceCard.IsSelected))
             UpdateSelection();
+        else if (e.PropertyName == nameof(DeviceCard.PlaceholderVisibility))
+            UpdateCounts();
     }
     private void SelectVisibleClicked(object sender, RoutedEventArgs e)
     {
@@ -173,10 +174,16 @@ public partial class MainWindow : Window
         var visible = DeviceView.Cast<DeviceCard>().ToArray();
         var selected = visible.Count(card => card.IsSelected);
         SelectVisible.IsChecked = selected == 0 ? false : selected == visible.Length ? true : null;
-        EmptyLabel.Text = DeviceCards.Count == 0 ? "连接第一台 iPhone：通过 USB 连接并解锁信任，然后扫描设备。" : "没有符合当前筛选的设备。";
+        EmptyLabel.Text = DeviceCards.Count == 0 ? "连接并解锁 iPhone，按手机提示信任这台电脑，然后点击一键连接。" : "没有符合当前筛选的设备。";
         EmptyLabel.Visibility = visible.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
-        CountsLabel.Text = $"{DeviceCards.Count} 台设备 · {DeviceCards.Count(card => card.Status.Online)} 台可控制 · {DeviceCards.Count(card => card.IsSelected)} 台已选";
+        UpdateCounts();
         TargetLabel.Text = SyncEnabled.IsChecked == true ? $"同步目标：{DeviceCards.Count(card => card.IsSelected)} 台选中设备" : $"操作目标：{_master?.Name ?? "请选择主控"}";
+    }
+    private void UpdateCounts()
+    {
+        CountsLabel.Text = $"{DeviceCards.Count(card => card.UsbConnected == true)} 台接入 USB · "
+            + $"{DeviceCards.Count(card => card.Preview is not null)} 台有画面 · "
+            + $"{DeviceCards.Count(card => card.CanControl)} 台可控制 · {DeviceCards.Count(card => card.IsSelected)} 台已选";
     }
     private IReadOnlyList<long> SelectedIds() => DeviceCards.Where(card => card.IsSelected).Select(card => card.Id).ToArray();
     private IReadOnlyList<long> TargetIds() => SyncEnabled.IsChecked == true ? SelectedIds() : _master is null ? [] : [_master.Id];

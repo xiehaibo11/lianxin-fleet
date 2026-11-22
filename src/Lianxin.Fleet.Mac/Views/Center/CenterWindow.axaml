@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:center="using:Lianxin.Fleet.Mac.Views.Center"
+        x:Class="Lianxin.Fleet.Mac.Views.Center.CenterWindow"
+        Title="联信 Fleet · iOS 免越狱群控中控" Width="1480" Height="900" MinWidth="1100" MinHeight="660"
+        WindowStartupLocation="CenterScreen" Background="#10131B">
+    <Grid RowDefinitions="Auto,*,40">
+        <Border Classes="bar" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,Auto,*" Margin="16,6">
+                <TextBlock Text="◫  联信 FLEET" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,24,0" />
+                <TabStrip Grid.Column="1" x:Name="Tabs" Classes="tabs" SelectedIndex="0" SelectionChanged="TabChanged"
+                          AutomationProperties.Name="中控页面">
+                    <TabStripItem Content="设备" />
+                    <TabStripItem Content="AI 助手" />
+                    <TabStripItem Content="定时任务" />
+                    <TabStripItem Content="设置" />
+                </TabStrip>
+                <TextBlock Grid.Column="2" x:Name="DataLabel" Classes="muted" FontSize="11" HorizontalAlignment="Right"
+                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="16,0,0,0" />
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1">
+            <center:DevicesPage x:Name="DevicesView" />
+            <center:AgentPage x:Name="AgentView" IsVisible="False" />
+            <center:SchedulesPage x:Name="SchedulesView" IsVisible="False" />
+            <center:SettingsPage x:Name="SettingsView" IsVisible="False" />
+        </Grid>
+        <Border Grid.Row="2" Classes="bar" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border x:Name="CenterChip" Classes="chip"><TextBlock x:Name="CenterText" Text="中控 启动中" FontSize="12" /></Border>
+                    <Border x:Name="BridgeChip" Classes="chip"><TextBlock x:Name="BridgeText" Text="桥接 检查中" FontSize="12" /></Border>
+                    <TextBlock x:Name="VersionText" Classes="muted" VerticalAlignment="Center" Margin="4,0,14,0" />
+                </StackPanel>
+                <TextBlock Grid.Column="1" x:Name="StatusText" Text="正在初始化…" Foreground="#C9CDE0" VerticalAlignment="Center"
+                           Margin="6,0,12,0" TextTrimming="CharacterEllipsis" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="刷新" Classes="muted" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox x:Name="RefreshBox" Width="80" Margin="0,0,10,0" SelectionChanged="RefreshIntervalChanged"
+                              AutomationProperties.Name="刷新间隔">
+                        <ComboBoxItem Content="1s" Tag="1" />
+                        <ComboBoxItem Content="3s" Tag="3" />
+                        <ComboBoxItem Content="5s" Tag="5" />
+                        <ComboBoxItem Content="10s" Tag="10" />
+                    </ComboBox>
+                    <Border Classes="chip neutral"><TextBlock x:Name="TotalText" FontSize="12" /></Border>
+                    <Border x:Name="ErrorChip" Classes="chip bad"><TextBlock x:Name="ErrorText" FontSize="12" /></Border>
+                    <Border Classes="chip"><TextBlock x:Name="OnlineText" FontSize="12" /></Border>
+                    <Border Classes="chip info"><TextBlock x:Name="ScriptsText" FontSize="12" /></Border>
+                    <Button Content="⟳ 刷新" Click="ReloadClicked" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

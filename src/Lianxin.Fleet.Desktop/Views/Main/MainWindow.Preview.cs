@@ -18,7 +18,6 @@ public partial class MainWindow
         try
         {
             ApplySnapshot(await _service.RefreshAsync(_lifetime.Token));
-            await RefreshScreensAsync();
         }
         catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
         catch (Exception error) { if (!_closing) StatusLabel.Text = "工作站更新失败，当前画面可能过期：" + error.Message; }
@@ -63,68 +62,42 @@ public partial class MainWindow
         while (Jobs.Count > jobs.Length)
             Jobs.RemoveAt(Jobs.Count - 1);
         if (_master is null || !DeviceCards.Contains(_master))
-            _master = DeviceCards.FirstOrDefault(card => card.Status.Online) ?? DeviceCards.FirstOrDefault();
+            _master = DeviceCards.FirstOrDefault(card => card.CanControl)
+                ?? DeviceCards.FirstOrDefault(card => card.CanPreview) ?? DeviceCards.FirstOrDefault();
         EmptyLabel.Visibility = DeviceCards.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         DeviceView.Refresh();
         UpdateMaster();
         UpdateSelection();
-        StatusLabel.Text = _casting ? "工作站已更新 · 实时投屏中" : "工作站已更新 · 屏幕快照每 3 秒刷新";
         SyncCasting();
     }
 
-    // 投屏关闭时的后备预览：每 3 秒快照，最多 12 台。
-    private async Task RefreshScreensAsync()
-    {
-        if (_closing || _casting)
-            return;
-        var candidates = (_master is null ? Array.Empty<DeviceCard>() : [_master])
-            .Concat(DeviceView.Cast<DeviceCard>()).Where(card => card.Status.Online).Distinct().Take(12).ToArray();
-        foreach (var card in DeviceCards.Except(candidates))
-            card.Preview = null;
-        using var slots = new SemaphoreSlim(4);
-        await Task.WhenAll(candidates.Select(async card =>
-        {
-            await slots.WaitAsync(_lifetime.Token);
-            try
-            {
-                var data = await _service.GetScreenshotAsync(card.Id, _lifetime.Token);
-                if (_closing || _casting)
-                    return;
-                card.Preview = Decode(data);
-                card.SetPreviewError(null);
-                if (_master == card)
-                    UpdateMaster();
-            }
-            catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
-            catch (Exception error)
-            {
-                if (!_closing)
-                {
-                    card.Preview = null;
-                    card.SetPreviewError("屏幕读取失败：" + error.Message);
-                    if (_master == card)
-                        UpdateMaster();
-                }
-            }
-            finally { slots.Release(); }
-        }));
-    }
     private void SetMaster(DeviceCard card)
     {
+        if (_gestureStart is not null)
+            MasterSurface.ReleaseMouseCapture();
         _master = card;
         UpdateMaster();
         UpdateSelection();
     }
     private void UpdateMaster()
     {
-        if (_gestureStart is not null)
+        if (_gestureStart is not null && _master?.CanControl == true && _master.Id == _gestureDevice)
             return;
+        if (MasterSurface.IsMouseCaptured)
+        {
+            _gestureStart = null;
+            MasterSurface.ReleaseMouseCapture();
+        }
         MasterLabel.Text = _master?.Name ?? "选择一台主控设备";
-        MasterDetails.Text = _master is null ? "" : $"设备实际名：{_master.Status.DeviceName} · 端口 {_master.Device.WdaPort}\n{_master.Error}";
+        MasterDetails.Text = _master is null ? "" : $"{_master.UsbLabel} · {_master.PreviewLabel} · {_master.ControlLabel}";
+        MasterDetails.ToolTip = _master?.PreviewError ?? _master?.ControlError;
         MasterImage.Source = _master?.Preview;
         MasterPlaceholder.Text = _master?.Placeholder ?? "设备屏幕尚未就绪";
         MasterPlaceholder.Visibility = _master?.Preview is null ? Visibility.Visible : Visibility.Collapsed;
-        MasterSurface.IsEnabled = _master?.Status.Online == true;
+        var canControl = _master?.CanControl == true && _master.Preview is not null;
+        MasterSurface.IsEnabled = canControl;
+        ClickMode.IsEnabled = canControl;
+        MasterSurface.Cursor = canControl ? Cursors.Hand : Cursors.Arrow;
     }
 
     private ScreenPoint? _gestureStart;
@@ -141,7 +114,7 @@ public partial class MainWindow
     }
     private void ScreenDown(object sender, MouseButtonEventArgs e)
     {
-        if (_busy || _closing || _master is null || !_master.Status.Online)
+        if (_busy || _closing || _master?.CanControl != true)
             return;
         if (_master.Preview is null)
         {
@@ -165,7 +138,7 @@ public partial class MainWindow
         var duration = Math.Clamp(Stopwatch.GetElapsedTime(_gestureStarted).TotalSeconds, .15, 2);
         _gestureStart = null;
         MasterSurface.ReleaseMouseCapture();
-        if (start is null || end is null || _master?.Id != device)
+        if (start is null || end is null || _master?.Id != device || !_master.CanControl)
             return;
         e.Handled = true;
         await RunAsync(() => Math.Sqrt(Math.Pow(end.Value.X - start.Value.X, 2) + Math.Pow(end.Value.Y - start.Value.Y, 2)) < .025
@@ -190,7 +163,7 @@ public partial class MainWindow
     {
         if (e.Key != Key.Enter && e.Key != Key.Space)
             return;
-        if (_master?.Preview is null)
+        if (_master?.CanControl != true || _master.Preview is null)
         {
             StatusLabel.Text = "等待真实屏幕快照后再操作。";
             return;

@@ -21,12 +21,11 @@ public partial class MainWindow
         var skipped = 0;
         if (action != FleetAction.Install)
         {
-            // 同步操作跳过未连接设备，不因个别手机掉线拒绝整批。
-            var online = ids.Where(id => DeviceCards.First(card => card.Id == id).Status.Online).ToArray();
-            skipped = ids.Count - online.Length;
-            if (online.Length == 0)
-                throw new InvalidOperationException("目标设备都未连接。");
-            ids = online;
+            var controllable = ids.Where(id => DeviceCards.Any(card => card.Id == id && card.CanControl)).ToArray();
+            skipped = ids.Count - controllable.Length;
+            if (controllable.Length == 0)
+                throw new InvalidOperationException("目标设备的 WDA 控制尚未就绪。");
+            ids = controllable;
         }
         var signature = JsonSerializer.Serialize(new
         {
@@ -39,7 +38,7 @@ public partial class MainWindow
         var job = await _service.SubmitAsync(ids, action, parameters, requestKey, _lifetime.Token);
         _requests.Remove(signature);
         ApplySnapshot(_service.GetSnapshot());
-        StatusLabel.Text = $"任务 #{job.Id} 已提交" + (skipped > 0 ? $"（已跳过 {skipped} 台未连接设备）" : "")
+        StatusLabel.Text = $"任务 #{job.Id} 已提交" + (skipped > 0 ? $"（已跳过 {skipped} 台控制未就绪的设备）" : "")
             + "，请在任务记录核对逐设备执行结果。";
     }
     private async void QuickAction(DeviceCard card, FleetAction action) => await RunAsync(() =>
@@ -120,13 +119,15 @@ public partial class MainWindow
     {
         var selected = DeviceCards.Where(card => card.IsSelected).Select(card => card.Device).ToArray();
         var devices = selected.Length == 0 ? DeviceCards.Select(card => card.Device).ToArray() : selected;
-        await _host.StartAsync(devices, WdaBundleInput.Text.Trim(), _lifetime.Token);
+        // 中控可能已为部分设备建立通道，这里只补齐缺少的设备。
+        await _host.EnsureStartedAsync(devices, WdaBundleInput.Text.Trim(), _lifetime.Token);
         StatusLabel.Text = "控制通道进程已启动，请核对设备在线状态及实际名称。";
         await RefreshAsync();
     });
     private async void StopWdaClicked(object sender, RoutedEventArgs e) => await RunAsync(async () =>
     {
         await _host.StopAsync();
-        StatusLabel.Text = "本次启动的 WDA 和 USB 转发进程已停止。";
+        await RefreshAsync();
+        StatusLabel.Text = "本次启动的 WDA 通道已停止。已连接的设备继续尝试 USB 快照。";
     });
 }

@@ -16,7 +16,7 @@ public sealed class SourceGovernance : Task
 
     private static readonly Dictionary<string, string[]> Categories = new Dictionary<string, string[]>
     {
-        ["Lianxin.Fleet.Core"] = new[] { "Domain", "Devices", "Persistence", "Services", "Validation", "Infrastructure", "Serialization" },
+        ["Lianxin.Fleet.Core"] = new[] { "Domain", "Devices", "Persistence", "Services", "Validation", "Infrastructure", "Serialization", "Agents" },
         ["Lianxin.Fleet.Cli"] = new[] { "Commands", "Signing", "Properties" },
         ["Lianxin.Fleet.Desktop"] = new[] { "Views", "ViewModels", "Interaction", "Resources" },
         ["Lianxin.Fleet.Mac"] = new[] { "Views", "ViewModels", "Interaction", "Resources" },

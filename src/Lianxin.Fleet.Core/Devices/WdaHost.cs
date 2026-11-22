@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using Lianxin.Fleet.Core.Domain;
 using Lianxin.Fleet.Core.Infrastructure;
@@ -7,20 +8,19 @@ namespace Lianxin.Fleet.Core.Devices;
 
 public sealed record WdaCommand(string Label, string File, IReadOnlyList<string> Arguments);
 
-public sealed class WdaHost(string? pythonPath = null, Action<string>? log = null) : IAsyncDisposable
+public sealed partial class WdaHost(string? pythonPath = null, Action<string>? log = null) : IAsyncDisposable
 {
     public const string DefaultRunnerBundleId = "com.lianxin.fleet.webdriveragent.xctrunner";
-
     private readonly object sync = new();
-    private readonly List<Process> children = [];
-    private readonly List<Task> streams = [];
-    private readonly List<UsbPortForwarder> forwarders = [];
+    private readonly SemaphoreSlim operationGate = new(1, 1);
+    private readonly Dictionary<string, DeviceChannel> channels = new(StringComparer.Ordinal);
     private CancellationTokenSource? lifetime;
-    private Task? starting;
     private Task? stopping;
     private bool disposed;
     private readonly string python = pythonPath ?? Environment.GetEnvironmentVariable("PYTHON_PATH")
         ?? (OperatingSystem.IsWindows() ? "python" : "python3");
+
+    private sealed record DeviceChannel(string BundleId, Process Process, UsbPortForwarder Forwarder, Task OutputReaders);
 
     public bool IsRunning
     {
@@ -39,7 +39,7 @@ public sealed class WdaHost(string? pythonPath = null, Action<string>? log = nul
             throw new ArgumentException("Python 路径无效。");
         if (devices.Count is < 1 or > 1000)
             throw new ArgumentException("每次启动 1 至 1000 台设备。");
-        if (devices.Select(d => d.Udid).Distinct().Count() != devices.Count
+        if (devices.Select(d => Usbmux.Normalize(d.Udid)).Distinct().Count() != devices.Count
             || devices.Select(d => d.WdaPort).Distinct().Count() != devices.Count)
             throw new ArgumentException("设备 UDID 或端口重复。");
         var commands = new List<WdaCommand>();
@@ -49,7 +49,7 @@ public sealed class WdaHost(string? pythonPath = null, Action<string>? log = nul
                 throw new ArgumentException("设备 UDID 或本机端口无效。");
             if (device.Name.Length > 80 || device.Name.IndexOfAny(['\r', '\n', '\0']) >= 0)
                 throw new ArgumentException("设备名称无效。");
-            // 每台手机只剩一个 xcuitest 进程；本机端口到手机 8100 的转发在进程内完成（UsbPortForwarder）。
+            // 每台手机只使用一个 xcuitest 进程，本机端口的转发在进程内完成。
             commands.Add(new WdaCommand(device.Name + "/WDA", pythonPath, ["-m", "pymobiledevice3", "--no-color",
                 "developer", "dvt", "xcuitest", "--udid", device.Udid, "--env", $"USE_PORT={DeviceBridge.WdaDevicePort}", bundleId]));
         }
@@ -57,86 +57,125 @@ public sealed class WdaHost(string? pythonPath = null, Action<string>? log = nul
     }
 
     public Task StartAsync(IReadOnlyList<FleetDevice> devices, string bundleId, CancellationToken cancellationToken = default)
-    {
-        var commands = BuildPlan(devices, bundleId, python);
-        lock (sync)
-        {
-            ObjectDisposedException.ThrowIf(disposed, this);
-            if (lifetime is not null)
-                throw new InvalidOperationException("请先停止当前 WDA 主机进程。");
-            lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            stopping = null;
-            starting = LaunchBatchesAsync(commands, devices, lifetime.Token);
-            return StartAndCleanupAsync(starting);
-        }
-    }
+        => StartDevicesAsync(devices, bundleId, exclusive: true, cancellationToken);
 
-    private void Forward(FleetDevice device)
-    {
-        try
-        {
-            var forwarder = new UsbPortForwarder(device.WdaPort,
-                token => Usbmux.ConnectAsync(device.Udid, DeviceBridge.WdaDevicePort, token));
-            lock (sync)
-                forwarders.Add(forwarder);
-        }
-        catch (System.Net.Sockets.SocketException)
-        {
-            Log(device.Name + "/USB", $"本机端口 {device.WdaPort} 已被占用，请关闭其他转发程序。");
-        }
-    }
+    public Task<IReadOnlyList<FleetDevice>> EnsureStartedAsync(IReadOnlyList<FleetDevice> devices, string bundleId, CancellationToken cancellationToken = default)
+        => StartDevicesAsync(devices, bundleId, exclusive: false, cancellationToken);
 
-    private async Task StartAndCleanupAsync(Task startup)
-    {
-        try
-        {
-            await startup.ConfigureAwait(false);
-        }
-        catch (OperationCanceledException) { await StopAsync().ConfigureAwait(false); throw; }
-    }
-
-    private async Task LaunchBatchesAsync(IReadOnlyList<WdaCommand> commands, IReadOnlyList<FleetDevice> devices,
+    private async Task<IReadOnlyList<FleetDevice>> StartDevicesAsync(IReadOnlyList<FleetDevice> devices, string bundleId, bool exclusive,
         CancellationToken cancellationToken)
     {
-        for (var offset = 0; offset < commands.Count; offset += 8)
+        var targets = devices.ToArray();
+        var commands = BuildPlan(targets, bundleId, python);
+        await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        CancellationTokenSource? created = null;
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            for (var index = offset; index < Math.Min(offset + 8, commands.Count); index++)
+            CancellationToken hostToken;
+            lock (sync)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                Forward(devices[index]);
-                Launch(commands[index], cancellationToken);
+                ObjectDisposedException.ThrowIf(disposed, this);
+                if (stopping is { IsCompleted: false })
+                    throw new InvalidOperationException("WDA 通道正在停止，请稍后再连接。");
+                if (exclusive && lifetime is not null)
+                    throw new InvalidOperationException("请先停止当前 WDA 主机进程。");
+                if (lifetime is null)
+                {
+                    created = exclusive ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken) : new();
+                    lifetime = created;
+                    stopping = null;
+                }
+                hostToken = lifetime.Token;
             }
-            if (offset + 8 < commands.Count)
-                await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
+            using var request = CancellationTokenSource.CreateLinkedTokenSource(hostToken, cancellationToken);
+            return await LaunchMissingAsync(commands, targets, bundleId, hostToken, request.Token).ConfigureAwait(false);
         }
+        catch when (created is not null)
+        {
+            await ClearChannelsAsync().ConfigureAwait(false);
+            throw;
+        }
+        finally { operationGate.Release(); }
     }
 
-    private void Launch(WdaCommand command, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<FleetDevice>> LaunchMissingAsync(IReadOnlyList<WdaCommand> commands, IReadOnlyList<FleetDevice> devices,
+        string bundleId, CancellationToken hostToken, CancellationToken requestToken)
     {
+        foreach (var (id, channel) in channels.ToArray())
+        {
+            if (!channel.Process.HasExited)
+                continue;
+            channels.Remove(id);
+            await StopChannelAsync(channel).ConfigureAwait(false);
+        }
+        Publish();
+
+        requestToken.ThrowIfCancellationRequested();
+        foreach (var device in devices)
+        {
+            if (channels.TryGetValue(Usbmux.Normalize(device.Udid), out var channel)
+                && (channel.BundleId != bundleId || channel.Forwarder.LocalPort != device.WdaPort))
+                throw new InvalidOperationException($"「{device.Name}」已有不同配置的 WDA 通道，请停止后再使用新配置。");
+        }
+
+        var startedInBatch = 0;
+        for (var index = 0; index < devices.Count; index++)
+        {
+            requestToken.ThrowIfCancellationRequested();
+            var device = devices[index];
+            var key = Usbmux.Normalize(device.Udid);
+            if (channels.ContainsKey(key))
+                continue;
+            if (startedInBatch == 8)
+            {
+                await Task.Delay(1000, requestToken).ConfigureAwait(false);
+                startedInBatch = 0;
+            }
+            var channel = await LaunchAsync(commands[index], device, bundleId, hostToken).ConfigureAwait(false);
+            if (channel is not null)
+                channels.Add(key, channel);
+            Publish();
+            startedInBatch++;
+        }
+        return devices.Where(device => channels.TryGetValue(Usbmux.Normalize(device.Udid), out var channel)
+            && !channel.Process.HasExited).ToArray();
+    }
+
+    private async Task<DeviceChannel?> LaunchAsync(WdaCommand command, FleetDevice device, string bundleId, CancellationToken hostToken)
+    {
+        UsbPortForwarder forwarder;
+        try
+        {
+            forwarder = new UsbPortForwarder(device.WdaPort,
+                token => Usbmux.ConnectAsync(device.Udid, DeviceBridge.WdaDevicePort, token));
+        }
+        catch (SocketException)
+        {
+            Log(device.Name + "/USB", $"本机端口 {device.WdaPort} 无法监听，请检查端口是否被占用。");
+            return null;
+        }
+
         var process = new Process { StartInfo = ProcessRunner.CreateStartInfo(command.File, command.Arguments), EnableRaisingEvents = true };
         try
         {
             process.Exited += (_, _) =>
             {
-                lock (sync)
-                    if (lifetime?.IsCancellationRequested == false)
-                        Log(command.Label, "进程已退出；不会自动重启，请检查设备和工具。");
+                if (!hostToken.IsCancellationRequested)
+                    Log(command.Label, "进程已退出，可在设备重新接入后再次连接。");
             };
             if (!process.Start())
                 throw new InvalidOperationException("无法启动设备进程。");
-            lock (sync)
-            {
-                children.Add(process);
-                streams.Add(PumpOutputAsync(process.StandardOutput, command.Label, cancellationToken));
-                streams.Add(PumpOutputAsync(process.StandardError, command.Label, cancellationToken));
-            }
+            var readers = Task.WhenAll(PumpOutputAsync(process.StandardOutput, command.Label, hostToken),
+                PumpOutputAsync(process.StandardError, command.Label, hostToken));
             Log(command.Label, "进程已启动，设备在线状态以控制台回报为准。");
+            return new(bundleId, process, forwarder, readers);
         }
         catch (Exception error) when (error is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
             process.Dispose();
-            Log(command.Label, "启动失败，请检查 Python 与 pymobiledevice3；不会自动重试。");
+            await forwarder.DisposeAsync().ConfigureAwait(false);
+            Log(command.Label, "启动失败，请检查 Python 与 pymobiledevice3，然后重新连接。");
+            return null;
         }
     }
 
@@ -163,76 +202,4 @@ public sealed class WdaHost(string? pythonPath = null, Action<string>? log = nul
         catch { /* A UI log callback must not terminate device process cleanup. */ }
     }
 
-    public Task StopAsync()
-    {
-        lock (sync)
-            return stopping ??= StopCoreAsync();
-    }
-
-    private async Task StopCoreAsync()
-    {
-        CancellationTokenSource? source;
-        Task? startup;
-        lock (sync)
-        {
-            source = lifetime;
-            startup = starting;
-            source?.Cancel();
-        }
-        if (startup is not null)
-        {
-            try
-            {
-                await startup.ConfigureAwait(false);
-            }
-            catch (OperationCanceledException) { }
-        }
-        Process[] owned;
-        lock (sync)
-        {
-            owned = children.ToArray();
-            children.Clear();
-        }
-        foreach (var process in owned)
-        {
-            try
-            {
-                if (!process.HasExited)
-                    process.Kill(entireProcessTree: true);
-                await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
-            }
-            catch (Exception error) when (error is InvalidOperationException or System.ComponentModel.Win32Exception or TimeoutException)
-            {
-                Log("主机", "停止自建子进程失败，请核对当前进程状态。");
-            }
-            finally { process.Dispose(); }
-        }
-        Task[] readers;
-        lock (sync)
-        {
-            readers = streams.ToArray();
-            streams.Clear();
-        }
-        await Task.WhenAll(readers).ConfigureAwait(false);
-        UsbPortForwarder[] ports;
-        lock (sync)
-        {
-            ports = forwarders.ToArray();
-            forwarders.Clear();
-        }
-        foreach (var port in ports)
-            await port.DisposeAsync().ConfigureAwait(false);
-        lock (sync)
-        {
-            lifetime = null;
-            starting = null;
-        }
-        source?.Dispose();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        disposed = true;
-        await StopAsync().ConfigureAwait(false);
-    }
 }

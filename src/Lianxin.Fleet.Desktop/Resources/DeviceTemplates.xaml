@@ -1,36 +1,47 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
- xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
- <DataTemplate x:Key="DeviceTemplate">
-  <Border Width="160" Margin="0,0,12,12" CornerRadius="12" Background="#1A1F2D" BorderBrush="{Binding BorderBrush}" BorderThickness="1" ToolTip="{Binding Error}">
-   <StackPanel Margin="8">
-    <DockPanel>
-     <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center" Fill="{Binding StatusBrush}" ToolTip="{Binding StateLabel}" />
-     <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" AutomationProperties.Name="{Binding SelectionLabel}" />
-    </DockPanel>
-    <Border Height="250" Margin="0,5,0,6" CornerRadius="8" Background="#0B0E15" ClipToBounds="True" Cursor="Hand" ToolTip="点击设为主控">
-     <Border.InputBindings><MouseBinding Gesture="LeftClick" Command="{Binding SetMasterCommand}" /></Border.InputBindings>
-     <Grid>
-      <Image Source="{Binding Preview}" Stretch="Uniform" />
-      <StackPanel VerticalAlignment="Center" Margin="10" Visibility="{Binding PlaceholderVisibility}">
-       <TextBlock Text="{Binding Placeholder}" TextAlignment="Center" Foreground="#B4B3D5" />
-       <TextBlock Text="{Binding StateLabel}" TextAlignment="Center" Foreground="#777D97" Margin="0,10,0,0" FontSize="10" />
-      </StackPanel>
-     </Grid>
-    </Border>
-    <TextBlock Text="{Binding GroupName}" FontSize="10" Foreground="#A0A6BC" />
-    <TextBox Text="{Binding QuickText, UpdateSourceTrigger=PropertyChanged}" MaxLength="1000" Margin="0,5,0,5" Padding="5,4" AutomationProperties.Name="{Binding QuickTextLabel}" />
-    <UniformGrid Columns="3">
-     <Button Content="发送" Command="{Binding SendTextCommand}" Margin="0,0,3,0" Padding="2" MinHeight="26" />
-     <Button Content="Home" Command="{Binding HomeCommand}" Margin="0,0,3,0" Padding="2" MinHeight="26" />
-     <Button Content="主控" Command="{Binding SetMasterCommand}" Margin="0" Padding="2" MinHeight="26" />
-    </UniformGrid>
-   </StackPanel>
-  </Border>
- </DataTemplate>
- <DataTemplate x:Key="JobTemplate">
-  <Expander Foreground="#E6E8F4" BorderThickness="0,0,0,1" BorderBrush="#30374C" Padding="5">
-   <Expander.Header><TextBlock Text="{Binding Summary}" /></Expander.Header>
-   <TextBlock Text="{Binding Details}" FontSize="11" Foreground="#AEB4CD" Margin="5,7" />
-  </Expander>
- </DataTemplate>
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DataTemplate x:Key="DeviceTemplate">
+        <Border Width="160" Margin="0,0,12,12" CornerRadius="12" Background="#1A1F2D" BorderBrush="{Binding BorderBrush}" BorderThickness="1">
+            <StackPanel Margin="8">
+                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" AutomationProperties.Name="{Binding SelectionLabel}" />
+                <WrapPanel Margin="0,5,0,0">
+                    <TextBlock Text="{Binding UsbLabel}" FontSize="10" Foreground="#AEB4CD" Margin="0,0,8,0" />
+                    <TextBlock Text="{Binding ControlLabel}" FontSize="10" Foreground="{Binding StatusBrush}" ToolTip="{Binding ControlError}" />
+                </WrapPanel>
+                <Border Height="250" Margin="0,5,0,5" CornerRadius="8" Background="#0B0E15" ClipToBounds="True" Cursor="Hand" ToolTip="点击设为主控">
+                    <Border.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding SetMasterCommand}" />
+                    </Border.InputBindings>
+                    <Grid>
+                        <Image Source="{Binding Preview}" Stretch="Uniform" />
+                        <TextBlock Text="{Binding Placeholder}" TextAlignment="Center" TextWrapping="Wrap" Foreground="#B4B3D5"
+                                   Margin="10" VerticalAlignment="Center" Visibility="{Binding PlaceholderVisibility}" />
+                    </Grid>
+                </Border>
+                <Grid Margin="0,0,0,2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding PreviewLabel}" FontSize="10" Foreground="#B4B3D5" ToolTip="{Binding PreviewError}" />
+                    <TextBlock Text="{Binding GroupName}" Grid.Column="1" Margin="6,0,0,0" TextAlignment="Right"
+                               TextTrimming="CharacterEllipsis" FontSize="10" Foreground="#A0A6BC" />
+                </Grid>
+                <TextBox Text="{Binding QuickText, UpdateSourceTrigger=PropertyChanged}" MaxLength="1000" Margin="0,5,0,5" Padding="5,4" AutomationProperties.Name="{Binding QuickTextLabel}" />
+                <UniformGrid Columns="3">
+                    <Button Content="发送" Command="{Binding SendTextCommand}" IsEnabled="{Binding CanControl}" Margin="0,0,3,0" Padding="2" MinHeight="26" />
+                    <Button Content="Home" Command="{Binding HomeCommand}" IsEnabled="{Binding CanControl}" Margin="0,0,3,0" Padding="2" MinHeight="26" />
+                    <Button Content="主控" Command="{Binding SetMasterCommand}" Padding="2" MinHeight="26" />
+                </UniformGrid>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="JobTemplate">
+        <Expander Foreground="#E6E8F4" BorderThickness="0,0,0,1" BorderBrush="#30374C" Padding="5">
+            <Expander.Header>
+                <TextBlock Text="{Binding Summary}" />
+            </Expander.Header>
+            <TextBlock Text="{Binding Details}" FontSize="11" Foreground="#AEB4CD" Margin="5,7" />
+        </Expander>
+    </DataTemplate>
 </ResourceDictionary>

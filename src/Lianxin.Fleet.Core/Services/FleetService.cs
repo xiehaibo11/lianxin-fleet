@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using Lianxin.Fleet.Core.Devices;
 using Lianxin.Fleet.Core.Domain;
+using Lianxin.Fleet.Core.Infrastructure;
 using Lianxin.Fleet.Core.Persistence;
 using Lianxin.Fleet.Core.Serialization;
 using Lianxin.Fleet.Core.Validation;
@@ -16,6 +17,8 @@ public sealed class FleetService : IAsyncDisposable
     private readonly CancellationTokenSource lifetime = new();
     private readonly SemaphoreSlim refreshGate = new(1, 1);
     private readonly ConcurrentDictionary<long, DeviceStatus> statuses = new();
+    private IReadOnlySet<string>? connectedUsbUdids;
+    private IReadOnlySet<string>? connectedNetworkUdids;
     private bool disposed;
 
     public FleetService(FleetStore store, IDeviceBridge bridge, string appDirectory)
@@ -28,18 +31,33 @@ public sealed class FleetService : IAsyncDisposable
     public FleetSnapshot GetSnapshot()
     {
         ObjectDisposedException.ThrowIf(disposed, this);
+        var usbUdids = Volatile.Read(ref connectedUsbUdids);
+        var networkUdids = Volatile.Read(ref connectedNetworkUdids);
         return new(store.GetDevices().Select(device => new DeviceSnapshot(device,
-            statuses.TryGetValue(device.Id, out var status) ? status : new(false, Error: "等待状态检查。"))).ToArray(), store.GetJobs());
+            statuses.TryGetValue(device.Id, out var status) ? status : new(false, Error: "等待状态检查。"),
+            usbUdids?.Contains(Usbmux.Normalize(device.Udid)), networkUdids?.Contains(Usbmux.Normalize(device.Udid))))
+            .ToArray(), store.GetJobs());
     }
-    public async Task<FleetSnapshot> RefreshAsync(CancellationToken cancellationToken = default)
+    public Task<FleetSnapshot> RefreshAsync(CancellationToken cancellationToken = default)
+        => RefreshStatusesAsync(ids: null, cancellationToken);
+
+    public Task<FleetSnapshot> RefreshDeviceStatusesAsync(IReadOnlyList<long> ids, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(ids);
+        return RefreshStatusesAsync(ids, cancellationToken);
+    }
+
+    private async Task<FleetSnapshot> RefreshStatusesAsync(IReadOnlyList<long>? ids, CancellationToken cancellationToken)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token);
-        if (!await refreshGate.WaitAsync(0, linked.Token))
+        if (!await refreshGate.WaitAsync(ids is null ? 0 : Timeout.Infinite, linked.Token))
             return GetSnapshot();
         try
         {
-            await Parallel.ForEachAsync(store.GetDevices(), new ParallelOptions { MaxDegreeOfParallelism = 16, CancellationToken = linked.Token },
+            var devices = ids is null ? store.GetDevices() : store.ResolveDevices(ids);
+            var usbProbe = RefreshUsbPresenceAsync(linked.Token);
+            var wdaProbe = Parallel.ForEachAsync(devices, new ParallelOptions { MaxDegreeOfParallelism = 16, CancellationToken = linked.Token },
                 async (device, token) =>
                 {
                     DeviceStatus status;
@@ -54,21 +72,61 @@ public sealed class FleetService : IAsyncDisposable
                     statuses[device.Id] = status;
                     store.UpdateDeviceStatus(device.Id, status);
                 });
+            await Task.WhenAll(usbProbe, wdaProbe);
             return GetSnapshot();
         }
         finally { refreshGate.Release(); }
     }
-    public async Task<IReadOnlyList<FleetDevice>> DiscoverAsync(CancellationToken cancellationToken = default)
+
+    private async Task<IReadOnlySet<string>?> RefreshUsbPresenceAsync(CancellationToken cancellationToken)
+    {
+        IReadOnlySet<string>? connected = null;
+        IReadOnlySet<string>? network = null;
+        try
+        {
+            var connections = await bridge.GetConnectionsAsync(cancellationToken);
+            connected = connections.Where(item => item.ConnectionType == "USB")
+                .Select(item => Usbmux.Normalize(item.Udid)).ToHashSet(StringComparer.Ordinal);
+            network = connections.Where(item => item.ConnectionType == "Network")
+                .Select(item => Usbmux.Normalize(item.Udid)).Where(udid => !connected.Contains(udid)).ToHashSet(StringComparer.Ordinal);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+        catch (Exception) { /* USB presence remains unknown when the transport cannot report it. */ }
+        cancellationToken.ThrowIfCancellationRequested();
+        Volatile.Write(ref connectedUsbUdids, connected);
+        Volatile.Write(ref connectedNetworkUdids, network);
+        return connected is null ? null : network is null ? connected : connected.Union(network).ToHashSet(StringComparer.Ordinal);
+    }
+
+    public Task<IReadOnlyList<FleetDevice>> DiscoverAsync(CancellationToken cancellationToken = default)
+        => DiscoverAndRegisterAsync(connectedOnly: false, cancellationToken);
+
+    public Task<IReadOnlyList<FleetDevice>> DiscoverConnectedAsync(CancellationToken cancellationToken = default)
+        => DiscoverAndRegisterAsync(connectedOnly: true, cancellationToken);
+
+    private async Task<IReadOnlyList<FleetDevice>> DiscoverAndRegisterAsync(bool connectedOnly, CancellationToken cancellationToken)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
-        var discovered = await bridge.DiscoverAsync(cancellationToken);
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token);
+        var discovered = await bridge.DiscoverAsync(linked.Token);
+        IReadOnlySet<string>? connectedUdids = null;
+        if (connectedOnly)
+        {
+            await refreshGate.WaitAsync(linked.Token);
+            try
+            {
+                connectedUdids = await RefreshUsbPresenceAsync(linked.Token);
+            }
+            finally { refreshGate.Release(); }
+        }
         lock (queueGate)
         {
             ObjectDisposedException.ThrowIf(disposed, this);
+            linked.Token.ThrowIfCancellationRequested();
             var registered = store.GetDevices();
-            var udids = registered.Select(d => d.Udid).ToHashSet(StringComparer.Ordinal);
+            var udids = registered.Select(d => Usbmux.Normalize(d.Udid)).ToHashSet(StringComparer.Ordinal);
             var ports = registered.Select(d => d.WdaPort).ToHashSet();
-            foreach (var device in discovered.Where(device => udids.Add(device.Udid)))
+            foreach (var device in discovered.Where(device => udids.Add(Usbmux.Normalize(device.Udid))))
             {
                 var port = 8100;
                 while (ports.Contains(port))
@@ -76,7 +134,14 @@ public sealed class FleetService : IAsyncDisposable
                 store.RegisterDevice(device.Name, device.Udid, port);
                 ports.Add(port);
             }
-            return store.GetDevices();
+            foreach (var device in discovered)
+                store.UpdateDeviceInfo(device);
+            var devices = store.GetDevices();
+            if (!connectedOnly)
+                return devices;
+            connectedUdids ??= discovered.Select(device => Usbmux.Normalize(device.Udid)).ToHashSet(StringComparer.Ordinal);
+            return devices.Where(device => connectedUdids.Contains(Usbmux.Normalize(device.Udid)))
+                .DistinctBy(device => Usbmux.Normalize(device.Udid)).ToArray();
         }
     }
     public FleetDevice RegisterDevice(string name, string udid, int wdaPort, string groupName = "未分组")
@@ -94,6 +159,11 @@ public sealed class FleetService : IAsyncDisposable
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         return bridge.GetScreenshotAsync(store.GetDevice(id), cancellationToken);
+    }
+    public Task<byte[]> GetUsbScreenshotAsync(long id, CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(disposed, this);
+        return bridge.GetUsbScreenshotAsync(store.GetDevice(id), cancellationToken);
     }
     public IAsyncEnumerable<byte[]> StreamAsync(long id, CancellationToken cancellationToken = default)
     {

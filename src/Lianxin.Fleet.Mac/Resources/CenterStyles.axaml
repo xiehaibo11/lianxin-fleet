@@ -1,0 +1,72 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 优先用简体中文字体，避免系统按日文字形回退（例如「组」显示成「組」）。 -->
+    <Style Selector=":is(Window)">
+        <Setter Property="FontFamily" Value="PingFang SC, Microsoft YaHei UI, $Default" />
+    </Style>
+    <Style Selector="Border.bar">
+        <Setter Property="Background" Value="#171B26" />
+        <Setter Property="BorderBrush" Value="#2C3245" />
+    </Style>
+    <Style Selector="Border.chip">
+        <Setter Property="Background" Value="#233024" />
+        <Setter Property="BorderBrush" Value="#3E6B47" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="8,2" />
+        <Setter Property="Margin" Value="0,0,6,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.chip.bad">
+        <Setter Property="Background" Value="#3A1F24" />
+        <Setter Property="BorderBrush" Value="#7A3A44" />
+    </Style>
+    <Style Selector="Border.chip.neutral">
+        <Setter Property="Background" Value="#1F2433" />
+        <Setter Property="BorderBrush" Value="#3B425A" />
+    </Style>
+    <Style Selector="Border.chip.info">
+        <Setter Property="Background" Value="#1E2A44" />
+        <Setter Property="BorderBrush" Value="#3B5A9A" />
+    </Style>
+    <Style Selector="Border.badge">
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="8,2" />
+        <Setter Property="Background" Value="#3A3F52" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.badge.ready">
+        <Setter Property="Background" Value="#2E6B45" />
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.section">
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="#C9CDE0" />
+        <Setter Property="Margin" Value="0,12,0,4" />
+    </Style>
+    <Style Selector="TextBlock.tool">
+        <Setter Property="Foreground" Value="#8C93AE" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,8,6" />
+    </Style>
+    <Style Selector="WrapPanel.toolbar > Button">
+        <Setter Property="Margin" Value="0,0,6,6" />
+    </Style>
+    <Style Selector="TabStrip.tabs > TabStripItem">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="Padding" Value="14,6" />
+        <Setter Property="MinHeight" Value="36" />
+    </Style>
+    <Style Selector="DataGrid">
+        <Setter Property="GridLinesVisibility" Value="Horizontal" />
+        <Setter Property="HorizontalGridLinesBrush" Value="#262C3C" />
+        <Setter Property="RowBackground" Value="Transparent" />
+        <Setter Property="Background" Value="#141823" />
+        <Setter Property="BorderBrush" Value="#2C3245" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+</Styles>

@@ -4,7 +4,6 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Lianxin.Fleet.Core.Devices;
 using Lianxin.Fleet.Core.Domain;
-using Lianxin.Fleet.Core.Persistence;
 using Lianxin.Fleet.Core.Services;
 using Lianxin.Fleet.Mac.ViewModels;
 
@@ -14,10 +13,10 @@ public sealed partial class MainWindow : Window
 {
     private const string AllGroups = "所有分组";
     private readonly string appDirectory;
-    private readonly FleetStore store;
-    private readonly IDeviceBridge bridge;
+    private readonly FleetRuntime runtime;
     private readonly FleetService service;
     private readonly WdaHost host;
+    private readonly Action<string> hostLog;
     private readonly CancellationTokenSource lifetime = new();
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromSeconds(3) };
     private readonly Dictionary<long, DeviceCard> cards = [];
@@ -29,34 +28,22 @@ public sealed partial class MainWindow : Window
     private Task refresh = Task.CompletedTask;
     private bool ready, applyingFilter, closing, closed;
 
-    public MainWindow()
+    // 集控投屏窗口与中控共用同一个运行时（数据库、任务队列、WDA 通道），关闭窗口不会停止它们。
+    public MainWindow(FleetRuntime runtime, string runnerBundleId)
     {
         InitializeComponent();
-        WdaBundleInput.Text = WdaHost.DefaultRunnerBundleId;
-        // FLEET_DATA_DIR 用于隔离测试或多工作站；macOS 上 .NET 不按 HOME 解析 LocalApplicationData。
-        var dataDirectory = Path.GetFullPath(Environment.GetEnvironmentVariable("FLEET_DATA_DIR")
-            ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LianxinFleet.Mac"));
-        appDirectory = Path.GetFullPath(Environment.GetEnvironmentVariable("FLEET_APP_DIR") ?? Path.Combine(dataDirectory, "apps"));
-        Directory.CreateDirectory(dataDirectory);
-        Directory.CreateDirectory(appDirectory);
-        store = new FleetStore(Path.Combine(dataDirectory, "fleet.sqlite"));
-        bridge = new DeviceBridge();
-        try
-        {
-            service = new FleetService(store, bridge, appDirectory);
-        }
-        catch
-        {
-            (bridge as IDisposable)?.Dispose();
-            store.Dispose();
-            throw;
-        }
-        host = new WdaHost(log: message => Dispatcher.UIThread.Post(() =>
+        this.runtime = runtime;
+        WdaBundleInput.Text = runnerBundleId;
+        appDirectory = runtime.AppDirectory;
+        service = runtime.Service;
+        host = runtime.Host;
+        hostLog = message => Dispatcher.UIThread.Post(() =>
         {
             if (!closing)
                 WdaLog.Text = message;
-        }));
-        EnvironmentLabel.Text = "macOS · USB 真机";
+        });
+        runtime.HostLog += hostLog;
+        EnvironmentLabel.Text = "集控投屏 · 与中控共用设备、任务和自动化通道";
         StatusLabel.Text = "连接设备并确认信任后，点击「扫描 USB」。";
         UpdateHostButtons();
         Opened += (_, _) =>
@@ -77,39 +64,45 @@ public sealed partial class MainWindow : Window
         args.Cancel = true;
         if (closing)
             return;
+        await StopForCloseAsync();
+        closed = true;
+        // 清理可能同步完成，此时仍在 Closing 事件里，不能直接再次 Close。
+        Dispatcher.UIThread.Post(Close);
+    }
+
+    // 中控关闭时调用：先结束画面循环，再关闭窗口；共享服务由中控统一释放。
+    public async Task ShutdownAsync()
+    {
+        if (closed)
+            return;
+        await StopForCloseAsync();
+        closed = true;
+        Close();
+    }
+
+    private async Task StopForCloseAsync()
+    {
+        if (closing)
+            return;
         closing = true;
         IsEnabled = false;
         timer.Stop();
+        runtime.HostLog -= hostLog;
         lifetime.Cancel();
         try
         {
-            // 读流循环必须先结束，之后才能释放服务和设备卡片的图片。
+            // 读流循环必须先结束，之后才能释放设备卡片的图片。
             await StopCastingAsync();
             await Task.WhenAll(operation, refresh);
-            await host.DisposeAsync();
         }
         catch (Exception error)
         {
             Console.Error.WriteLine(error);
         }
-        finally
-        {
-            try
-            {
-                await service.DisposeAsync();
-            }
-            finally
-            {
-                MasterImage.Source = null;
-                foreach (var card in cards.Values)
-                    card.Dispose();
-                (bridge as IDisposable)?.Dispose();
-                store.Dispose();
-                lifetime.Dispose();
-                closed = true;
-                Close();
-            }
-        }
+        MasterImage.Source = null;
+        foreach (var card in cards.Values)
+            card.Dispose();
+        lifetime.Dispose();
     }
 
     private void ApplySnapshot(FleetSnapshot snapshot)

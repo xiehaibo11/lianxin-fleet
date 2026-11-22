@@ -3,10 +3,14 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <Version>1.1.0</Version>
+        <!-- 中控和投屏窗口需要共享运行时，只能用代码构造，不经运行时 XAML 加载器。 -->
+        <NoWarn>$(NoWarn);AVLN3001</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
         <ProjectReference Include="../Lianxin.Fleet.Core/Lianxin.Fleet.Core.csproj" />
     </ItemGroup>
 </Project>

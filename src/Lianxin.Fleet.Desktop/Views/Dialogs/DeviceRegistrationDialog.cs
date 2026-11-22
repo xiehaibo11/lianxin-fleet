@@ -21,6 +21,9 @@ public sealed class DeviceRegistrationDialog : Window
         SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         ResizeMode = ResizeMode.NoResize;
+        // 应用级深色控件样式下，对话框也使用深色背景。
+        Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x15, 0x19, 0x24));
+        Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xE6, 0xE8, 0xF4));
         var panel = new StackPanel { Margin = new Thickness(22) };
         Content = panel;
         Add(panel, "设备名称", _name);

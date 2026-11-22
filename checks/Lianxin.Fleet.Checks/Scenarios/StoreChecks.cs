@@ -47,6 +47,96 @@ internal static class StoreChecks
         Assert.Throws<InvalidOperationException>(() => { using var unused = new FleetStore(database); });
         return Task.CompletedTask;
     }
+    public static async Task ConnectedDiscovery()
+    {
+        using var folder = new TemporaryFolder();
+        using var store = new FleetStore(":memory:");
+        var offline = store.RegisterDevice("离线手机", "00008030-0012345678900001", 8100);
+        var known = store.RegisterDevice("已命名手机", "00008030-00123456789000ab", 8102, "测试组");
+        var newcomer = new DiscoveredDevice("00008030-0012345678900003", "新手机");
+        IReadOnlyList<DiscoveredDevice> attached = [new("0000803000123456789000AB", "扫描名称"), newcomer, newcomer];
+        var bridge = new FakeBridge(discover: () => attached);
+        await using var service = new FleetService(store, bridge, folder.Path);
+
+        var connected = await service.DiscoverConnectedAsync();
+        Assert.Equal(2, connected.Count);
+        Assert.Equal<bool?>(false, service.GetSnapshot().Devices.Single(item => item.Device.Id == offline.Id).UsbConnected);
+        Assert.Equal<bool?>(true, service.GetSnapshot().Devices.Single(item => item.Device.Id == known.Id).UsbConnected);
+        Assert.Equal(known, connected.Single(device => device.Udid == known.Udid));
+        Assert.Equal(8101, connected.Single(device => device.Udid == newcomer.Udid).WdaPort);
+        Assert.True(connected.SequenceEqual(await service.DiscoverConnectedAsync()));
+
+        attached = [];
+        Assert.Equal(0, (await service.DiscoverConnectedAsync()).Count);
+        var registry = await service.DiscoverAsync();
+        Assert.Equal(3, registry.Count);
+        Assert.Equal(offline, registry.Single(device => device.Udid == offline.Udid));
+    }
+
+    public static async Task TargetedStatusRefresh()
+    {
+        using var folder = new TemporaryFolder();
+        using var store = new FleetStore(":memory:");
+        var selected = store.RegisterDevice("已连接", "00008030-0012345678900001", 8100);
+        var other = store.RegisterDevice("其他设备", "00008030-0012345678900002", 8101);
+        var calls = new ConcurrentQueue<long>();
+        var ready = new DeviceStatus(true, Width: 375, Height: 667);
+        var bridge = new FakeBridge(status: (device, _) =>
+        {
+            calls.Enqueue(device.Id);
+            return Task.FromResult(ready);
+        });
+        await using var service = new FleetService(store, bridge, folder.Path);
+
+        var snapshot = await service.RefreshDeviceStatusesAsync([selected.Id, selected.Id]);
+        Assert.Equal(selected.Id, calls.Single());
+        Assert.Equal(ready, snapshot.Devices.Single(item => item.Device.Id == selected.Id).Status);
+        Assert.True(!snapshot.Devices.Single(item => item.Device.Id == other.Id).Status.Online);
+        Assert.Equal(667, store.GetDevice(selected.Id).Height);
+        Assert.Equal(other, store.GetDevice(other.Id));
+    }
+
+    public static async Task UsbPresenceAndCapture()
+    {
+        using var folder = new TemporaryFolder();
+        using var store = new FleetStore(":memory:");
+        var usbPhone = store.RegisterDevice("USB", "00008030-00123456789000ab", 8100);
+        var wdaPhone = store.RegisterDevice("WDA", "00008030-0012345678900002", 8101);
+        IReadOnlyList<string>? attached = ["0000803000123456789000AB"];
+        byte[] frame = [1, 2, 3];
+        var bridge = new FakeBridge(
+            status: (device, _) => Task.FromResult(new DeviceStatus(device.Id == wdaPhone.Id)),
+            usbPresence: _ => Task.FromResult(attached ?? throw new IOException("Apple USB 服务不可用")),
+            usbScreenshot: (device, _) =>
+            {
+                Assert.Equal(usbPhone.Id, device.Id);
+                return Task.FromResult(frame);
+            });
+        await using var service = new FleetService(store, bridge, folder.Path);
+
+        Assert.True(service.GetSnapshot().Devices.All(item => item.UsbConnected is null));
+        var snapshot = await service.RefreshAsync();
+        var usb = snapshot.Devices.Single(item => item.Device.Id == usbPhone.Id);
+        Assert.Equal<bool?>(true, usb.UsbConnected);
+        Assert.True(!usb.Status.Online);
+        Assert.True((await service.GetUsbScreenshotAsync(usbPhone.Id)).SequenceEqual(frame));
+
+        var wda = snapshot.Devices.Single(item => item.Device.Id == wdaPhone.Id);
+        Assert.Equal<bool?>(false, wda.UsbConnected);
+        Assert.True(wda.Status.Online);
+
+        attached = [];
+        snapshot = await service.RefreshDeviceStatusesAsync([usbPhone.Id]);
+        Assert.Equal(2, snapshot.Devices.Count);
+        Assert.True(snapshot.Devices.All(item => item.UsbConnected is false));
+        Assert.True(snapshot.Devices.Single(item => item.Device.Id == wdaPhone.Id).Status.Online);
+
+        attached = null;
+        snapshot = await service.RefreshAsync();
+        Assert.True(snapshot.Devices.All(item => item.UsbConnected is null));
+        Assert.True(snapshot.Devices.Single(item => item.Device.Id == wdaPhone.Id).Status.Online);
+    }
+
     public static async Task Queue()
     {
         using var folder = new TemporaryFolder();

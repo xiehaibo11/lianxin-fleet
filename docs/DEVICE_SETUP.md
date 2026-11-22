@@ -76,6 +76,8 @@ ditto --norsrc --noextattr --noqtn -c -k --keepParent /absolute/new/WDA-package/
 
 ## 安装并批量启动
 
+在 Windows 主控点击「一键连接」后，程序会扫描已接入的 USB 设备并开始加载各设备的画面。同时，它会按当前勾选范围启动已安装的签名 WDA Runner。未勾选时会对扫描到的所有 USB 设备尝试启动 WDA。成功连接后，Runner 的 Bundle ID 会保存在当前 Windows 用户的本地设置中。首次配对请在手机上按 iOS 提示解锁并确认信任。
+
 在 C# 桌面中点击“扫描 USB”，新设备会自动登记并分配本机端口。点击“打开应用目录”，将已签名 WDA IPA 放入批准目录，选择目标设备后批量安装。首次也可手动安装：
 
 ```powershell
@@ -95,7 +97,8 @@ python -m pymobiledevice3 --no-color usbmux forward --udid YOUR_DEVICE_UDID --ho
 
 ## 操作边界
 
-- 投屏为 WDA 画面流，约 5 帧/秒、30% 尺寸，不承诺视频帧率；USB 集线器带宽不足时会掉帧。停止投屏后回到每 3 秒快照，最多预览 12 台。
+- Windows 实时投屏使用 WDA 画面流，目标约 5 帧/秒、30% 尺寸。WDA 离线、画面流中断或手动切到快照时，已确认 USB 接入的设备会尝试使用独立 USB 截图服务。快照循环在每次尝试结束后间隔约 3 秒，最多 4 台同时取帧，设备越多刷新间隔可能越长。
+- 独立 USB 快照使用 iOS 的旧版开发者截图服务，适用于 iPhone 6s 的 iOS 15 路径。手机须已信任电脑并挂载兼容的开发者镜像。界面会分别报告画面和 WDA 状态，WDA 未就绪时鼠标控制暂停。更新的 iOS 版本可能需要不同的截图服务。[上游截图服务](https://github.com/doronz88/pymobiledevice3/blob/v11.57.1/pymobiledevice3/services/screenshot.py)
 - 同步操作最多 32 台并行，同一台手机仍依次执行；锁屏/解锁、音量、多任务和剪贴板依赖 WDA 与 iOS 版本，需先在一台真机确认。
 - 相对坐标群控要求目标页面和方向一致；不同布局、弹窗与加载状态可能产生不同结果。
 - 安装只允许批准目录内的 `.ipa` 或 `.app`，仍受 Apple 签名与设备授权限制。

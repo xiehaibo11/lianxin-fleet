@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Lianxin.Fleet.Mac.ViewModels"
+             x:Class="Lianxin.Fleet.Mac.Views.Center.AgentPage">
+    <Grid Margin="16,12" ColumnDefinitions="380,*">
+        <StackPanel Margin="0,0,16,0" Spacing="4">
+            <TextBlock Text="AI 助手" Classes="title" />
+            <TextBlock Classes="muted" FontSize="13" TextWrapping="Wrap" Margin="0,2,0,6"
+                       Text="用一句话描述要在手机上完成的事。AI 会看截图、逐步点按，直到完成或无法继续。截图会发送给模型服务。" />
+            <TextBlock Text="设备（需已启动自动化）" Classes="section" />
+            <ComboBox x:Name="DeviceBox" HorizontalAlignment="Stretch" AutomationProperties.Name="AI 助手操作的设备" />
+            <TextBlock Text="任务说明" Classes="section" />
+            <TextBox x:Name="InstructionInput" Height="130" AcceptsReturn="True" TextWrapping="Wrap" MaxLength="2000"
+                     Text="打开设置，查看 iOS 版本号" AutomationProperties.Name="任务说明" />
+            <TextBlock x:Name="ModelLabel" Classes="muted" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,8" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <Button x:Name="StartButton" Content="▶ 开始" Classes="primary" Click="StartClicked" />
+                <Button x:Name="StopButton" Content="■ 停止" Click="StopClicked" IsEnabled="False" />
+                <Button Content="清空记录" Click="ClearClicked" />
+            </StackPanel>
+            <Border Classes="panel" Margin="0,10,0,0" Padding="12">
+                <SelectableTextBlock x:Name="ResultLabel" Text="还没有运行。" TextWrapping="Wrap" />
+            </Border>
+            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,0"
+                       Text="AI 不会自动输入密码、付款、发送消息或删除数据，除非任务说明明确要求。遇到登录、验证码等情况会停下并说明原因。" />
+        </StackPanel>
+        <DockPanel Grid.Column="1">
+            <TextBlock DockPanel.Dock="Top" Text="执行记录" Classes="section" Margin="0,0,0,6" />
+            <ListBox x:Name="LogList" Background="#141823" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     AutomationProperties.Name="AI 执行记录">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AgentLogItem">
+                        <Grid ColumnDefinitions="64,44,*">
+                            <TextBlock Text="{Binding Stamp}" Classes="muted" FontSize="11" />
+                            <TextBlock Grid.Column="1" Text="{Binding Kind}" Foreground="#8FB2FF" FontSize="12" />
+                            <TextBlock Grid.Column="2" Text="{Binding Text}" TextWrapping="Wrap" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+    </Grid>
+</UserControl>

@@ -36,24 +36,25 @@
   <Grid Grid.Row="1" Grid.Column="1" Margin="22,18,14,10">
    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="205" /></Grid.RowDefinitions>
    <StackPanel>
-    <TextBlock Text="所有设备，尽在掌握" FontSize="27" FontWeight="SemiBold" />
-    <TextBlock Text="实时投屏墙 · 分组管理 · 同步操作" Foreground="#A5ABC2" Margin="0,7,0,14" />
-    <WrapPanel><Button Content="扫描 USB" Click="DiscoverClicked" Style="{StaticResource Primary}" />
+    <TextBlock Text="设备预览" FontSize="27" FontWeight="SemiBold" Margin="0,0,0,12" />
+    <WrapPanel><Button Content="一键连接" Click="ConnectClicked" Style="{StaticResource Primary}"
+      ToolTip="连接当前插入且已信任的 iPhone。勾选设备时只连接勾选的设备。" />
+     <Button Content="扫描 USB" Click="DiscoverClicked" />
      <Button Content="登记设备" Click="RegisterClicked" /><Button Content="导出连接配置" Click="ExportClicked" />
-     <Button Name="CastButton" Content="停止投屏" Click="CastClicked" AutomationProperties.Name="开始或停止实时投屏" /></WrapPanel>
+     <Button Name="CastButton" Content="切换到快照" Click="CastClicked" AutomationProperties.Name="切换实时投屏或快照" /></WrapPanel>
    </StackPanel>
    <Grid Grid.Row="1" Margin="0,8,0,12">
     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="140" /></Grid.ColumnDefinitions>
     <CheckBox Name="SelectVisible" Content="全选当前" IsThreeState="True" Click="SelectVisibleClicked" VerticalAlignment="Center" Margin="0,0,15,0" />
     <TextBox Name="SearchInput" Grid.Column="1" TextChanged="SearchChanged" AutomationProperties.Name="搜索设备名称或 UDID" Margin="0,0,10,0" ToolTip="搜索设备名称或 UDID" />
-    <ComboBox Name="StateFilter" Grid.Column="2" SelectedIndex="0" SelectionChanged="FilterChanged" Margin="0" AutomationProperties.Name="设备在线状态筛选">
-     <ComboBoxItem Content="全部状态" /><ComboBoxItem Content="可控制" /><ComboBoxItem Content="未连接" />
+    <ComboBox Name="StateFilter" Grid.Column="2" SelectedIndex="0" SelectionChanged="FilterChanged" Margin="0" AutomationProperties.Name="设备状态筛选">
+     <ComboBoxItem Content="全部状态" /><ComboBoxItem Content="USB 已连接" /><ComboBoxItem Content="可控制" /><ComboBoxItem Content="控制未就绪" />
     </ComboBox>
    </Grid>
    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <Grid><ItemsControl ItemsSource="{Binding DeviceView}" ItemTemplate="{StaticResource DeviceTemplate}">
      <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-    </ItemsControl><TextBlock Name="EmptyLabel" Text="连接第一台 iPhone：通过 USB 连接并解锁信任，然后扫描设备。" Foreground="#9DA4BE" Margin="15" /></Grid>
+    </ItemsControl><TextBlock Name="EmptyLabel" Text="连接并解锁 iPhone，按手机提示信任这台电脑，然后点击一键连接。" Foreground="#9DA4BE" Margin="15" /></Grid>
    </ScrollViewer>
    <DockPanel Grid.Row="3" Margin="0,10,0,0">
     <TextBlock DockPanel.Dock="Top" Text="最近任务 · 展开查看逐设备结果" Foreground="#B8B5E3" Margin="0,0,0,7" />
@@ -64,7 +65,7 @@
    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="17">
     <TextBlock Text="主控与同步操作" FontSize="16" FontWeight="SemiBold" />
     <TextBlock Name="MasterLabel" Text="选择一台主控设备" Margin="0,10,0,3" />
-    <TextBlock Name="MasterDetails" Foreground="#969EB9" FontSize="10" Margin="0,0,0,9" />
+    <TextBlock Name="MasterDetails" Foreground="#A5ABC2" FontSize="11" Margin="0,0,0,9" TextWrapping="Wrap" />
     <Border Name="MasterSurface" Height="295" Background="#0B0E15" CornerRadius="9" Focusable="True"
      MouseLeftButtonDown="ScreenDown" MouseLeftButtonUp="ScreenUp" LostMouseCapture="ScreenLostCapture" KeyDown="ScreenKeyDown"
      AutomationProperties.Name="主控手机屏幕，点击或拖动操作；回车点击中心">
@@ -104,11 +105,11 @@
     <TextBox Name="WdaBundleInput" MaxLength="160" AutomationProperties.Name="已安装 WDA Runner 的 Bundle ID" />
     <WrapPanel><Button Content="启动通道" Click="StartWdaClicked" /><Button Content="停止通道" Click="StopWdaClicked" /></WrapPanel>
     <TextBlock Name="WdaLog" Foreground="#949CB7" FontSize="10" MaxHeight="105" Margin="0,4,0,14" />
-    <TextBlock Text="投屏时显示约 5 帧/秒的实时画面；停止投屏后改为每 3 秒快照，最多预览 12 台。同步操作会跳过未连接设备，请保持目标设备的页面与方向一致。开发签名需登记 UDID；企业签名需企业账号。" Foreground="#878FA8" FontSize="10" />
+    <TextBlock Text="实时画面中断时会尝试 USB 快照。同步操作会跳过 WDA 控制未就绪的设备，请保持目标设备的页面与方向一致。" Foreground="#969EB9" FontSize="11" />
    </StackPanel></ScrollViewer>
   </Border>
   <Border Grid.Row="2" Grid.ColumnSpan="3" Background="#202536">
-   <DockPanel Margin="18,0"><TextBlock Name="StatusLabel" Text="正在初始化…" VerticalAlignment="Center" /><TextBlock Name="CountsLabel" DockPanel.Dock="Right" TextAlignment="Right" Foreground="#B5ACF5" VerticalAlignment="Center" /></DockPanel>
+   <DockPanel Margin="18,0"><TextBlock Name="CountsLabel" DockPanel.Dock="Right" TextAlignment="Right" Foreground="#B5ACF5" VerticalAlignment="Center" Margin="12,0,0,0" /><TextBlock Name="StatusLabel" Text="正在初始化…" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" /></DockPanel>
   </Border>
  </Grid>
 </Window>

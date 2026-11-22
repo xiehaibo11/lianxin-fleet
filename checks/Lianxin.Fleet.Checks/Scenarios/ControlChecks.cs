@@ -95,6 +95,20 @@ internal static class ControlChecks
         Assert.True(paste.Body.Contains(Convert.ToBase64String(Encoding.UTF8.GetBytes("你好"))), "Clipboard text is UTF-8 base64");
         var hold = await Run(FleetAction.LongPress, new(X: .5, Y: .5, Duration: 1));
         Assert.True(hold.Path == "/session/s1/wda/touchAndHold" && hold.Body.Contains("\"duration\":1"), "Long press keeps its duration");
+        var swipe = await Run(FleetAction.Swipe, new(FromX: .75, FromY: .8, ToX: .2, ToY: .1, Duration: .48));
+        Assert.Equal("/session/s1/actions", swipe.Path);
+        using (var body = JsonDocument.Parse(swipe.Body))
+        {
+            var pointer = body.RootElement.GetProperty("actions").EnumerateArray().Single();
+            Assert.Equal("pointer", pointer.GetProperty("type").GetString());
+            Assert.Equal("touch", pointer.GetProperty("parameters").GetProperty("pointerType").GetString());
+            var steps = pointer.GetProperty("actions").EnumerateArray().ToArray();
+            Assert.True(steps.Select(step => step.GetProperty("type").GetString())
+                .SequenceEqual(["pointerMove", "pointerDown", "pointerMove", "pointerUp"]),
+                "A swipe moves immediately after touch down without a long press");
+            Assert.Equal((292, 674, 0), ReadMove(steps[0]));
+            Assert.Equal((78, 84, 480), ReadMove(steps[2]));
+        }
         Assert.Equal("/session/s1/wda/apps/terminate", (await Run(FleetAction.Terminate, new(BundleId: "com.example.app"))).Path);
         var before = requests.Count;
         await Assert.ThrowsAsync<ArgumentException>(() => bridge.ExecuteAsync(phone, FleetAction.OpenUrl, new(Text: "https://a b")));
@@ -104,6 +118,12 @@ internal static class ControlChecks
             frames++;
         Assert.Equal(2, frames);
         Assert.True(requests.Last().Body.Contains("\"mjpegScalingFactor\":30"), "Stream start lowers WDA frame size");
+
+        static (int X, int Y, int Duration) ReadMove(JsonElement step)
+        {
+            Assert.Equal("viewport", step.GetProperty("origin").GetString());
+            return (step.GetProperty("x").GetInt32(), step.GetProperty("y").GetInt32(), step.GetProperty("duration").GetInt32());
+        }
     }
 
     private static async Task<int> FakeMjpegServerAsync()
