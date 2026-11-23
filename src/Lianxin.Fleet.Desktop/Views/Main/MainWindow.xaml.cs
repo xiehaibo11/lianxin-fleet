@@ -137,7 +137,7 @@ public partial class MainWindow : Window
         var group = GroupFilter?.SelectedItem as string;
         var query = SearchInput?.Text.Trim() ?? "";
         return (string.IsNullOrEmpty(group) || group == "所有分组" || card.GroupName == group) &&
-            (query.Length == 0 || (card.Name + " " + card.Device.Udid).Contains(query, StringComparison.OrdinalIgnoreCase)) &&
+            (query.Length == 0 || (card.Name + " " + card.Device.Name + " " + card.Device.Udid).Contains(query, StringComparison.OrdinalIgnoreCase)) &&
             (StateFilter?.SelectedIndex switch
             {
                 1 => card.UsbConnected == true,

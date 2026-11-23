@@ -86,4 +86,4 @@ Mac 除运行 macOS 群控工作站外，还负责 Xcode 构建和签名。普�
 
 旧 JavaScript 版本已完整备份在本机 `data/migration/legacy-javascript-before-csharp-20261117.zip`，归档有逐文件 SHA-256 清单。原业务数据库没有删除或自动转换；原生群控使用独立数据库。
 
-完整设备接入、WDA 签名和安装步骤见 [设备与签名指南](docs/DEVICE_SETUP.md)。Windows 界面、驱动、USB 稳定性与物理 iPhone 操作仍需在目标 Windows 工作站验收。
+完整设备接入、WDA 签名和安装步骤见 [设备与签名指南](docs/DEVICE_SETUP.md)。Windows 版的手机控制已在 10 台 iPhone 6s（iOS 15.8.8，USB）上实测，发现的问题、修复和仍未解决的问题见 [真机测试记录](docs/DEVICE_TEST_REPORT.md)；全面屏机型、iOS 16.4 以上和 macOS 版仍需在目标工作站验收。

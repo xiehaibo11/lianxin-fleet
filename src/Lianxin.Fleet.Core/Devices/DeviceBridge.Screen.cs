@@ -33,11 +33,46 @@ public sealed partial class DeviceBridge
         return SerializedAsync(device, async () =>
         {
             var session = await SessionAsync(device, cancellationToken).ConfigureAwait(false);
-            await RequestAsync(device, $"/session/{session}/orientation", new
+            var before = await CurrentOrientationAsync(device, session, cancellationToken).ConfigureAwait(false);
+            try
             {
-                orientation = name
-            }, action: true, timeoutSeconds: 15, cancellationToken: cancellationToken).ConfigureAwait(false);
+                await RequestAsync(device, $"/session/{session}/orientation", new
+                {
+                    orientation = name
+                }, action: true, timeoutSeconds: 15, cancellationToken: cancellationToken).ConfigureAwait(false);
+            }
+            catch (DeviceOperationException error) when (!error.Uncertain && before is not null && before != name)
+            {
+                // 真机实测：主屏拒绝横屏后，这个横屏请求仍然留着，下一个支持横屏的应用一打开就是横的。
+                // 把方向设回旋转前的值，撤销这个请求；撤销失败不影响报告原来的错误。
+                try
+                {
+                    await RequestAsync(device, $"/session/{session}/orientation", new
+                    {
+                        orientation = before
+                    }, action: true, timeoutSeconds: 15, cancellationToken: cancellationToken).ConfigureAwait(false);
+                }
+                catch (DeviceOperationException)
+                {
+                }
+                throw;
+            }
             return true;
         }, cancellationToken);
+    }
+
+    // 旋转前的方向，只认 PORTRAIT / LANDSCAPE；读不到时不做撤销。
+    private async Task<string?> CurrentOrientationAsync(FleetDevice device, string session, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var value = await RequestAsync(device, $"/session/{session}/orientation", timeoutSeconds: 8,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+            return value.ValueKind == JsonValueKind.String && value.GetString() is "PORTRAIT" or "LANDSCAPE" ? value.GetString() : null;
+        }
+        catch (DeviceOperationException)
+        {
+            return null;
+        }
     }
 }

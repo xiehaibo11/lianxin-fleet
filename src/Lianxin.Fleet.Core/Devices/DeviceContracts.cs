@@ -11,6 +11,14 @@ public interface IDeviceBridge
         => (await GetUsbConnectedUdidsAsync(cancellationToken).ConfigureAwait(false))
             .Select(udid => new DeviceConnection(udid, "USB")).ToArray();
     Task<DeviceStatus> GetStatusAsync(FleetDevice device, CancellationToken cancellationToken = default);
+    // 动作前换算坐标用的当前方向点尺寸，超时与设备动作相同（状态探测只等 2 秒，手机忙时会误报失败）。
+    // 默认实现退回状态探测，供只实现了状态的通道使用。
+    async Task<(int Width, int Height)> GetWindowSizeAsync(FleetDevice device, CancellationToken cancellationToken = default)
+    {
+        var status = await GetStatusAsync(device, cancellationToken).ConfigureAwait(false);
+        return status.Online ? (status.Width, status.Height)
+            : throw new DeviceOperationException("自动化未就绪，请先启动自动化。");
+    }
     Task<byte[]> GetUsbScreenshotAsync(FleetDevice device, CancellationToken cancellationToken = default);
     Task<byte[]> GetScreenshotAsync(FleetDevice device, CancellationToken cancellationToken = default);
     // 实时画面：逐帧返回图片字节，调用方取消即断开。

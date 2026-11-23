@@ -19,6 +19,8 @@ public sealed partial class DeviceBridge : IDeviceBridge, IDisposable
     private readonly Func<FleetDevice, CancellationToken, Task<Stream>> streamConnector;
     private readonly ConcurrentDictionary<int, string> sessions = new();
     private readonly ConcurrentDictionary<int, SemaphoreSlim> locks = new();
+    // 每个 WDA 端口最近一次读到的点尺寸和名称，状态探测时手机忙得来不及回答就沿用。
+    private readonly ConcurrentDictionary<int, (int Width, int Height, string Name)> lastStatus = new();
     private bool disposed;
 
     public DeviceBridge(string? pythonPath = null, HttpClient? httpClient = null, string? platform = null,
@@ -56,13 +58,34 @@ public sealed partial class DeviceBridge : IDeviceBridge, IDisposable
         var ready = RequestAsync(device, "/status", timeoutSeconds: 2, cancellationToken: cancellationToken);
         var size = DimensionsAsync(device, 2, cancellationToken);
         var info = RequestAsync(device, "/wda/device/info", timeoutSeconds: 2, cancellationToken: cancellationToken);
-        await Task.WhenAll(ready, size, info).ConfigureAwait(false);
+        try
+        {
+            await Task.WhenAll(ready, size, info).ConfigureAwait(false);
+        }
+        catch (DeviceOperationException) when (ready.IsCompletedSuccessfully && lastStatus.ContainsKey(device.WdaPort))
+        {
+            // 真机实测：应用刚启动、键盘弹出时 window/size 和 device/info 要等 XCTest 主线程，常超过 2 秒；
+            // /status 不经过主线程，仍立即返回。这时沿用上次的尺寸和名称，不把能控制的手机报成离线
+            // （否则集控投屏的同步操作会悄悄跳过这台）。
+        }
         if (!ready.Result.TryGetProperty("ready", out var value) || value.ValueKind != System.Text.Json.JsonValueKind.True)
             throw new DeviceOperationException("WDA 尚未就绪。");
-        var name = info.Result.TryGetProperty("name", out var label) && label.ValueKind == System.Text.Json.JsonValueKind.String
-            ? label.GetString() ?? "" : "";
+        var known = lastStatus.GetValueOrDefault(device.WdaPort);
+        var (width, height) = size.IsCompletedSuccessfully ? size.Result : (known.Width, known.Height);
+        var name = !info.IsCompletedSuccessfully ? known.Name
+            : info.Result.TryGetProperty("name", out var label) && label.ValueKind == System.Text.Json.JsonValueKind.String
+                ? label.GetString() ?? "" : "";
+        name = name.Length > 120 ? name[..120] : name;
+        lastStatus[device.WdaPort] = (width, height, name);
         // shortcut: WDA returns a vendor UUID, not UDID; verify the USB mapping with the actual device name.
-        return new DeviceStatus(true, size.Result.Width, size.Result.Height, name.Length > 120 ? name[..120] : name);
+        return new DeviceStatus(true, width, height, name);
+    }
+
+    // 只问 window/size：手机正在动画或弹出键盘时它可能要一两秒，按动作的 8 秒超时等。
+    public Task<(int Width, int Height)> GetWindowSizeAsync(FleetDevice device, CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(disposed, this);
+        return DimensionsAsync(device, 8, cancellationToken);
     }
 
     public async Task<byte[]> GetScreenshotAsync(FleetDevice device, CancellationToken cancellationToken = default)

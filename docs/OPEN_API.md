@@ -210,7 +210,7 @@ api("/openapi/closeEnv", deviceId=DEVICE)
 | `/openapi/doubleClickPoint` | `deviceId`、`x`、`y` | 双击 |
 | `/openapi/longClickPoint`、`/openapi/press` | `deviceId`、`x`、`y`、`duration`（毫秒） | 长按 |
 | `/openapi/swipeToPoint` | `deviceId`、`startX`、`startY`、`endX`、`endY`、`duration`（毫秒） | 滑动 |
-| `/openapi/inputText`、`/openapi/typingText` | `deviceId`、`content`（最多 1000 字） | 向当前输入框输入；`inputText` 的 `duration` 被忽略 |
+| `/openapi/inputText`、`/openapi/typingText` | `deviceId`、`content`（最多 1000 字） | 向当前输入框输入；`inputText` 的 `duration` 被忽略。手机上没有获得焦点的输入框时立即返回 1003（不会让 WDA 等一分钟） |
 | `/openapi/appLaunch` | `deviceId`、`bundleId` | 启动应用；联信拿不到进程号，`data` 固定为 `0` |
 | `/openapi/openApp` | `deviceId`、`bundleId` | 打开应用 |
 | `/openapi/stopApp`、`/openapi/appKillByBundleId` | `deviceId`、`bundleId` | 关闭应用 |
@@ -225,7 +225,7 @@ api("/openapi/closeEnv", deviceId=DEVICE)
 | `/openapi/setOrientation` | `deviceId`、`orientation`（1 竖屏、2 横屏） | 经 WDA 旋转（WDA 的 `PORTRAIT` / `LANDSCAPE`），等界面转好（最多约 3 秒）再返回，之后的坐标与截图都按新方向。当前界面不支持该方向（例如多数机型的主屏不能横屏）或开启了竖排方向锁定时返回 1003；其他值返回 1001 |
 | `/openapi/adjustScreenOrientation` | `deviceId`、`orientation` | 联信坐标系始终跟随当前方向：0 或与当前方向一致时返回 `{"orientation","screenWidth","screenHeight"}`，强制另一方向返回 2001（需要改方向请用 `setOrientation`） |
 | `/openapi/appHelper/setPasteboard` | `deviceId`、`content` | 经 WDA 写剪贴板，不需要 EasyClick 辅助助手，`openApp` 被忽略，`data` 为 `0` |
-| `/openapi/appHelper/openUrl` | `deviceId`、`url` | 经 WDA 打开链接（也支持 `weixin://` 等自定义协议），`openApp` 被忽略，`data` 为 `0` |
+| `/openapi/appHelper/openUrl` | `deviceId`、`url` | 经 WDA 打开链接，`openApp` 被忽略，`data` 为 `0`。iOS 16.4 及以上也支持 `weixin://` 等自定义协议；更早的系统经 Safari 地址栏打开 http/https 链接，自定义协议返回 1003（Safari 的确认框 WDA 点不到），请改用 `appLaunch` |
 
 ```bash
 curl -s -X POST http://127.0.0.1:8019/openapi/clickPoint -H "Content-Type: application/json" -d '{"deviceId":"00008030-001234567890A001","x":585,"y":1266}'
@@ -377,4 +377,6 @@ api("/openapi/fsyncFileOpr", deviceId=DEVICE, srcPath="/Downloads/批量", actio
 
 `checks/Lianxin.Fleet.Checks` 在临时端口上用真实 HTTP 请求、假设备桥接和假设备工具进程覆盖了请求解析上限、安全检查、局域网令牌、返回信封、每个已实现接口的参数换算（含横屏、旋转后和放大显示的坐标换算）、脚本暂停与继续、电量缓存与刷新、镜像查询与卸载、卸载应用与重启的命令参数、文件接口的手机路径校验和电脑端中转目录边界（目录外路径、`..`、符号链接、不覆盖）、抓取节点的过滤与像素换算、不支持接口的返回码，以及启停、端口占用、连接上限和停止时取消；另有 WDA 锁屏查询与旋转请求的协议检查，以及加固项：Node.js fetch 的请求头、1 MB 正文上限与同时接收的正文总量、请求行 2 秒限时、每个地址的连接数与 503 回复上限、系统异常不回传本机路径、installApp 和 fsyncPullPush 的 UNC / 设备路径在访问文件系统前被拒绝、半途失败时的副作用说明，以及 pymobiledevice3 11.57.1 真实错误输出下的确定失败与待确认。两个平台的界面冒烟测试用假 WDA 和假设备工具调用过这些接口。
 
-尚未在真机上逐个验证的部分：截图像素与 WDA 点坐标在各机型上的对应关系、`setOrientation` 在真机上的旋转与横屏点击、`isLocked`、抓取节点在复杂界面上的耗时、真实 USB 上的电量与文件推送拉取、`reboot`/`unmountDevImage` 的实际效果、JPG 编码、`reconnectUsb` 的管理员授权流程，以及 macOS 上的运行。
+2026-11-23 在 10 台 iPhone 6s（iOS 15.8.8，USB）上用 Windows 版实测过：`deviceList`、`getBattery`/`isCharging`、`checkDevImage`、`startAutoEnv`/`closeEnv`/`isServiceOk`、`getDeviceInfo`、`isLocked`、`lockScreen`/`unlockScreen`、`home`/`homeScreen`、点按/双击/长按/滑动（含越界坐标 1001）、`inputText`（含没有输入框时立即失败）、`appLaunch`/`openApp`/`stopApp`/`appKillByBundleId`、`setOrientation`/`getOrientation`/`adjustScreenOrientation`（Safari 里横竖屏切换与横屏坐标点击、主屏拒绝横屏后不残留）、`appHelper/setPasteboard`、`appHelper/openUrl`（iOS 15 经 Safari 打开 https）、`dumpXml`、四种截图、`fsyncFileOpr` 与 `fsyncPullPush`（建目录、推送、详细列表、拉取比对、不覆盖、中转目录外拒绝、受保护目录拒绝、删除），以及 `startScript`/`pauseScript`/`continueScript`/`isScriptPause`/`stopScript`/`refreshMsg`（9 台同时运行）。实测 750×1334 截图、375×667 点、比例 2。设置应用里 `dumpXml` 约 7–12 秒。
+
+尚未在真机上验证的部分：`reboot`/`unmountDevImage`/`mountDevImage`（会改动手机状态，没有在用户的手机上执行）、`installApp`/`uninstallApp`、`reconnectUsb` 的管理员授权流程、全面屏机型和 iOS 16.4 以上的行为（`openUrl` 自定义协议、多任务手势），以及 macOS 上的运行。

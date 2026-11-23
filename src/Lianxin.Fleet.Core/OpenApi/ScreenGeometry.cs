@@ -33,9 +33,16 @@ internal sealed class ScreenGeometry(IDeviceBridge bridge)
 
     public async Task<DeviceGeometry> MeasureAsync(FleetDevice device, CancellationToken cancellationToken)
     {
-        var status = await bridge.GetStatusAsync(device, cancellationToken).ConfigureAwait(false);
-        if (!status.Online)
-            throw new OpenApiException(OpenApiCodes.DeviceFailed, "自动化未就绪，请先启动自动化（startAutoEnv）。");
+        // 只取屏幕尺寸：三路状态探测各只等 2 秒，手机弹键盘或动画时会把正常的点按误报为失败。
+        (int Width, int Height) status;
+        try
+        {
+            status = await bridge.GetWindowSizeAsync(device, cancellationToken).ConfigureAwait(false);
+        }
+        catch (DeviceOperationException error)
+        {
+            throw new OpenApiException(OpenApiCodes.DeviceFailed, "自动化未就绪或没有响应，请先启动自动化（startAutoEnv）：" + error.Message);
+        }
         var longSide = Math.Max(status.Width, status.Height);
         if (!ratios.TryGetValue(device.Id, out var known) || known.LongSide != longSide)
         {

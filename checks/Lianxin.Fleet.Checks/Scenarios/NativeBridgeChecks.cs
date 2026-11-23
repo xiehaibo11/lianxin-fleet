@@ -31,7 +31,7 @@ public static class NativeBridgeChecks
             requests.Enqueue((uri.Port, path, body));
             if (path == "/status" && failStatus)
                 throw new HttpRequestException("status socket interrupted");
-            if (path == "/wda/homescreen" && uncertainHome)
+            if (path.EndsWith("/wda/pressButton", StringComparison.Ordinal) && uncertainHome)
                 throw new HttpRequestException("action response lost");
             if (path.EndsWith("/wda/tap") && holdAction)
             {
@@ -80,16 +80,16 @@ public static class NativeBridgeChecks
         Ensure(requests.Count(r => r.Path == "/screenshot") == screenshots, "Same-phone preview waits for its action");
         releaseAction.TrySetResult();
         await Task.WhenAll(action, preview);
-        Ensure(requests.Count(r => r.Path == "/session") == 1, "Read failure does not rebuild an active session");
+        Ensure(requests.Count(r => r.Path == "/session" && r.Port == 18100) == 1, "Read failure does not rebuild an active session");
         uncertainHome = true;
-        var homes = requests.Count(r => r.Path == "/wda/homescreen");
+        var homes = requests.Count(r => r.Path.EndsWith("/wda/pressButton", StringComparison.Ordinal));
         try
         {
             await bridge.ExecuteAsync(device, FleetAction.Home, new ActionParameters());
             throw new Exception("Expected uncertain result");
         }
         catch (DeviceOperationException error) { Ensure(error.Uncertain, "Lost action result stays uncertain"); }
-        Ensure(requests.Count(r => r.Path == "/wda/homescreen") == homes + 1, "Unknown action is never retried");
+        Ensure(requests.Count(r => r.Path.EndsWith("/wda/pressButton", StringComparison.Ordinal)) == homes + 1, "Unknown action is never retried");
         var discovered = await bridge.DiscoverAsync();
         Ensure(discovered.Count == 1, "Windows JSON discovery filters valid iPhones");
         var app = "C:\\Approved Apps\\Internal & Tools.ipa";

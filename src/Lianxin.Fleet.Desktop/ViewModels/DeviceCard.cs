@@ -24,7 +24,8 @@ public sealed class DeviceCard : INotifyPropertyChanged
         get; private set;
     }
     public long Id => Device.Id;
-    public string Name => Device.Name;
+    // 出厂的 iPhone 都叫「iPhone」，设备墙上要显示中控里设的别名才分得清是哪一台。
+    public string Name => Device.DisplayName;
     public string GroupName => Device.GroupName;
     public string SelectionLabel => "选择" + Name;
     public string QuickTextLabel => "发送到" + Name + "的文字";

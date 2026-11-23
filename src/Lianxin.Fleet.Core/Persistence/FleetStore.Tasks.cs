@@ -43,7 +43,12 @@ public sealed partial class FleetStore
             Enum.Parse<JobState>(row.GetString(3)), DateTimeOffset.FromUnixTimeMilliseconds(row.GetInt64(4)), results,
             row.IsDBNull(5) ? null : DateTimeOffset.FromUnixTimeMilliseconds(row.GetInt64(5)));
     }
-    public FleetJob GetJobHeader(long id) => ReadJob(id, withTargets: false);
+    // 任务线程和界面刷新同时读写同一个连接：不加锁时 SqliteConnection 的命令列表会被并发改坏（RemoveAt 越界）。
+    public FleetJob GetJobHeader(long id)
+    {
+        lock (gate)
+            return ReadJob(id, withTargets: false);
+    }
     // 按编号读取任务和每台设备的结果（不受 GetJobs 的条数限制）。
     public FleetJob GetJob(long id)
     {

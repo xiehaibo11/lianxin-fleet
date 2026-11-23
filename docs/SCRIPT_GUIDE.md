@@ -20,13 +20,13 @@
 | `长按 x y [秒]` | `longpress` | 默认 1 秒，0.2–5 秒 |
 | `滑动 x1 y1 x2 y2 [秒]` | `swipe` | 默认 0.4 秒，0.05–5 秒 |
 | `上滑`、`下滑`、`左滑`、`右滑` | `swipeup` 等 | 屏幕中部的固定滑动 |
-| `返回` | `back` | 从左边缘右滑 |
-| `输入 文字` | `text` | 向当前输入框输入，最多 1000 字 |
+| `返回` | `back` | 从左边缘右滑（与系统的返回手势相同） |
+| `输入 文字` | `text` | 向当前输入框输入，最多 1000 字。手机上没有获得焦点的输入框（键盘没弹出）时这一步立即失败，先用 `点击元素` 或 `输入到` 点中输入框 |
 | `剪贴板 文字` | `clipboard` | 写入手机剪贴板 |
 | `启动 BundleID`、`关闭 BundleID` | `launch`、`terminate` | 例如 `启动 com.apple.Preferences` |
-| `打开 网址` | `openurl` | 支持 `https://` 和 App 自定义协议 |
+| `打开 网址` | `openurl` | iOS 16.4 及以上支持 `https://` 和 App 自定义协议。更早的系统经 Safari 地址栏打开 `http://`、`https://` 链接；自定义协议（如 `weixin://`）会弹出 WDA 点不到的确认框，这一步直接失败，请改用 `启动 BundleID` |
 | `主屏`、`锁屏`、`解锁` | `home`、`lock`、`unlock` | |
-| `音量加`、`音量减`、`多任务` | `volumeup`、`volumedown`、`appswitcher` | |
+| `音量加`、`音量减`、`多任务` | `volumeup`、`volumedown`、`appswitcher` | `多任务` 只支持全面屏 iPhone；有 Home 键的机型（SE、6s–8）要连按两次 Home 键，WDA 按不了这么快，这一步失败而不会误开控制中心 |
 
 ## 等待、日志与截图
 

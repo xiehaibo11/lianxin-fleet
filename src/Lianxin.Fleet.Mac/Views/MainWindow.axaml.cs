@@ -157,7 +157,8 @@ public sealed partial class MainWindow : Window
         var status = StateFilter.SelectedIndex;
         var matches = cards.Values.Where(card =>
             (group is null or AllGroups || card.GroupName == group) &&
-            (card.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || card.Device.Udid.Contains(query, StringComparison.OrdinalIgnoreCase)) &&
+            (card.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || card.Device.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
+                || card.Device.Udid.Contains(query, StringComparison.OrdinalIgnoreCase)) &&
             (status <= 0 || card.Status.Online == (status == 1))).ToArray();
         if (!matches.SequenceEqual(visible))
         {

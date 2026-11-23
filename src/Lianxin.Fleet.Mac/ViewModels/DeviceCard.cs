@@ -16,7 +16,8 @@ public sealed class DeviceCard(DeviceSnapshot snapshot) : INotifyPropertyChanged
     public FleetDevice Device => Snapshot.Device;
     public DeviceStatus Status => Snapshot.Status;
     public long Id => Device.Id;
-    public string Name => Device.Name;
+    // 出厂的 iPhone 都叫「iPhone」，设备墙上要显示中控里设的别名才分得清是哪一台。
+    public string Name => Device.DisplayName;
     public string GroupName => Device.GroupName;
     public string StateLabel => Status.Online ? "可控制" : "未连接";
     public string SelectionLabel => "选择 " + Name + " 作为批量目标";
@@ -60,7 +61,7 @@ public sealed class DeviceCard(DeviceSnapshot snapshot) : INotifyPropertyChanged
     {
         var previous = Snapshot;
         Snapshot = current;
-        if (previous.Device.Name != Name)
+        if (previous.Device.DisplayName != Name)
         {
             Changed(nameof(Name));
             Changed(nameof(SelectionLabel));

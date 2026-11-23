@@ -108,14 +108,16 @@ internal static partial class OpenApiChecks
             Assert.True(uri.Host == "127.0.0.1" && uri.Port == 18100, "only the forwarded loopback port");
             var body = request.Content is null ? "" : await request.Content.ReadAsStringAsync(token);
             requests.Enqueue((request.Method.Method, uri.AbsolutePath, body));
+            var post = request.Method == HttpMethod.Post;
             object? value = uri.AbsolutePath switch
             {
                 "/wda/locked" => locked,
                 "/session" => new { sessionId = "s-1" },
-                "/session/s-1/orientation" when reject => new { error = "unknown error", message = "Unable To Rotate Device" },
+                "/session/s-1/orientation" when !post => "PORTRAIT",
+                "/session/s-1/orientation" when reject && body.Contains("LANDSCAPE") => new { error = "unknown error", message = "Unable To Rotate Device" },
                 _ => null
             };
-            return new HttpResponseMessage(reject && value is not null && uri.AbsolutePath.EndsWith("/orientation", StringComparison.Ordinal)
+            return new HttpResponseMessage(reject && post && body.Contains("LANDSCAPE") && uri.AbsolutePath.EndsWith("/orientation", StringComparison.Ordinal)
                 ? HttpStatusCode.InternalServerError : HttpStatusCode.OK)
             {
                 Content = new StringContent(JsonSerializer.Serialize(new { value }), Encoding.UTF8, "application/json")
@@ -144,6 +146,9 @@ internal static partial class OpenApiChecks
         reject = true;
         var refused = await Assert.ThrowsAsync<DeviceOperationException>(() => bridge.SetOrientationAsync(device, ScreenOrientation.Landscape));
         Assert.True(refused.Message.Contains("Unable To Rotate Device") && !refused.Uncertain, refused.Message);
+        // 被拒绝的横屏请求要撤销：按旋转前读到的方向再设一次，否则下一个应用会以横屏打开。
+        var undo = requests.Last();
+        Assert.True(undo.Method == "POST" && undo.Path == "/session/s-1/orientation" && undo.Body.Contains("PORTRAIT"), undo.ToString());
 
         // 没有实现这两项的旧通道得到明确的不支持错误。
         IDeviceBridge legacy = new FakeBridge();

@@ -19,6 +19,7 @@ internal static class Program
             ("原生主控屏黑边和横竖坐标", ScreenChecks.Coordinates),
             ("投屏录制：全部动作、等待取整、数字格式、上限与解析器读回", RecorderChecks.Run),
             ("WDA 协议、并发及 Windows 命令", NativeBridgeChecks.RunAsync),
+            ("真机控制：Home 键、返回手势、多任务、无焦点输入与旧系统打开链接", DeviceInputChecks.Run),
             ("Mac 旧版 iOS USB 发现、安装参数与兼容回退", HostDeviceChecks.RunAsync),
             ("WDA 转发端口被占用时不会启动 Runner", HostDeviceChecks.OccupiedWdaPortAsync),
             ("实时画面流解析与进程内端口转发", ControlChecks.MjpegAndForwarding),
