@@ -30,6 +30,7 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Border x:Name="CenterChip" Classes="chip"><TextBlock x:Name="CenterText" Text="中控 启动中" FontSize="12" /></Border>
                     <Border x:Name="BridgeChip" Classes="chip"><TextBlock x:Name="BridgeText" Text="桥接 检查中" FontSize="12" /></Border>
+                    <Border x:Name="ApiChip" Classes="chip neutral"><TextBlock x:Name="ApiText" Text="接口 关闭" FontSize="12" /></Border>
                     <TextBlock x:Name="VersionText" Classes="muted" VerticalAlignment="Center" Margin="4,0,14,0" />
                 </StackPanel>
                 <TextBlock Grid.Column="1" x:Name="StatusText" Text="正在初始化…" Foreground="#C9CDE0" VerticalAlignment="Center"

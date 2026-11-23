@@ -71,6 +71,9 @@ public sealed partial class DeviceBridge
             new { type = "pointerMove", origin = "viewport", duration = (int)Math.Round(seconds * 1000), x = toX, y = toY },
             new { type = "pointerUp", button = 0 }
         ];
-        return new { actions = new[] { new { type = "pointer", id = "finger", parameters = new { pointerType = "touch" }, actions = steps } } };
+        return new
+        {
+            actions = new[] { new { type = "pointer", id = "finger", parameters = new { pointerType = "touch" }, actions = steps } }
+        };
     }
 }

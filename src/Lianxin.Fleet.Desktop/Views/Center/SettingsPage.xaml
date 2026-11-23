@@ -46,6 +46,26 @@
                     <TextBox x:Name="StepsInput" Width="100" />
                 </StackPanel>
             </WrapPanel>
+            <TextBlock Text="开放接口" Style="{StaticResource SectionTitle}" />
+            <TextBlock Foreground="#9DA4BE"
+                       Text="兼容 EasyClick 企业版开放接口（HTTP + JSON），Python、易语言等程序可以通过它控制设备。默认只允许本机访问；接口说明见 docs/OPEN_API.md。" />
+            <WrapPanel Margin="0,6,0,0">
+                <CheckBox x:Name="ApiEnabledInput" Content="启用开放接口" VerticalAlignment="Center" Margin="0,0,18,6" />
+                <TextBlock Text="端口" Foreground="#C9CDE0" VerticalAlignment="Center" Margin="0,0,6,6" />
+                <TextBox x:Name="ApiPortInput" Width="90" MaxLength="5" ToolTip="1024–65535，默认 8019" />
+                <CheckBox x:Name="ApiLanInput" Content="允许局域网访问（需要令牌）" VerticalAlignment="Center" Margin="18,0,0,6"
+                          Checked="ApiLanChecked" />
+            </WrapPanel>
+            <TextBlock Text="访问令牌（局域网模式下放在 X-Fleet-Token 或 Authorization: Bearer 请求头）" Foreground="#C9CDE0" />
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button x:Name="ApiShowButton" Content="显示" Click="ShowTokenClicked" Margin="8,5,0,8" />
+                    <Button Content="复制" Click="CopyTokenClicked" Margin="8,5,0,8" />
+                    <Button Content="重新生成" Click="RegenerateTokenClicked" Margin="8,5,0,8" />
+                </StackPanel>
+                <TextBox x:Name="ApiTokenText" IsReadOnly="True" ToolTip="访问令牌" />
+            </DockPanel>
+            <TextBlock x:Name="ApiStatus" Foreground="#9DA4BE" FontSize="11" />
             <WrapPanel Margin="0,12,0,0">
                 <Button Content="保存设置" Click="SaveClicked" Style="{StaticResource AccentButton}" />
                 <TextBlock x:Name="SaveStatus" VerticalAlignment="Center" Margin="8,0,0,6" Foreground="#B8B5E3" />

@@ -28,3 +28,8 @@ public sealed record ActionParameters(double? X = null, double? Y = null,
 public sealed record JobTarget(long DeviceId, string Name, JobState State, string? Error = null);
 public sealed record FleetJob(long Id, string RequestKey, FleetAction Action, ActionParameters Parameters,
     JobState State, DateTimeOffset CreatedAt, IReadOnlyList<JobTarget> Results, DateTimeOffset? FinishedAt = null);
+// 设置屏幕方向用：竖屏，或横屏（WDA 的 LANDSCAPE）。
+public enum ScreenOrientation
+{
+    Portrait, Landscape
+}

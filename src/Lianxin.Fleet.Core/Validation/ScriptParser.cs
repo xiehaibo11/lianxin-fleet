@@ -1,48 +1,29 @@
-using System.Globalization;
 using Lianxin.Fleet.Core.Domain;
 
 namespace Lianxin.Fleet.Core.Validation;
 
 // 脚本按行书写，每行一个命令，# 或 // 开头为注释。坐标是 0–1 的相对位置，时间单位为秒。
-public static class ScriptParser
+// 「重复」「如果」「当」开始一个块，以「结束」收尾，最多嵌套 MaxDepth 层；Parse 返回顶层语句，块内语句在 Body/ElseBody 中。
+public static partial class ScriptParser
 {
-    public const int MaxSourceLength = 20_000;
-    public const int MaxSteps = 500;
+    public const int MaxSourceLength = 50_000;
+    public const int MaxSteps = 2000;
+    public const int MaxDepth = 8;
+    public const int MaxRepeat = 100_000;
 
-    public const string Help = """
-        每行一个命令，# 开头为注释；坐标是 0–1 的相对位置（左上角 0 0，右下角 1 1），时间单位为秒。
-        点击 x y            双击 x y            长按 x y [秒]
-        滑动 x1 y1 x2 y2 [秒]   上滑 / 下滑 / 左滑 / 右滑   返回
-        输入 文字           剪贴板 文字         打开 https://example.com
-        启动 BundleID       关闭 BundleID       等待 秒
-        主屏  锁屏  解锁  音量加  音量减  多任务
-        英文命令同样可用：tap doubletap longpress swipe text clipboard openurl launch terminate wait home lock unlock volumeup volumedown appswitcher back
-        """;
-
-    private static readonly Dictionary<string, string> Aliases = new(StringComparer.OrdinalIgnoreCase)
+    private sealed class Block(ScriptStep? header, string keyword)
     {
-        ["点击"] = "tap",
-        ["双击"] = "doubletap",
-        ["长按"] = "longpress",
-        ["滑动"] = "swipe",
-        ["上滑"] = "swipeup",
-        ["下滑"] = "swipedown",
-        ["左滑"] = "swipeleft",
-        ["右滑"] = "swiperight",
-        ["返回"] = "back",
-        ["输入"] = "text",
-        ["剪贴板"] = "clipboard",
-        ["打开"] = "openurl",
-        ["启动"] = "launch",
-        ["关闭"] = "terminate",
-        ["等待"] = "wait",
-        ["主屏"] = "home",
-        ["锁屏"] = "lock",
-        ["解锁"] = "unlock",
-        ["音量加"] = "volumeup",
-        ["音量减"] = "volumedown",
-        ["多任务"] = "appswitcher"
-    };
+        public ScriptStep? Header { get; } = header;
+        public string Keyword { get; } = keyword;
+        public List<ScriptStep> Body { get; } = [];
+        public List<ScriptStep>? ElseBody
+        {
+            get; set;
+        }
+        public bool IsLoop => Header?.Kind is ScriptStepKind.Repeat or ScriptStepKind.While;
+        public void Add(ScriptStep step) => (ElseBody ?? Body).Add(step);
+        public ScriptStep Close() => Header! with { Body = Body.ToArray(), ElseBody = ElseBody?.ToArray() ?? [] };
+    }
 
     public static IReadOnlyList<ScriptStep> Parse(string? source)
     {
@@ -50,7 +31,10 @@ public static class ScriptParser
             throw new ArgumentException("脚本内容不能为空。");
         if (source.Length > MaxSourceLength)
             throw new ArgumentException($"脚本最多 {MaxSourceLength} 个字符。");
-        var steps = new List<ScriptStep>();
+        var root = new Block(null, "");
+        var blocks = new Stack<Block>();
+        blocks.Push(root);
+        var count = 0;
         var lines = source.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
         for (var index = 0; index < lines.Length; index++)
         {
@@ -59,74 +43,93 @@ public static class ScriptParser
                 continue;
             try
             {
-                steps.Add(ParseLine(index + 1, line));
+                Statement(index + 1, line, blocks);
             }
             catch (Exception error) when (error is ArgumentException or FormatException)
             {
                 throw new ArgumentException($"第 {index + 1} 行：{error.Message}", error);
             }
-            if (steps.Count > MaxSteps)
+            if (++count > MaxSteps)
                 throw new ArgumentException($"脚本最多 {MaxSteps} 步。");
         }
-        if (steps.Count == 0)
+        if (blocks.Count > 1)
+        {
+            var open = blocks.Peek();
+            throw new ArgumentException($"第 {open.Header!.Line} 行的「{open.Keyword}」缺少对应的「结束」。");
+        }
+        if (root.Body.Count == 0)
             throw new ArgumentException("脚本没有可执行的命令。");
-        return steps;
+        return root.Body.ToArray();
     }
 
-    private static ScriptStep ParseLine(int number, string line)
+    // 全部语句数（含块内语句与块本身），用于编辑器提示。
+    public static int CountSteps(IReadOnlyList<ScriptStep> steps) =>
+        steps.Sum(step => 1 + CountSteps(step.Body) + CountSteps(step.ElseBody));
+
+    private static void Statement(int number, string line, Stack<Block> blocks)
     {
         var space = line.IndexOfAny([' ', '\t']);
         var word = space < 0 ? line : line[..space];
         var rest = space < 0 ? "" : line[(space + 1)..].Trim();
         var command = Aliases.TryGetValue(word, out var alias) ? alias : word.ToLowerInvariant();
         var label = line.Length > 40 ? line[..40] + "…" : line;
-        var args = rest.Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
-        ScriptStep Step(FleetAction action, ActionParameters parameters) =>
-            new(number, label, action, FleetValidation.Action(action, parameters, ""));
-        ScriptStep Swipe(double fromX, double fromY, double toX, double toY, double seconds = 0.4) =>
-            Step(FleetAction.Swipe, new(FromX: fromX, FromY: fromY, ToX: toX, ToY: toY, Duration: seconds));
-        return command switch
+        var current = blocks.Peek();
+        switch (command)
         {
-            "tap" => Step(FleetAction.Tap, new(X: Number(args, 0, 2), Y: Number(args, 1, 2))),
-            "doubletap" => Step(FleetAction.DoubleTap, new(X: Number(args, 0, 2), Y: Number(args, 1, 2))),
-            "longpress" => Step(FleetAction.LongPress, new(X: Number(args, 0, 2, 3), Y: Number(args, 1, 2, 3),
-                Duration: args.Length > 2 ? Number(args, 2, 2, 3) : 1)),
-            "swipe" => Swipe(Number(args, 0, 4, 5), Number(args, 1, 4, 5), Number(args, 2, 4, 5), Number(args, 3, 4, 5),
-                args.Length > 4 ? Number(args, 4, 4, 5) : 0.4),
-            "swipeup" => Swipe(.5, .78, .5, .25),
-            "swipedown" => Swipe(.5, .25, .5, .78),
-            "swipeleft" => Swipe(.8, .5, .2, .5),
-            "swiperight" => Swipe(.2, .5, .8, .5),
-            "back" => Swipe(0, .5, .7, .5, .05),
-            "text" => Step(FleetAction.Text, new(Text: Required(rest))),
-            "clipboard" => Step(FleetAction.Clipboard, new(Text: Required(rest))),
-            "openurl" => Step(FleetAction.OpenUrl, new(Text: Required(rest))),
-            "launch" => Step(FleetAction.Launch, new(BundleId: Required(rest))),
-            "terminate" => Step(FleetAction.Terminate, new(BundleId: Required(rest))),
-            "home" => Step(FleetAction.Home, new()),
-            "lock" => Step(FleetAction.Lock, new()),
-            "unlock" => Step(FleetAction.Unlock, new()),
-            "volumeup" => Step(FleetAction.VolumeUp, new()),
-            "volumedown" => Step(FleetAction.VolumeDown, new()),
-            "appswitcher" => Step(FleetAction.AppSwitcher, new()),
-            "wait" => new(number, label, null, new(), Wait(Number(args, 0, 1))),
-            _ => throw new ArgumentException($"无法识别的命令「{word}」。")
-        };
+            case "repeat" or "if" or "while":
+                if (blocks.Count > MaxDepth)
+                    throw new ArgumentException($"块最多嵌套 {MaxDepth} 层。");
+                var header = new ScriptStep(number, label, null, new());
+                header = command switch
+                {
+                    "repeat" => header with
+                    {
+                        Kind = ScriptStepKind.Repeat,
+                        Count = Integer(rest, 1, MaxRepeat, "重复次数")
+                    },
+                    "if" => header with
+                    {
+                        Kind = ScriptStepKind.If,
+                        Condition = Condition(rest)
+                    },
+                    _ => header with
+                    {
+                        Kind = ScriptStepKind.While,
+                        Condition = Condition(rest)
+                    }
+                };
+                blocks.Push(new Block(header, word));
+                return;
+            case "else":
+                Nothing(word, rest);
+                if (current.Header?.Kind != ScriptStepKind.If)
+                    throw new ArgumentException("「否则」前面没有对应的「如果」。");
+                if (current.ElseBody is not null)
+                    throw new ArgumentException("一个「如果」只能有一个「否则」。");
+                current.ElseBody = [];
+                return;
+            case "end":
+                Nothing(word, rest);
+                if (current.Header is null)
+                    throw new ArgumentException("多余的「结束」，前面没有需要结束的「重复」「如果」或「当」。");
+                blocks.Pop();
+                blocks.Peek().Add(current.Close());
+                return;
+            case "break":
+                Nothing(word, rest);
+                if (!blocks.Any(block => block.IsLoop))
+                    throw new ArgumentException("「跳出」只能写在「重复」或「当」循环里。");
+                current.Add(new ScriptStep(number, label, null, new()) { Kind = ScriptStepKind.Break });
+                return;
+            default:
+                current.Add(Command(number, label, command, word, rest));
+                return;
+        }
     }
 
-    private static string Required(string value) =>
-        value.Length > 0 ? value : throw new ArgumentException("命令后面缺少内容。");
-
-    private static double Number(string[] args, int index, params int[] allowedCounts)
+    private static void Nothing(string word, string rest)
     {
-        if (!allowedCounts.Contains(args.Length))
-            throw new ArgumentException($"参数个数应为 {string.Join(" 或 ", allowedCounts)} 个。");
-        if (!double.TryParse(args[index], NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
-            || !double.IsFinite(value))
-            throw new ArgumentException($"「{args[index]}」不是有效数字。");
-        return value;
+        if (rest.Length > 0)
+            throw new ArgumentException($"「{word}」后面不能有其他内容。");
     }
-
-    private static double Wait(double seconds) => seconds is >= 0.05 and <= 3600
-        ? seconds : throw new ArgumentException("等待时间须为 0.05 至 3600 秒。");
 }

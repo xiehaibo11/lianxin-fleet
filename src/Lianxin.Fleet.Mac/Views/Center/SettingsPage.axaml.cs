@@ -20,6 +20,7 @@ public sealed partial class SettingsPage : UserControl
     public void Attach(CenterWindow host)
     {
         center = host;
+        center.OpenApiChanged += ShowApiStatus;
         Load();
     }
 
@@ -50,9 +51,10 @@ public sealed partial class SettingsPage : UserControl
         StepsInput.Text = settings.AgentMaxSteps.ToString(CultureInfo.InvariantCulture);
         KeyInput.Text = "";
         KeyStatus.Text = AgentKeyStore.Load(center.Runtime.DataDirectory) is null ? "尚未保存密钥。" : "已保存密钥（仅当前用户可读）。";
+        LoadOpenApi();
     }
 
-    private void SaveClicked(object? sender, RoutedEventArgs e) => center.Run(() =>
+    private void SaveClicked(object? sender, RoutedEventArgs e) => center.Run(async () =>
     {
         var python = PythonInput.Text?.Trim() ?? "";
         if (python.Length > 0 && !File.Exists(python))
@@ -65,21 +67,24 @@ public sealed partial class SettingsPage : UserControl
         var package = PackageInput.Text?.Trim() ?? "";
         if (package.Length > 0)
             package = FleetValidation.AppPath(package, center.Runtime.AppDirectory);
+        var previous = center.Settings;
+        var updated = MergeOpenApi(previous, out var tokenCreated);
         center.SaveRunnerBundleId(BundleInput.Text?.Trim() ?? "");
         var key = KeyInput.Text?.Trim() ?? "";
         if (key.Length > 0)
             AgentKeyStore.Save(center.Runtime.DataDirectory, key);
-        var restart = python != (center.Settings.PythonPath ?? "");
-        center.SaveSettings(center.Settings with
+        var restart = python != (previous.PythonPath ?? "");
+        center.SaveSettings(updated with
         {
             PythonPath = python.Length == 0 ? null : python,
             RunnerPackage = package.Length == 0 ? null : package,
             AgentModel = model,
             AgentMaxSteps = steps
         });
+        if (tokenCreated || OpenApiChanged(previous, center.Settings))
+            await center.ApplyOpenApiAsync();
         Load();
         SaveStatus.Text = "已保存。" + (restart ? "Python 路径在重启中控后生效。" : "");
-        return Task.CompletedTask;
     });
 
     private void ClearKeyClicked(object? sender, RoutedEventArgs e) => center.Run(() =>

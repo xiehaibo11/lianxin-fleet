@@ -5,11 +5,12 @@ using Lianxin.Fleet.Core.Validation;
 
 namespace Lianxin.Fleet.Core.Services;
 
-public sealed record ScriptActivity(long DeviceId, long RunId, string ScriptName, string Message);
+public sealed record ScriptActivity(long DeviceId, long RunId, string ScriptName, string Message, bool Paused = false);
 public sealed record ScriptStartResult(IReadOnlyList<long> Started, IReadOnlyList<long> Busy);
 
 // 每台手机同一时间只跑一个脚本；不同手机最多并行 MaxParallelDevices 台。
-public sealed class ScriptRunner : IAsyncDisposable
+// 暂停在两条语句之间生效；暂停中仍可停止，程序关闭时同样会结束。
+public sealed partial class ScriptRunner : IAsyncDisposable
 {
     public const int MaxParallelDevices = 32;
     private readonly FleetStore store;
@@ -26,14 +27,35 @@ public sealed class ScriptRunner : IAsyncDisposable
         public string ScriptName { get; } = scriptName;
         public CancellationTokenSource Stop { get; } = stop;
         public volatile string Message = "排队中";
+        // 非空表示已暂停；继续时完成它。只在 gate 锁内替换。
+        public volatile TaskCompletionSource? Pause;
         public Task Work = Task.CompletedTask;
     }
 
-    public ScriptRunner(FleetStore store, IDeviceBridge bridge)
+    // dataDirectory 为空时，图片模板与截图命令会以失败结束；其余命令不受影响。
+    public ScriptRunner(FleetStore store, IDeviceBridge bridge, string? dataDirectory = null)
     {
         this.store = store;
         this.bridge = bridge;
+        if (dataDirectory is not null)
+        {
+            var root = Path.GetFullPath(dataDirectory);
+            TemplateDirectory = Path.Combine(root, "templates");
+            CaptureDirectory = Path.Combine(root, "captures");
+            Directory.CreateDirectory(TemplateDirectory);
+        }
         store.RecoverInterruptedScriptRuns();
+    }
+
+    // 模板图片目录：点击图片 / 等待图片 / 找到图片 按名称读取其中的 名称.png。
+    public string? TemplateDirectory
+    {
+        get;
+    }
+    // 截图命令保存的位置。
+    public string? CaptureDirectory
+    {
+        get;
     }
 
     public int RunningCount
@@ -48,8 +70,8 @@ public sealed class ScriptRunner : IAsyncDisposable
     public IReadOnlyDictionary<long, ScriptActivity> Snapshot()
     {
         lock (gate)
-            return sessions.ToDictionary(item => item.Key,
-                item => new ScriptActivity(item.Key, item.Value.RunId, item.Value.ScriptName, item.Value.Message));
+            return sessions.ToDictionary(item => item.Key, item => new ScriptActivity(item.Key, item.Value.RunId,
+                item.Value.ScriptName, item.Value.Message, item.Value.Pause is not null));
     }
 
     public ScriptStartResult Start(long scriptId, IReadOnlyList<long> deviceIds, string trigger)
@@ -100,46 +122,85 @@ public sealed class ScriptRunner : IAsyncDisposable
             return Stop(sessions.Keys.ToArray());
     }
 
+    // 返回本次新暂停的设备数；没有运行脚本、已暂停或正在停止的设备不计。
+    public int Pause(IReadOnlyList<long> deviceIds)
+    {
+        lock (gate)
+        {
+            var paused = 0;
+            foreach (var id in deviceIds.Distinct())
+                if (sessions.TryGetValue(id, out var session) && !session.Stop.IsCancellationRequested && session.Pause is null)
+                {
+                    session.Pause = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                    paused++;
+                }
+            return paused;
+        }
+    }
+
+    // 返回本次恢复运行的设备数。
+    public int Resume(IReadOnlyList<long> deviceIds)
+    {
+        lock (gate)
+        {
+            var resumed = 0;
+            foreach (var id in deviceIds.Distinct())
+                if (sessions.TryGetValue(id, out var session) && session.Pause is { } pause)
+                {
+                    session.Pause = null;
+                    pause.TrySetResult();
+                    resumed++;
+                }
+            return resumed;
+        }
+    }
+
+    public bool IsPaused(long deviceId)
+    {
+        lock (gate)
+            return sessions.TryGetValue(deviceId, out var session) && session.Pause is not null;
+    }
+
     private async Task RunAsync(FleetDevice device, FleetScript script, IReadOnlyList<ScriptStep> steps, Session session)
     {
         // 让出调用方持有的锁，脚本主体在线程池上执行。
         await Task.Yield();
         var token = session.Stop.Token;
+        var run = new RunContext(device, session, token, steps.Count);
         var state = ScriptRunState.Succeeded;
         string? message;
-        var acquired = false;
         try
         {
             await slots.WaitAsync(token).ConfigureAwait(false);
-            acquired = true;
+            run.HoldsSlot = true;
             var rounds = script.Repeat == 0 ? int.MaxValue : script.Repeat;
-            for (var round = 1; round <= rounds; round++)
-                for (var index = 0; index < steps.Count; index++)
-                {
-                    token.ThrowIfCancellationRequested();
-                    var step = steps[index];
-                    var progress = script.Repeat == 1 ? "" : script.Repeat == 0 ? $"第 {round} 轮 · " : $"第 {round}/{script.Repeat} 轮 · ";
-                    session.Message = $"{progress}第 {index + 1}/{steps.Count} 步 · {step.Label}";
-                    if (step.Action is { } action)
-                        await bridge.ExecuteAsync(device, action, step.Parameters, token).ConfigureAwait(false);
-                    if (step.WaitSeconds > 0)
-                        await Task.Delay(TimeSpan.FromSeconds(step.WaitSeconds), token).ConfigureAwait(false);
-                }
-            message = script.Repeat == 1 ? "脚本已完成。" : $"脚本已完成 {script.Repeat} 轮。";
+            var stopped = false;
+            for (var round = 1; round <= rounds && !stopped; round++)
+            {
+                run.Progress = script.Repeat == 1 ? "" : script.Repeat == 0 ? $"第 {round} 轮 · " : $"第 {round}/{script.Repeat} 轮 · ";
+                stopped = await RunBlockAsync(steps, run, top: true).ConfigureAwait(false) == Flow.Stop;
+            }
+            message = stopped ? $"{run.Progress}第 {run.Line} 行执行「停止」，脚本正常结束。"
+                : script.Repeat == 1 ? "脚本已完成。" : $"脚本已完成 {script.Repeat} 轮。";
         }
         catch (Exception) when (token.IsCancellationRequested)
         {
             state = ScriptRunState.Stopped;
             message = lifetime.IsCancellationRequested ? "程序关闭，脚本已停止。" : "已手动停止。";
         }
+        catch (ScriptFailedException failure)
+        {
+            state = ScriptRunState.Failed;
+            message = $"{run.Progress}失败：{failure.Message}（第 {failure.Line} 行）";
+        }
         catch (Exception error)
         {
             state = error is DeviceOperationException { Uncertain: true } ? ScriptRunState.Unknown : ScriptRunState.Failed;
-            message = $"{session.Message} · 失败：{error.Message}";
+            message = $"{run.StepText} · 失败：{error.Message}";
         }
         finally
         {
-            if (acquired)
+            if (run.HoldsSlot)
                 slots.Release();
         }
         try

@@ -25,6 +25,7 @@ public partial class SettingsPage : UserControl
             if (IsVisible && !center.IsClosing)
                 Load();
         };
+        center.OpenApiChanged += ShowApiStatus;
         Load();
     }
 
@@ -42,9 +43,10 @@ public partial class SettingsPage : UserControl
         KeyInput.Clear();
         KeyStatus.Text = settings.AgentKeyProtected is null ? "尚未保存密钥。" : SecretProtector.Unprotect(settings.AgentKeyProtected) is null
             ? "已保存的密钥无法在当前 Windows 用户下解密，请重新填写。" : "已保存密钥（已加密）。";
+        LoadOpenApi();
     }
 
-    private void SaveClicked(object sender, RoutedEventArgs e) => center.Run(() =>
+    private void SaveClicked(object sender, RoutedEventArgs e) => center.Run(async () =>
     {
         var python = PythonInput.Text.Trim();
         if (python.Length > 0 && !File.Exists(python))
@@ -57,20 +59,23 @@ public partial class SettingsPage : UserControl
         var package = PackageInput.Text.Trim();
         if (package.Length > 0)
             package = FleetValidation.AppPath(package, center.Runtime.AppDirectory);
+        var previous = center.Settings;
+        var updated = MergeOpenApi(previous);
         center.SaveRunnerBundleId(BundleInput.Text.Trim());
         var key = KeyInput.Password.Trim();
-        var restart = python != (center.Settings.PythonPath ?? "");
-        center.SaveSettings(center.Settings with
+        var restart = python != (previous.PythonPath ?? "");
+        center.SaveSettings(updated with
         {
             PythonPath = python.Length == 0 ? null : python,
             RunnerPackage = package.Length == 0 ? null : package,
             AgentModel = model,
             AgentMaxSteps = steps,
-            AgentKeyProtected = key.Length > 0 ? SecretProtector.Protect(key) : center.Settings.AgentKeyProtected
+            AgentKeyProtected = key.Length > 0 ? SecretProtector.Protect(key) : previous.AgentKeyProtected
         });
+        if (OpenApiChanged(previous, center.Settings))
+            await center.ApplyOpenApiAsync();
         Load();
         SaveStatus.Text = "已保存。" + (restart ? "Python 路径在重启中控后生效。" : "");
-        return Task.CompletedTask;
     });
 
     private void ClearKeyClicked(object sender, RoutedEventArgs e) => center.Run(() =>

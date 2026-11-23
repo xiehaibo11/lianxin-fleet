@@ -48,6 +48,24 @@
                     <TextBox x:Name="StepsInput" Width="100" AutomationProperties.Name="最多轮数" />
                 </StackPanel>
             </WrapPanel>
+            <TextBlock Text="开放接口" Classes="section" />
+            <TextBlock Classes="muted" FontSize="13" TextWrapping="Wrap"
+                       Text="兼容 EasyClick 企业版开放接口（HTTP + JSON），Python、易语言等程序可以通过它控制设备。默认只允许本机访问；接口说明见 docs/OPEN_API.md。" />
+            <WrapPanel Margin="0,4,0,0">
+                <CheckBox x:Name="ApiEnabledInput" Content="启用开放接口" Margin="0,0,18,0" AutomationProperties.Name="启用开放接口" />
+                <TextBlock Text="端口" Foreground="#C9CDE0" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBox x:Name="ApiPortInput" Width="90" MaxLength="5" AutomationProperties.Name="开放接口端口" />
+                <CheckBox x:Name="ApiLanInput" Content="允许局域网访问（需要令牌）" Margin="18,0,0,0" Click="ApiLanClicked"
+                          AutomationProperties.Name="允许局域网访问" />
+            </WrapPanel>
+            <TextBlock Text="访问令牌（局域网模式下放在 X-Fleet-Token 或 Authorization: Bearer 请求头）" Foreground="#C9CDE0" Margin="0,6,0,0" />
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <TextBox x:Name="ApiTokenText" IsReadOnly="True" AutomationProperties.Name="访问令牌" />
+                <Button Grid.Column="1" x:Name="ApiShowButton" Content="显示" Click="ShowTokenClicked" Margin="8,0,0,0" />
+                <Button Grid.Column="2" Content="复制" Click="CopyTokenClicked" Margin="8,0,0,0" />
+                <Button Grid.Column="3" Content="重新生成" Click="RegenerateTokenClicked" Margin="8,0,0,0" />
+            </Grid>
+            <TextBlock x:Name="ApiStatus" Classes="muted" FontSize="11" TextWrapping="Wrap" />
             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
                 <Button Content="保存设置" Classes="primary" Click="SaveClicked" />
                 <TextBlock x:Name="SaveStatus" VerticalAlignment="Center" Foreground="#B8B5E3" />

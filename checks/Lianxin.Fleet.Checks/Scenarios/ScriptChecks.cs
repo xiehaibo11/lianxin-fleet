@@ -9,7 +9,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Lianxin.Fleet.Checks.Scenarios;
 
-internal static class ScriptChecks
+internal static partial class ScriptChecks
 {
     public static Task Parser()
     {

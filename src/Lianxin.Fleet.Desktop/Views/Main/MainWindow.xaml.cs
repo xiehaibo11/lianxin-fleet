@@ -52,6 +52,7 @@ public partial class MainWindow : Window
         GroupFilter.SelectedIndex = 0;
         EnvironmentLabel.Text = "集控投屏 · 与中控共用设备、任务和自动化通道";
         _timer.Tick += async (_, _) => await RefreshAsync();
+        InitializeRecording();
         ApplySnapshot(_service.GetSnapshot());
     }
 
@@ -71,7 +72,7 @@ public partial class MainWindow : Window
         if (_closed)
             return;
         e.Cancel = true;
-        if (_closing)
+        if (_closing || !ConfirmCloseRecording())
             return;
         await StopForCloseAsync();
         _closed = true;
@@ -96,6 +97,7 @@ public partial class MainWindow : Window
         _closing = true;
         IsEnabled = false;
         _timer.Stop();
+        _recordTimer.Stop();
         _runtime.HostLog -= _hostLog;
         _lifetime.Cancel();
         try

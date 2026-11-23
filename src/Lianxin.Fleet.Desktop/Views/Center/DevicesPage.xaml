@@ -12,6 +12,8 @@
                     <TextBlock Text="常用" Style="{StaticResource ToolLabel}" />
                     <Button Content="▶ 运行脚本" Click="RunScriptClicked" ToolTip="对勾选的设备运行左侧选中的脚本" />
                     <Button Content="■ 停止脚本" Click="StopScriptClicked" ToolTip="停止勾选设备（未勾选时为全部设备）上的脚本" />
+                    <Button Content="‖ 暂停脚本" Click="PauseScriptClicked" ToolTip="暂停勾选设备（未勾选时为全部设备）上的脚本，当前这一步执行完后停住" />
+                    <Button Content="▷ 继续脚本" Click="ResumeScriptClicked" ToolTip="继续勾选设备（未勾选时为全部设备）上暂停的脚本" />
                     <Button Content="✓ 启动自动化" Click="StartAutomationClicked" Style="{StaticResource AccentButton}"
                             ToolTip="为勾选的在线设备（未勾选时为全部在线设备）启动 WDA 控制" />
                     <Button Content="⊗ 停止自动化" Click="StopAutomationClicked" />
@@ -31,6 +33,12 @@
                                 <MenuItem Header="安装应用到勾选设备…" Click="InstallClicked" />
                                 <MenuItem Header="导出连接配置…" Click="ExportClicked" />
                                 <MenuItem Header="打开应用批准目录" Click="OpenAppsClicked" />
+                                <Separator />
+                                <MenuItem Header="挂载开发者镜像（勾选设备）" Click="BatchMountClicked" />
+                                <MenuItem Header="卸载开发者镜像（勾选设备）…" Click="BatchUnmountClicked" />
+                                <MenuItem Header="重启勾选设备…" Click="BatchRestartClicked" />
+                                <MenuItem Header="关机勾选设备…" Click="BatchShutdownClicked" />
+                                <MenuItem Header="刷新电量" Click="RefreshBatteryClicked" />
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
@@ -132,6 +140,7 @@
                     <DataGrid x:Name="DeviceGrid" IsReadOnly="True" MouseDoubleClick="GridDoubleClicked">
                         <DataGrid.ContextMenu>
                             <ContextMenu>
+                                <MenuItem Header="设备详情…" Click="DetailsClicked" FontWeight="SemiBold" />
                                 <MenuItem Header="设置别名…" Click="AliasClicked" />
                                 <MenuItem Header="移到分组…" Click="MoveRowsClicked" />
                                 <MenuItem Header="测试自动化" Click="TestAutomationClicked" />
@@ -152,6 +161,13 @@
                             <DataGridTextColumn Header="名称" Binding="{Binding Name, Mode=OneWay}" Width="110" ElementStyle="{StaticResource CellText}" />
                             <DataGridTextColumn Header="型号" Binding="{Binding Model, Mode=OneWay}" Width="100" ElementStyle="{StaticResource CellText}" />
                             <DataGridTextColumn Header="系统" Binding="{Binding OsVersion, Mode=OneWay}" Width="70" ElementStyle="{StaticResource CellText}" />
+                            <DataGridTemplateColumn Header="电量" Width="70" SortMemberPath="BatteryLevel">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Battery}" ToolTip="{Binding BatteryTip}" Style="{StaticResource CellText}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="ECID" Binding="{Binding Ecid, Mode=OneWay}" Width="140" ElementStyle="{StaticResource CellText}" />
                             <DataGridTextColumn Header="分组" Binding="{Binding Group, Mode=OneWay}" Width="90" ElementStyle="{StaticResource CellText}" />
                             <DataGridTextColumn Header="连接" Binding="{Binding Connection, Mode=OneWay}" Width="60" ElementStyle="{StaticResource CellText}" />

@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Lianxin.Fleet.Mac.ViewModels"
+        xmlns:domain="using:Lianxin.Fleet.Core.Domain"
         x:Class="Lianxin.Fleet.Mac.Views.MainWindow"
         Title="联信设备工作站 · macOS" Width="1500" Height="940"
         MinWidth="990" MinHeight="660" WindowStartupLocation="CenterScreen"
@@ -54,7 +55,17 @@
                             </ListBox.ItemsPanel>
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:DeviceCard">
-                                    <StackPanel Width="150" Spacing="5">
+                                    <StackPanel Width="{Binding TileWidth}" Spacing="5">
+                                        <StackPanel.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="设为主控" Click="TileMasterClicked" />
+                                                <MenuItem Header="返回主屏" Tag="Home" Click="TileActionClicked" />
+                                                <MenuItem Header="锁屏" Tag="Lock" Click="TileActionClicked" />
+                                                <MenuItem Header="解锁" Tag="Unlock" Click="TileActionClicked" />
+                                                <Separator />
+                                                <MenuItem Header="保存截图…" Click="TileShotClicked" />
+                                            </ContextMenu>
+                                        </StackPanel.ContextMenu>
                                         <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="5">
                                             <Ellipse Width="8" Height="8" Fill="{Binding StatusBrush}"
                                                      VerticalAlignment="Center" />
@@ -64,7 +75,7 @@
                                             <TextBlock Grid.Column="2" Text="{Binding Name}" FontWeight="SemiBold"
                                                        TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                                         </Grid>
-                                        <Border Height="300" Background="#0B0F18" CornerRadius="6" ClipToBounds="True">
+                                        <Border Height="{Binding PreviewHeight}" Background="#0B0F18" CornerRadius="6" ClipToBounds="True">
                                             <Grid>
                                                 <Image Source="{Binding Preview}" Stretch="Uniform" />
                                                 <TextBlock Text="{Binding Placeholder}" IsVisible="{Binding ShowPlaceholder}"
@@ -74,7 +85,7 @@
                                         </Border>
                                         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="3">
                                             <TextBox Text="{Binding QuickText, Mode=TwoWay}" PlaceholderText="信息框"
-                                                     MaxLength="1000" MinWidth="0" Padding="5,3"
+                                                     MaxLength="1000" MinWidth="0" Padding="5,3" KeyDown="TileTextKeyDown"
                                                      AutomationProperties.Name="输入到这台设备的文字" />
                                             <Button Grid.Column="1" Content="发送" Padding="6,3" Click="TileSendClicked"
                                                     AutomationProperties.Name="把文字输入到这台设备" />
@@ -104,9 +115,9 @@
                         <TextBlock x:Name="MasterDetails" Classes="muted" TextWrapping="Wrap" MaxLines="3" />
                     </StackPanel>
                     <Border Grid.Row="1" x:Name="MasterSurface" Background="#0B0F18" CornerRadius="9"
-                            Focusable="True" ClipToBounds="True" AutomationProperties.Name="主控屏幕，按回车点击中心"
+                            Focusable="True" ClipToBounds="True" AutomationProperties.Name="主控屏幕，回车点击中心，方向键滑动，Home 回主屏，退格返回"
                             PointerPressed="ScreenPressed" PointerReleased="ScreenReleased"
-                            PointerCaptureLost="ScreenCaptureLost" KeyDown="ScreenKeyDown">
+                            PointerCaptureLost="ScreenCaptureLost" KeyDown="ScreenKeyDown" KeyUp="ScreenKeyUp" LostFocus="ScreenLostFocus">
                         <Grid>
                             <Image x:Name="MasterImage" Stretch="Uniform" />
                             <TextBlock x:Name="MasterPlaceholder" Classes="muted" Margin="14"
@@ -133,6 +144,43 @@
                         <TextBlock Classes="heading" Text="设备操作" />
                         <CheckBox x:Name="SyncEnabled" Content="同步到选中设备" IsCheckedChanged="SyncChanged" />
                         <TextBlock x:Name="TargetLabel" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Classes="muted" Text="脚本录制" />
+                        <UniformGrid Columns="2">
+                            <Button x:Name="RecordButton" Content="● 开始录制" Click="RecordClicked" HorizontalAlignment="Stretch"
+                                    AutomationProperties.Name="开始或停止脚本录制" />
+                            <Button x:Name="ReviewRecordingButton" Content="保存录制" Click="ReviewRecordingClicked"
+                                    HorizontalAlignment="Stretch" IsEnabled="False" />
+                        </UniformGrid>
+                        <ComboBox x:Name="IdleLimit" SelectedIndex="0" HorizontalAlignment="Stretch"
+                                  AutomationProperties.Name="录制空闲等待上限">
+                            <ComboBoxItem Content="空闲等待不限制" />
+                            <ComboBoxItem Content="空闲最多等 3 秒" />
+                            <ComboBoxItem Content="空闲最多等 10 秒" />
+                            <ComboBoxItem Content="空闲最多等 30 秒" />
+                        </ComboBox>
+                        <TextBlock x:Name="RecordLabel" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Classes="muted" Text="运行脚本" />
+                        <ComboBox x:Name="ScriptPicker" HorizontalAlignment="Stretch" DropDownOpened="ScriptPickerOpened"
+                                  AutomationProperties.Name="要运行的脚本">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="domain:FleetScript">
+                                    <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <UniformGrid Columns="2">
+                            <Button Content="运行到目标" Click="RunScriptClicked" HorizontalAlignment="Stretch" />
+                            <Button Content="停止脚本" Click="StopScriptClicked" HorizontalAlignment="Stretch" />
+                            <Button Content="暂停脚本" Click="PauseScriptClicked" HorizontalAlignment="Stretch" />
+                            <Button Content="继续脚本" Click="ResumeScriptClicked" HorizontalAlignment="Stretch" />
+                        </UniformGrid>
+                        <TextBlock Classes="muted" Text="截图" />
+                        <UniformGrid Columns="2">
+                            <Button Content="主控截图" Click="SaveMasterShotClicked" HorizontalAlignment="Stretch"
+                                    AutomationProperties.Name="保存主控截图" />
+                            <Button Content="选中截图" Click="SaveSelectedShotsClicked" HorizontalAlignment="Stretch"
+                                    AutomationProperties.Name="保存选中截图" />
+                        </UniformGrid>
                         <TextBlock Classes="muted" Text="系统" />
                         <UniformGrid Columns="4">
                             <Button Content="Home" Tag="Home" Click="ActionClicked" AutomationProperties.Name="返回主屏幕" />

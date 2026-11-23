@@ -97,6 +97,7 @@ public sealed partial class CenterWindow : Window
     private async void WindowOpened(object? sender, EventArgs e)
     {
         Runtime.Schedules.Start();
+        await ApplyOpenApiAsync();
         await RefreshAsync();
         await DiscoverAsync(quiet: true);
         if (!closing)
@@ -274,6 +275,7 @@ public sealed partial class CenterWindow : Window
         timer.Stop();
         lifetime.Cancel();
         AgentView.Stop();
+        await StopOpenApiAsync();
         await CloseMirrorAsync();
         try
         {

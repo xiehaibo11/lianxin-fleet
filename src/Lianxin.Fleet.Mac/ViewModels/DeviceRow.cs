@@ -13,9 +13,11 @@ public sealed class DeviceRow(DeviceSnapshot snapshot) : INotifyPropertyChanged
     private bool channel;
     private ScriptActivity? activity;
     private ScriptRun? lastRun;
+    private BatteryInfo? battery;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    public DeviceSnapshot Snapshot => current;
     public long Id => current.Device.Id;
     public FleetDevice Device => current.Device;
     public DeviceStatus Status => current.Status;
@@ -37,8 +39,22 @@ public sealed class DeviceRow(DeviceSnapshot snapshot) : INotifyPropertyChanged
     public string AutomationTip => AutomationReady ? $"WDA 已就绪 · 本机端口 {Device.WdaPort}" : Status.Error ?? "自动化未启动";
     public bool ScriptRunning => activity is not null;
     public string Script => activity?.ScriptName ?? lastRun?.ScriptName ?? "";
-    public string Message => note ?? (activity is not null ? "运行中 · " + activity.Message
+    public string Message => note ?? (activity is not null ? (activity.Paused ? "已暂停 · " : "运行中 · ") + activity.Message
         : lastRun is null ? "—" : $"{State(lastRun.State)} · {lastRun.Message}");
+    // 电量列：数值用于排序，读不到时为 -1。
+    public int BatteryLevel => battery?.Level ?? -1;
+    public string Battery => battery?.Level is { } level ? $"{level}%" + (battery.Charging == true ? " ⚡" : "") : "—";
+    public string BatteryTip => battery is null ? "电量未读取：需要 USB 连接并信任电脑，每分钟刷新一次。"
+        : DeviceText.Battery(battery) + (battery.Source == "WDA" ? " · 来自自动化" : " · 来自 USB");
+
+    public void SetBattery(BatteryInfo? value)
+    {
+        if (Equals(battery, value))
+            return;
+        battery = value;
+        foreach (var name in new[] { nameof(Battery), nameof(BatteryLevel), nameof(BatteryTip) })
+            PropertyChanged?.Invoke(this, new(name));
+    }
 
     public bool IsSelected
     {

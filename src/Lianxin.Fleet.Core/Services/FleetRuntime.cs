@@ -22,9 +22,10 @@ public sealed class FleetRuntime : IAsyncDisposable
         {
             Service = new FleetService(Store, bridge, AppDirectory);
             Host = new WdaHost(PythonPath, message => HostLog?.Invoke(message));
-            Scripts = new ScriptRunner(Store, bridge);
+            Scripts = new ScriptRunner(Store, bridge, DataDirectory);
             Schedules = new ScheduleService(Store, Scripts);
             Setup = new DeviceSetup(AppDirectory, PythonPath);
+            DeviceManager = new DeviceManager(bridge, PythonPath);
         }
         catch
         {
@@ -68,6 +69,11 @@ public sealed class FleetRuntime : IAsyncDisposable
         get;
     }
     public DeviceSetup Setup
+    {
+        get;
+    }
+    // 设备详情、电量、应用、文件、开发者镜像与电源。
+    public DeviceManager DeviceManager
     {
         get;
     }

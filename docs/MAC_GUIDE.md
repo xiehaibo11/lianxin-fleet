@@ -33,6 +33,20 @@ macOS 版（`src/Lianxin.Fleet.Mac`，Avalonia 12）与 Windows 版功能相同�
 | 重置 USB | 重启 usbmuxd，弹出管理员密码框 | 重启 Apple Mobile Device Service，弹出 UAC |
 | 无线发现 | 系统自带 Bonjour | 需要另外安装 Bonjour |
 | AI 密钥 | 数据目录下的 `agent-key` 文件，权限 600，只有当前用户可读 | 按当前 Windows 用户用 DPAPI 加密，存在 `settings.json` |
+| iOS 16 及以下的开发者镜像 | 装了 Xcode 时直接取 `/Applications/Xcode.app` 里的镜像，否则联网下载 | 联网下载到用户目录的缓存 |
+| 设备详情里的文件下载 | 本机文件名不能含 `:`（访达不支持） | 本机文件名不能含 `<>:"\|?*`，也不能是 CON、NUL 等保留名 |
+
+设备详情、电量列和「更多 ▾」里的批量镜像与电源操作在两个平台上相同（见 [CENTER_GUIDE.md](CENTER_GUIDE.md) 的「设备管理」）；Mac 上用访达的文件和文件夹选择器选择上传文件和下载位置。这些功能目前只在 Windows 上连接真机验证过只读查询，Mac 真机尚未验证。
+
+集控投屏（含脚本录制、截图）的用法与 Windows 相同，见 [CENTER_GUIDE.md](CENTER_GUIDE.md#集控投屏)，以下几处不同：
+
+| 项目 | macOS | Windows |
+| --- | --- | --- |
+| 选择主控 | 在设备墙上选中小屏幕 | 点击小屏幕或「主控」按钮 |
+| 缩放小屏幕 | ⌘ 或 Ctrl + 滚轮（触控板双指滑动） | Ctrl + 滚轮 |
+| 输入文字 | 单行信息框，回车即输入 | 多行文本框，Ctrl+回车输入，回车换行 |
+| 截图来源 | WDA 截图，失败时用当前预览画面（文件名带 `_preview`） | 先 USB 截图，再 WDA，最后用当前预览画面（文件名带 `_preview`） |
+| 主控画面快捷键 | delete 键返回；没有 Home 键的键盘用 fn+← 回主屏 | 退格键返回，Home 键回主屏 |
 
 数据目录可用环境变量 `FLEET_DATA_DIR` 覆盖，应用批准目录（安装包必须放在这里）默认是数据目录下的 `apps`，可用 `FLEET_APP_DIR` 覆盖。macOS 工作站与 CLI 共用同一个数据库，同一时间只能由一个程序打开。
 

@@ -175,12 +175,17 @@ internal static class StoreChecks
         Assert.Equal("mock signed package", File.ReadAllText(FleetValidation.AppPath(app, approved)));
         var outside = Directory.CreateDirectory(Path.Combine(folder.Path, "Outside.app")).FullName;
         Assert.Throws<UnauthorizedAccessException>(() => FleetValidation.AppPath(outside, approved));
-        if (!OperatingSystem.IsWindows())
+        // 批准目录里指向外面的链接：解析后仍在目录外，拒绝。没有创建链接的权限时跳过。
+        var link = Path.Combine(approved, "Escape.app");
+        try
         {
-            var link = Path.Combine(approved, "Escape.app");
             Directory.CreateSymbolicLink(link, outside);
-            Assert.Throws<UnauthorizedAccessException>(() => FleetValidation.AppPath(link, approved));
         }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { link = null; }
+        if (link is not null)
+            Assert.Throws<UnauthorizedAccessException>(() => FleetValidation.AppPath(link, approved));
+        // 目录外的路径存在与否，报错相同（不能用来探测文件）。
+        Assert.Throws<UnauthorizedAccessException>(() => FleetValidation.AppPath(Path.Combine(folder.Path, "missing", "x.ipa"), approved));
         return Task.CompletedTask;
     }
     public static Task ExclusiveLease()

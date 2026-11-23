@@ -13,8 +13,11 @@ namespace Lianxin.Fleet.Desktop.Views.Main;
 
 public partial class MainWindow
 {
+    // ids 为空时发给主控或同步目标，这类操作在录制时写入脚本；小屏幕和安装指定了设备，不录制。
     private async Task QueueAsync(FleetAction action, ActionParameters parameters, IReadOnlyList<long>? ids = null)
     {
+        var recordable = ids is null;
+        var stamp = _recorder.Stamp();
         ids ??= TargetIds();
         if (ids.Count == 0)
             throw new InvalidOperationException("请先选择目标设备。");
@@ -40,15 +43,19 @@ public partial class MainWindow
         ApplySnapshot(_service.GetSnapshot());
         StatusLabel.Text = $"任务 #{job.Id} 已提交" + (skipped > 0 ? $"（已跳过 {skipped} 台控制未就绪的设备）" : "")
             + "，请在任务记录核对逐设备执行结果。";
+        if (recordable)
+            TrackRecording(job, ids, action, parameters, stamp);
     }
     private async void QuickAction(DeviceCard card, FleetAction action) => await RunAsync(() =>
         QueueAsync(action, action == FleetAction.Text ? new(Text: card.QuickText) : new(), [card.Id]));
-    private async void CommandClicked(object sender, RoutedEventArgs e) => await RunAsync(() =>
+    private async void CommandClicked(object sender, RoutedEventArgs e) =>
+        await RunAsync(() => QueueCommandAsync((string)((Button)sender).Tag));
+    // 按钮 Tag 为 FleetAction 名称或 Back；键盘快捷键走同一入口。
+    private Task QueueCommandAsync(string tag)
     {
-        var tag = (sender as Button)?.Tag as string;
         if (tag == "Back")
             return QueueAsync(FleetAction.Swipe, new(FromX: 0, FromY: .5, ToX: .7, ToY: .5, Duration: .05));
-        var action = Enum.Parse<FleetAction>(tag!);
+        var action = Enum.Parse<FleetAction>(tag);
         return QueueAsync(action, action switch
         {
             FleetAction.Text or FleetAction.Clipboard => new(Text: PhoneTextInput.Text),
@@ -56,10 +63,12 @@ public partial class MainWindow
             FleetAction.Launch or FleetAction.Terminate => new(BundleId: BundleInput.Text.Trim()),
             _ => new()
         });
-    });
-    private async void SwipeClicked(object sender, RoutedEventArgs e) => await RunAsync(() =>
+    }
+    private async void SwipeClicked(object sender, RoutedEventArgs e) =>
+        await RunAsync(() => QueueSwipeAsync((string)((Button)sender).Tag));
+    private Task QueueSwipeAsync(string direction)
     {
-        var coordinates = ((sender as Button)?.Tag as string) switch
+        var coordinates = direction switch
         {
             "up" => (.5, .78, .5, .25),
             "down" => (.5, .25, .5, .78),
@@ -68,7 +77,7 @@ public partial class MainWindow
         };
         return QueueAsync(FleetAction.Swipe, new(FromX: coordinates.Item1, FromY: coordinates.Item2,
             ToX: coordinates.Item3, ToY: coordinates.Item4));
-    });
+    }
     private async void DiscoverClicked(object sender, RoutedEventArgs e) => await RunAsync(async () =>
     {
         var devices = await _service.DiscoverAsync(_lifetime.Token);

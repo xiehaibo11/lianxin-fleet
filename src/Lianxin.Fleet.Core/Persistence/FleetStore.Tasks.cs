@@ -44,6 +44,12 @@ public sealed partial class FleetStore
             row.IsDBNull(5) ? null : DateTimeOffset.FromUnixTimeMilliseconds(row.GetInt64(5)));
     }
     public FleetJob GetJobHeader(long id) => ReadJob(id, withTargets: false);
+    // 按编号读取任务和每台设备的结果（不受 GetJobs 的条数限制）。
+    public FleetJob GetJob(long id)
+    {
+        lock (gate)
+            return ReadJob(id);
+    }
     public FleetJob Enqueue(string key, IReadOnlyList<long> ids, FleetAction action, ActionParameters parameters)
     {
         key = FleetValidation.Text(key, 80, "请求编号");

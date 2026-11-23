@@ -135,7 +135,11 @@ public partial class MainWindow
         {
             attempt.Cancel();
             if (pending is not null)
-                try { await pending; } catch (OperationCanceledException) when (attempt.IsCancellationRequested) { }
+                try
+                {
+                    await pending;
+                }
+                catch (OperationCanceledException) when (attempt.IsCancellationRequested) { }
         }
     }
 
@@ -146,7 +150,10 @@ public partial class MainWindow
         {
             if (policy.Usb)
             {
-                try { return (Decode(await _service.GetUsbScreenshotAsync(id, token)), true); }
+                try
+                {
+                    return (Decode(await _service.GetUsbScreenshotAsync(id, token)), true);
+                }
                 catch (Exception) when (policy.Wda && !token.IsCancellationRequested)
                 {
                     // A signed WDA can still provide a frame when the USB screenshot service is unavailable.
@@ -178,7 +185,10 @@ public partial class MainWindow
 
     private static async Task ReleaseCastAsync(PreviewSession cast)
     {
-        try { await cast.Loop; }
+        try
+        {
+            await cast.Loop;
+        }
         finally { cast.Source.Dispose(); }
     }
 
@@ -188,7 +198,10 @@ public partial class MainWindow
         _casts.Clear();
         foreach (var cast in casts)
             cast.Source.Cancel();
-        try { await Task.WhenAll(casts.Select(ReleaseCastAsync).Concat(_stoppingCasts.Values)); }
+        try
+        {
+            await Task.WhenAll(casts.Select(ReleaseCastAsync).Concat(_stoppingCasts.Values));
+        }
         finally { _snapshotSlots.Dispose(); }
     }
 

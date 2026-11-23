@@ -11,6 +11,7 @@ public sealed class DeviceCard(DeviceSnapshot snapshot) : INotifyPropertyChanged
     private bool selected;
     private Bitmap? preview;
     private string quickText = "";
+    private double zoom = 1;
     public DeviceSnapshot Snapshot { get; private set; } = snapshot;
     public FleetDevice Device => Snapshot.Device;
     public DeviceStatus Status => Snapshot.Status;
@@ -49,6 +50,9 @@ public sealed class DeviceCard(DeviceSnapshot snapshot) : INotifyPropertyChanged
         }
     }
     public Bitmap? Preview => preview;
+    // 小屏幕大小：Ctrl（⌘）+滚轮在设备墙上缩放，见 MainWindow.Shots.cs。
+    public double TileWidth => Math.Round(150 * zoom);
+    public double PreviewHeight => Math.Round(300 * zoom);
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -85,6 +89,15 @@ public sealed class DeviceCard(DeviceSnapshot snapshot) : INotifyPropertyChanged
             Changed(nameof(ShowPlaceholder));
             previous?.Dispose();
         }
+    }
+
+    public void SetZoom(double value)
+    {
+        if (zoom == value)
+            return;
+        zoom = value;
+        Changed(nameof(TileWidth));
+        Changed(nameof(PreviewHeight));
     }
 
     public void Dispose() => SetPreview(null);

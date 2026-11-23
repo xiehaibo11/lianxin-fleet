@@ -31,7 +31,10 @@ python -m pip install -r requirements-windows.txt
 - SQLite 持久任务、幂等请求、同设备串行、全局最多 32 台并发。
 - 中断恢复时运行任务标为“结果待确认”，未执行队列取消，不自动重放可能已执行的动作。
 - 同一数据库的桌面、macOS 工作站与 CLI 使用独占文件锁，避免多实例重复操机。
-- Windows 中控主窗口：设备表格（别名、型号、系统、ECID、连接方式、脚本与自动化状态）、分组与列设置、脚本管理与批量运行、定时任务、一键配置（开发者模式、开发者镜像、安装 WDA）、重置 USB、无线中心和 AI 助手。设备墙改为从中控打开的「集控投屏」窗口。详见 [中控使用说明](docs/CENTER_GUIDE.md)。
+- 中控主窗口（Windows 与 macOS 相同）：设备表格（别名、型号、系统、电量、ECID、连接方式、脚本与自动化状态）、分组与列设置、脚本管理与批量运行、暂停 / 继续脚本、定时任务、一键配置（开发者模式、开发者镜像、安装 WDA）、重置 USB、无线中心和 AI 助手。设备墙改为从中控打开的「集控投屏」窗口。详见 [中控使用说明](docs/CENTER_GUIDE.md)。
+- 脚本：流程控制（重复、如果、当、跳出）、界面元素（点击元素、等待元素、抓取节点）、比色找色与模板找图、日志与截图，附 EasyClick 函数对照表，见 [脚本说明](docs/SCRIPT_GUIDE.md)。集控投屏可以录制主控上的操作生成脚本，并保存原始截图。
+- 设备管理：设备详情（序列号、容量、电池）、电量列、用户应用列表与卸载、手机媒体区文件浏览与上传下载、开发者镜像查询 / 挂载 / 卸载、重启与关机，以及勾选设备的批量镜像与电源操作。
+- 开放接口：兼容 EasyClick 企业版开放接口的本机 HTTP 服务（51 个接口，含脚本暂停、电量、镜像、卸载应用、重启、锁屏状态、旋转、抓取节点与手机文件），默认只监听本机，局域网模式必须带令牌；文件推送拉取只使用数据目录下的 `transfer` 文件夹。见 [开放接口](docs/OPEN_API.md)。
 
 安装包必须已经满足 Apple 的签名及设备授权要求。群控不会赋予普通 App 任意读取系统短信的权限。
 
@@ -41,7 +44,7 @@ python -m pip install -r requirements-windows.txt
 | --- | --- |
 | `src/Lianxin.Fleet.Desktop` | WPF 原生桌面界面（Windows） |
 | `src/Lianxin.Fleet.Mac` | Avalonia 12 macOS 中控与集控投屏，功能同 Windows 版，打包为 `LianxinFleet-Mac.app`（见 [docs/MAC_GUIDE.md](docs/MAC_GUIDE.md)） |
-| `src/Lianxin.Fleet.Core` | SQLite、校验、任务、WDA 和 USB 进程 |
+| `src/Lianxin.Fleet.Core` | SQLite、校验、任务、脚本执行、WDA 和 USB 进程、设备管理、图色识别与开放接口服务 |
 | `src/Lianxin.Fleet.Cli` | 跨平台诊断、配置和 Mac iOS 签名工具 |
 | `src/Lianxin.Sms.Api` | 原短信 HTTP API 的 ASP.NET Core 兼容服务 |
 | `checks/Lianxin.Fleet.Checks` | 原生核心、桥接、坐标和签名自检 |

@@ -20,6 +20,8 @@
 | Fleet.Core / Infrastructure | USB 工具与受控子进程 |
 | Fleet.Core / Serialization | 序列化约定 |
 | Fleet.Core / Agents | AI 助手：模型请求、看屏与操作循环 |
+| Fleet.Core / Imaging | PNG 解码、比色找色与模板找图 |
+| Fleet.Core / OpenApi | 兼容 EasyClick 企业版开放接口的本机 HTTP 服务：请求解析、安全检查、接口路由与电脑端文件中转目录边界 |
 | Fleet.Mac / Views | macOS Avalonia 窗口、标签页、对话框及其代码后置 |
 | Fleet.Mac / ViewModels | 设备、脚本、定时任务和任务显示状态 |
 | Fleet.Mac / Interaction | 命令、屏幕坐标换算、AI 截图缩放与本机密钥保存 |

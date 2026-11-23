@@ -172,6 +172,8 @@ public partial class DevicesPage
 
     private void RunScriptClicked(object sender, RoutedEventArgs e) => center.RunScript(SelectedScriptId);
     private void StopScriptClicked(object sender, RoutedEventArgs e) => center.StopScripts();
+    private void PauseScriptClicked(object sender, RoutedEventArgs e) => center.PauseScripts();
+    private void ResumeScriptClicked(object sender, RoutedEventArgs e) => center.ResumeScripts();
     private void StartAutomationClicked(object sender, RoutedEventArgs e) => center.StartAutomation();
     private void StopAutomationClicked(object sender, RoutedEventArgs e) => center.StopAutomation();
     private void ResetUsbClicked(object sender, RoutedEventArgs e) => center.ResetUsb();

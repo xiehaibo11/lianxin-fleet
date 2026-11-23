@@ -71,23 +71,51 @@ public static class FleetValidation
             throw new ArgumentException("Bundle ID 格式无效。");
         return bundle;
     }
+    // 抛出的异常都带本程序自己的中文说明（不含系统错误里的本机路径），开放接口可以原样转给调用方。
     public static string AppPath(string? value, string approvedDirectory)
     {
         var path = Text(value, 1000, "已签名应用路径");
         if (!Path.IsPathFullyQualified(path))
             throw new ArgumentException("应用路径必须为本机绝对路径。");
+        // 先只做字符串判断、不访问文件系统：设备路径（\\?\、\\.\）一律拒绝，规范化后必须落在批准目录内。
+        // 否则 \\某台电脑\共享 这样的路径会让本机去连接外部共享（可能泄露登录凭据），不同的错误信息还能探测目录外的文件。
+        if (IsDevicePath(path) || !Inside(Path.GetFullPath(approvedDirectory), Path.GetFullPath(path)))
+            throw new UnauthorizedAccessException("只能安装批准目录内的应用。");
         if (!Directory.Exists(approvedDirectory))
             throw new ArgumentException("应用批准目录不存在。");
-        var approved = CanonicalPath(approvedDirectory);
-        var app = CanonicalPath(path);
-        var relative = Path.GetRelativePath(approved, app);
-        if (relative == "." || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
-            || Path.IsPathRooted(relative))
+        string approved, app;
+        try
+        {
+            approved = CanonicalPath(approvedDirectory);
+            app = CanonicalPath(path);
+        }
+        catch (Exception error) when (error is UnauthorizedAccessException
+            || (error is IOException && error.Message is not (MissingError or LinkError)))
+        {
+            throw new IOException("无法读取应用路径，请确认文件存在且有访问权限。", error);
+        }
+        // 符号链接解析后再检查一次，链接指向批准目录外时拒绝。
+        if (!Inside(approved, app))
             throw new UnauthorizedAccessException("只能安装批准目录内的应用。");
         if (!(app.EndsWith(".ipa", StringComparison.OrdinalIgnoreCase) && File.Exists(app))
             && !(app.EndsWith(".app", StringComparison.OrdinalIgnoreCase) && Directory.Exists(app)))
             throw new ArgumentException("仅支持签名 .ipa 文件或 .app 目录。");
         return app;
+    }
+
+    private const string LinkError = "无法解析应用路径中的链接。";
+    private const string MissingError = "应用或批准目录不存在。";
+
+    private static bool IsDevicePath(string path) =>
+        path.Replace('/', '\\') is var value && (value.StartsWith(@"\\?\", StringComparison.Ordinal)
+            || value.StartsWith(@"\\.\", StringComparison.Ordinal));
+
+    // 纯字符串比较：child 在 root 之下（不含 root 本身）。
+    private static bool Inside(string root, string child)
+    {
+        var relative = Path.GetRelativePath(root, child);
+        return !(relative == "." || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+            || Path.IsPathRooted(relative));
     }
     private static string CanonicalPath(string path)
     {
@@ -99,9 +127,9 @@ public static class FleetValidation
             current = Path.Combine(current, part);
             FileSystemInfo item = Directory.Exists(current) ? new DirectoryInfo(current) : new FileInfo(current);
             if (!item.Exists)
-                throw new FileNotFoundException("应用或批准目录不存在。");
+                throw new FileNotFoundException(MissingError);
             if (item.LinkTarget is not null)
-                current = item.ResolveLinkTarget(true)?.FullName ?? throw new IOException("无法解析应用路径中的链接。");
+                current = item.ResolveLinkTarget(true)?.FullName ?? throw new IOException(LinkError);
         }
         return Path.GetFullPath(current);
     }

@@ -1,14 +1,24 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DataTemplate x:Key="DeviceTemplate">
-        <Border Width="160" Margin="0,0,12,12" CornerRadius="12" Background="#1A1F2D" BorderBrush="{Binding BorderBrush}" BorderThickness="1">
+        <Border Width="{Binding TileWidth}" Margin="0,0,12,12" CornerRadius="12" Background="#1A1F2D" BorderBrush="{Binding BorderBrush}" BorderThickness="1">
+            <Border.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="设为主控" Command="{Binding SetMasterCommand}" />
+                    <MenuItem Header="返回主屏" Command="{Binding HomeCommand}" IsEnabled="{Binding CanControl}" />
+                    <MenuItem Header="锁屏" Command="{Binding LockCommand}" IsEnabled="{Binding CanControl}" />
+                    <MenuItem Header="解锁" Command="{Binding UnlockCommand}" IsEnabled="{Binding CanControl}" />
+                    <Separator />
+                    <MenuItem Header="保存截图…" Command="{Binding ScreenshotCommand}" />
+                </ContextMenu>
+            </Border.ContextMenu>
             <StackPanel Margin="8">
                 <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" AutomationProperties.Name="{Binding SelectionLabel}" />
                 <WrapPanel Margin="0,5,0,0">
                     <TextBlock Text="{Binding UsbLabel}" FontSize="10" Foreground="#AEB4CD" Margin="0,0,8,0" />
                     <TextBlock Text="{Binding ControlLabel}" FontSize="10" Foreground="{Binding StatusBrush}" ToolTip="{Binding ControlError}" />
                 </WrapPanel>
-                <Border Height="250" Margin="0,5,0,5" CornerRadius="8" Background="#0B0E15" ClipToBounds="True" Cursor="Hand" ToolTip="点击设为主控">
+                <Border Height="{Binding PreviewHeight}" Margin="0,5,0,5" CornerRadius="8" Background="#0B0E15" ClipToBounds="True" Cursor="Hand" ToolTip="点击设为主控，右键更多操作，Ctrl+滚轮缩放">
                     <Border.InputBindings>
                         <MouseBinding Gesture="LeftClick" Command="{Binding SetMasterCommand}" />
                     </Border.InputBindings>
@@ -27,7 +37,11 @@
                     <TextBlock Text="{Binding GroupName}" Grid.Column="1" Margin="6,0,0,0" TextAlignment="Right"
                                TextTrimming="CharacterEllipsis" FontSize="10" Foreground="#A0A6BC" />
                 </Grid>
-                <TextBox Text="{Binding QuickText, UpdateSourceTrigger=PropertyChanged}" MaxLength="1000" Margin="0,5,0,5" Padding="5,4" AutomationProperties.Name="{Binding QuickTextLabel}" />
+                <TextBox Text="{Binding QuickText, UpdateSourceTrigger=PropertyChanged}" MaxLength="1000" Margin="0,5,0,5" Padding="5,4" AutomationProperties.Name="{Binding QuickTextLabel}" ToolTip="回车发送到这台设备">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SendTextCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
                 <UniformGrid Columns="3">
                     <Button Content="发送" Command="{Binding SendTextCommand}" IsEnabled="{Binding CanControl}" Margin="0,0,3,0" Padding="2" MinHeight="26" />
                     <Button Content="Home" Command="{Binding HomeCommand}" IsEnabled="{Binding CanControl}" Margin="0,0,3,0" Padding="2" MinHeight="26" />

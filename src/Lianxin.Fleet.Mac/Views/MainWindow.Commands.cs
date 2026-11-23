@@ -45,8 +45,11 @@ public sealed partial class MainWindow
         }
     }
 
+    // targets 为空时发给主控或同步目标，录制时写入脚本；小屏幕和安装指定了设备，不录制。
     private async Task QueueAsync(FleetAction action, ActionParameters parameters, long[]? targets = null)
     {
+        var recordable = targets is null;
+        var stamp = recorder.Stamp();
         targets ??= TargetIds();
         if (targets.Length == 0)
             throw new InvalidOperationException("请先选择目标设备。");
@@ -69,6 +72,8 @@ public sealed partial class MainWindow
         ApplySnapshot(service.GetSnapshot());
         var skipped = requested - targets.Length;
         StatusLabel.Text = $"任务 #{job.Id} 已提交" + (skipped > 0 ? $"（已跳过 {skipped} 台未连接设备）" : "") + "。执行结果见任务记录。";
+        if (recordable)
+            TrackRecording(job, targets, action, parameters, stamp);
     }
 
     private void DiscoverClicked(object? sender, RoutedEventArgs args) => Run(async () =>
@@ -145,8 +150,10 @@ public sealed partial class MainWindow
     private void OpenUrlClicked(object? sender, RoutedEventArgs args) =>
         Run(() => QueueAsync(FleetAction.OpenUrl, new ActionParameters(Text: UrlInput.Text)));
 
-    private void BackClicked(object? sender, RoutedEventArgs args) =>
-        Run(() => QueueAsync(FleetAction.Swipe, new ActionParameters(FromX: 0, FromY: .5, ToX: .7, ToY: .5, Duration: .05)));
+    private void BackClicked(object? sender, RoutedEventArgs args) => Run(BackAsync);
+
+    private Task BackAsync() =>
+        QueueAsync(FleetAction.Swipe, new ActionParameters(FromX: 0, FromY: .5, ToX: .7, ToY: .5, Duration: .05));
 
     private void TileSendClicked(object? sender, RoutedEventArgs args)
     {
@@ -168,9 +175,11 @@ public sealed partial class MainWindow
     private void InstallClicked(object? sender, RoutedEventArgs args) =>
         Run(() => QueueAsync(FleetAction.Install, new ActionParameters(AppPath: AppPathInput.Text), SelectedIds()));
 
-    private void SwipeClicked(object? sender, RoutedEventArgs args) => Run(() =>
+    private void SwipeClicked(object? sender, RoutedEventArgs args) => Run(() => SwipeAsync((sender as Button)?.Tag as string));
+
+    private Task SwipeAsync(string? direction)
     {
-        var (fromX, fromY, toX, toY) = (sender as Button)?.Tag switch
+        var (fromX, fromY, toX, toY) = direction switch
         {
             "up" => (.5, .78, .5, .25),
             "down" => (.5, .25, .5, .78),
@@ -178,7 +187,7 @@ public sealed partial class MainWindow
             _ => (.2, .5, .8, .5)
         };
         return QueueAsync(FleetAction.Swipe, new ActionParameters(FromX: fromX, FromY: fromY, ToX: toX, ToY: toY));
-    });
+    }
 
     private void BrowsePackageClicked(object? sender, RoutedEventArgs args) => Run(async () =>
     {

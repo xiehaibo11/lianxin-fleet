@@ -30,6 +30,7 @@ public partial class DevicesPage : UserControl
             if (column.Header is string { Length: > 0 } header && center.Settings.HiddenColumns.Contains(header))
                 column.Visibility = Visibility.Collapsed;
         center.Refreshed += Refreshed;
+        center.Refreshed += BatteryTick;
         LoadScripts();
         Refreshed();
     }

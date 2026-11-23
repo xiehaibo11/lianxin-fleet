@@ -31,6 +31,7 @@ public sealed partial class DevicesPage : UserControl
             if (column.Header is string { Length: > 0 } header && center.Settings.HiddenColumns.Contains(header))
                 column.IsVisible = false;
         center.Refreshed += Refreshed;
+        center.Refreshed += BatteryTick;
         LoadScripts();
         Refreshed();
     }

@@ -51,7 +51,7 @@
      <ComboBoxItem Content="全部状态" /><ComboBoxItem Content="USB 已连接" /><ComboBoxItem Content="可控制" /><ComboBoxItem Content="控制未就绪" />
     </ComboBox>
    </Grid>
-   <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+   <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PreviewMouseWheel="WallWheel">
     <Grid><ItemsControl ItemsSource="{Binding DeviceView}" ItemTemplate="{StaticResource DeviceTemplate}">
      <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
     </ItemsControl><TextBlock Name="EmptyLabel" Text="连接并解锁 iPhone，按手机提示信任这台电脑，然后点击一键连接。" Foreground="#9DA4BE" Margin="15" /></Grid>
@@ -68,7 +68,7 @@
     <TextBlock Name="MasterDetails" Foreground="#A5ABC2" FontSize="11" Margin="0,0,0,9" TextWrapping="Wrap" />
     <Border Name="MasterSurface" Height="295" Background="#0B0E15" CornerRadius="9" Focusable="True"
      MouseLeftButtonDown="ScreenDown" MouseLeftButtonUp="ScreenUp" LostMouseCapture="ScreenLostCapture" KeyDown="ScreenKeyDown"
-     AutomationProperties.Name="主控手机屏幕，点击或拖动操作；回车点击中心">
+     AutomationProperties.Name="主控手机屏幕，点击或拖动操作；回车点击中心，方向键滑动，Home 回主屏，退格返回">
      <Grid><Image Name="MasterImage" Stretch="Uniform" /><TextBlock Name="MasterPlaceholder" Text="设备屏幕尚未就绪" Foreground="#9397AF" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" /></Grid>
     </Border>
     <DockPanel Margin="0,8,0,0"><TextBlock Text="点击方式" Foreground="#A5ABC2" VerticalAlignment="Center" Margin="0,0,10,0" />
@@ -78,6 +78,22 @@
     </DockPanel>
     <CheckBox Name="SyncEnabled" Content="同步到全部选中设备" Margin="0,12,0,5" Checked="SelectionChanged" Unchecked="SelectionChanged" />
     <TextBlock Name="TargetLabel" Foreground="#A5ABC2" FontSize="10" />
+    <TextBlock Text="脚本录制" Style="{StaticResource SectionTitle}" />
+    <WrapPanel><Button Name="RecordButton" Content="● 开始录制" Click="RecordClicked" AutomationProperties.Name="开始或停止脚本录制" />
+     <Button Name="ReviewRecordingButton" Content="保存录制" Click="ReviewRecordingClicked" IsEnabled="False" /></WrapPanel>
+    <DockPanel><TextBlock Text="空闲等待上限" Foreground="#A5ABC2" VerticalAlignment="Center" Margin="0,0,10,0" />
+     <ComboBox Name="IdleLimit" SelectedIndex="0" Margin="0" AutomationProperties.Name="录制空闲等待上限">
+      <ComboBoxItem Content="不限制" /><ComboBoxItem Content="3 秒" /><ComboBoxItem Content="10 秒" /><ComboBoxItem Content="30 秒" />
+     </ComboBox>
+    </DockPanel>
+    <TextBlock Name="RecordLabel" Foreground="#A5ABC2" FontSize="11" Margin="0,6,0,0" />
+    <TextBlock Text="运行脚本" Style="{StaticResource SectionTitle}" />
+    <ComboBox Name="ScriptPicker" DisplayMemberPath="Name" DropDownOpened="ScriptPickerOpened" Margin="0,0,0,6" AutomationProperties.Name="要运行的脚本">
+     <ComboBox.ItemContainerStyle><Style TargetType="ComboBoxItem"><Setter Property="AutomationProperties.Name" Value="{Binding Name}" /></Style></ComboBox.ItemContainerStyle>
+    </ComboBox>
+    <WrapPanel><Button Content="运行到目标设备" Click="RunScriptClicked" /><Button Content="停止脚本" Click="StopScriptClicked" /><Button Content="暂停脚本" Click="PauseScriptClicked" /><Button Content="继续脚本" Click="ResumeScriptClicked" /></WrapPanel>
+    <TextBlock Text="截图" Style="{StaticResource SectionTitle}" />
+    <WrapPanel><Button Content="保存主控截图" Click="SaveMasterShotClicked" /><Button Content="保存选中截图" Click="SaveSelectedShotsClicked" /></WrapPanel>
     <TextBlock Text="系统" Style="{StaticResource SectionTitle}" />
     <WrapPanel>
      <Button Content="Home" Tag="Home" Click="CommandClicked" /><Button Content="返回" Tag="Back" Click="CommandClicked" />
@@ -90,10 +106,10 @@
      <Button Content="←" Tag="left" Click="SwipeClicked" AutomationProperties.Name="向左滑动" /><Button Content="→" Tag="right" Click="SwipeClicked" AutomationProperties.Name="向右滑动" />
     </WrapPanel>
     <TextBlock Text="文本" Style="{StaticResource SectionTitle}" />
-    <TextBox Name="PhoneTextInput" MaxLength="1000" Height="54" AcceptsReturn="True" TextWrapping="Wrap" AutomationProperties.Name="输入到手机的文字" />
+    <TextBox Name="PhoneTextInput" MaxLength="1000" Height="54" AcceptsReturn="True" TextWrapping="Wrap" PreviewKeyDown="PhoneTextKeyDown" ToolTip="Ctrl+回车输入到目标设备" AutomationProperties.Name="输入到手机的文字" />
     <WrapPanel><Button Content="输入文字" Tag="Text" Click="CommandClicked" /><Button Content="写入剪贴板" Tag="Clipboard" Click="CommandClicked" /></WrapPanel>
     <TextBlock Text="链接" Style="{StaticResource SectionTitle}" />
-    <TextBox Name="UrlInput" MaxLength="2000" AutomationProperties.Name="要在手机上打开的链接" />
+    <TextBox Name="UrlInput" MaxLength="2000" KeyDown="UrlKeyDown" ToolTip="回车打开链接" AutomationProperties.Name="要在手机上打开的链接" />
     <WrapPanel><Button Content="打开链接" Tag="OpenUrl" Click="CommandClicked" /></WrapPanel>
     <TextBlock Text="应用 · Bundle ID" Style="{StaticResource SectionTitle}" />
     <TextBox Name="BundleInput" MaxLength="160" AutomationProperties.Name="应用的 Bundle ID" />

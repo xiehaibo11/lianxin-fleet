@@ -31,7 +31,8 @@ public partial class MainWindow
             var card = DeviceCards.FirstOrDefault(item => item.Id == current.Device.Id);
             if (card is null)
             {
-                card = new DeviceCard(current, SetMaster, QuickAction);
+                card = new DeviceCard(current, SetMaster, QuickAction, TileScreenshot);
+                card.SetZoom(_zoom);
                 card.PropertyChanged += CardChanged;
                 DeviceCards.Add(card);
             }
@@ -159,16 +160,34 @@ public partial class MainWindow
         if (!_closing)
             UpdateMaster();
     }
+    // 主控画面有焦点时：回车/空格点击中心，方向键滑动，Home 回主屏，退格返回。
     private async void ScreenKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key != Key.Enter && e.Key != Key.Space)
+        Func<Task>? action = e.Key switch
+        {
+            Key.Enter or Key.Space => () => QueuePointAsync(new(.5, .5)),
+            Key.Up => () => QueueSwipeAsync("up"),
+            Key.Down => () => QueueSwipeAsync("down"),
+            Key.Left => () => QueueSwipeAsync("left"),
+            Key.Right => () => QueueSwipeAsync("right"),
+            Key.Home => () => QueueCommandAsync("Home"),
+            Key.Back => () => QueueCommandAsync("Back"),
+            _ => null
+        };
+        if (action is null || Keyboard.Modifiers != ModifierKeys.None)
             return;
+        // 按住不放时系统会连续发送按键：只认第一次，否则按住方向键一秒就会给每台同步的手机排队几十次滑动。
+        if (e.IsRepeat)
+        {
+            e.Handled = true;
+            return;
+        }
         if (_master?.CanControl != true || _master.Preview is null)
         {
             StatusLabel.Text = "等待真实屏幕快照后再操作。";
             return;
         }
         e.Handled = true;
-        await RunAsync(() => QueuePointAsync(new(.5, .5)));
+        await RunAsync(action);
     }
 }

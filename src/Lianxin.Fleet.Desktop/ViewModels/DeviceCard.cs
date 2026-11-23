@@ -14,6 +14,7 @@ public sealed class DeviceCard : INotifyPropertyChanged
     private ImageSource? _preview;
     private string? _previewError;
     private bool _isUsbSnapshot;
+    private double _zoom = 1;
     public FleetDevice Device
     {
         get; private set;
@@ -27,7 +28,10 @@ public sealed class DeviceCard : INotifyPropertyChanged
     public string GroupName => Device.GroupName;
     public string SelectionLabel => "选择" + Name;
     public string QuickTextLabel => "发送到" + Name + "的文字";
-    public bool? UsbConnected { get; private set; }
+    public bool? UsbConnected
+    {
+        get; private set;
+    }
     public bool CanControl => Status.Online && UsbConnected != false;
     public bool CanPreview => UsbConnected == true || CanControl;
     public string UsbLabel => UsbConnected switch
@@ -72,6 +76,21 @@ public sealed class DeviceCard : INotifyPropertyChanged
     {
         get;
     }
+    public ICommand LockCommand
+    {
+        get;
+    }
+    public ICommand UnlockCommand
+    {
+        get;
+    }
+    public ICommand ScreenshotCommand
+    {
+        get;
+    }
+    // 小屏幕大小：Ctrl+滚轮在设备墙上缩放，见 MainWindow.Shots.cs。
+    public double TileWidth => Math.Round(160 * _zoom);
+    public double PreviewHeight => Math.Round(250 * _zoom);
     public bool IsSelected
     {
         get => _selected;
@@ -91,7 +110,8 @@ public sealed class DeviceCard : INotifyPropertyChanged
     }
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public DeviceCard(DeviceSnapshot snapshot, Action<DeviceCard> setMaster, Action<DeviceCard, FleetAction> quickAction)
+    public DeviceCard(DeviceSnapshot snapshot, Action<DeviceCard> setMaster, Action<DeviceCard, FleetAction> quickAction,
+        Action<DeviceCard> saveScreenshot)
     {
         Device = snapshot.Device;
         Status = snapshot.Status;
@@ -99,6 +119,17 @@ public sealed class DeviceCard : INotifyPropertyChanged
         SetMasterCommand = new UiCommand(() => setMaster(this));
         SendTextCommand = new UiCommand(() => quickAction(this, FleetAction.Text));
         HomeCommand = new UiCommand(() => quickAction(this, FleetAction.Home));
+        LockCommand = new UiCommand(() => quickAction(this, FleetAction.Lock));
+        UnlockCommand = new UiCommand(() => quickAction(this, FleetAction.Unlock));
+        ScreenshotCommand = new UiCommand(() => saveScreenshot(this));
+    }
+    public void SetZoom(double zoom)
+    {
+        if (_zoom == zoom)
+            return;
+        _zoom = zoom;
+        Changed(nameof(TileWidth));
+        Changed(nameof(PreviewHeight));
     }
     public void Update(DeviceSnapshot snapshot)
     {

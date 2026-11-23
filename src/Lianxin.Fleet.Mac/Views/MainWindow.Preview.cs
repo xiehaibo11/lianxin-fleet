@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Lianxin.Fleet.Core.Domain;
 using Lianxin.Fleet.Core.Validation;
@@ -139,11 +140,38 @@ public sealed partial class MainWindow
             UpdateMaster();
     }
 
+    // 主控画面有焦点时：回车/空格点击中心，方向键滑动，Home 回主屏，退格返回。
     private void ScreenKeyDown(object? sender, KeyEventArgs args)
     {
-        if (args.Key is not (Key.Enter or Key.Space) || !CanUseScreen())
+        Func<Task>? action = args.Key switch
+        {
+            Key.Enter or Key.Space => () => TapAsync(new ScreenPoint(.5, .5)),
+            Key.Up => () => SwipeAsync("up"),
+            Key.Down => () => SwipeAsync("down"),
+            Key.Left => () => SwipeAsync("left"),
+            Key.Right => () => SwipeAsync("right"),
+            Key.Home => () => QueueAsync(FleetAction.Home, new ActionParameters()),
+            Key.Back => BackAsync,
+            _ => null
+        };
+        if (action is null || args.KeyModifiers != KeyModifiers.None)
+            return;
+        // Avalonia 不区分按住时的自动重复：按下后直到松开只认一次，否则按住方向键会给每台同步的手机排队几十次滑动。
+        if (!heldKeys.Add(args.Key))
+        {
+            args.Handled = true;
+            return;
+        }
+        if (!CanUseScreen())
             return;
         args.Handled = true;
-        Run(() => TapAsync(new ScreenPoint(.5, .5)));
+        Run(action);
     }
+
+    private readonly HashSet<Key> heldKeys = [];
+
+    private void ScreenKeyUp(object? sender, KeyEventArgs args) => heldKeys.Remove(args.Key);
+
+    // 焦点离开主控画面时收不到 KeyUp，清空以免某个键一直被当成按住。
+    private void ScreenLostFocus(object? sender, RoutedEventArgs args) => heldKeys.Clear();
 }

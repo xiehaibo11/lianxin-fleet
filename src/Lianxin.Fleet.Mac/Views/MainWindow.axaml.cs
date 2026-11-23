@@ -26,7 +26,7 @@ public sealed partial class MainWindow : Window
     private DeviceCard? master;
     private Task operation = Task.CompletedTask;
     private Task refresh = Task.CompletedTask;
-    private bool ready, applyingFilter, closing, closed;
+    private bool ready, applyingFilter, closing, closed, confirmingClose;
 
     // 集控投屏窗口与中控共用同一个运行时（数据库、任务队列、WDA 通道），关闭窗口不会停止它们。
     public MainWindow(FleetRuntime runtime, string runnerBundleId)
@@ -53,6 +53,7 @@ public sealed partial class MainWindow : Window
         };
         Closing += CloseWindow;
         timer.Tick += (_, _) => BeginRefresh();
+        InitializeRecording();
         ready = true;
         ApplySnapshot(service.GetSnapshot());
     }
@@ -62,7 +63,12 @@ public sealed partial class MainWindow : Window
         if (closed)
             return;
         args.Cancel = true;
-        if (closing)
+        if (closing || confirmingClose)
+            return;
+        confirmingClose = true;
+        var close = await ConfirmCloseRecordingAsync();
+        confirmingClose = false;
+        if (!close)
             return;
         await StopForCloseAsync();
         closed = true;
@@ -87,6 +93,7 @@ public sealed partial class MainWindow : Window
         closing = true;
         IsEnabled = false;
         timer.Stop();
+        recordTimer.Stop();
         runtime.HostLog -= hostLog;
         lifetime.Cancel();
         try
@@ -115,6 +122,7 @@ public sealed partial class MainWindow : Window
                 continue;
             }
             var card = new DeviceCard(item);
+            card.SetZoom(zoom);
             card.PropertyChanged += CardChanged;
             cards.Add(card.Id, card);
         }
