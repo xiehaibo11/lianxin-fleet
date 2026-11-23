@@ -1,0 +1,1053 @@
+[
+ {
+  "path": "index",
+  "url": "https://ieasyclick.com/iosdocs/",
+  "title": "概览",
+  "groups": [],
+  "file": "index.md",
+  "html": "index.html"
+ },
+ {
+  "path": "tools/download_resources",
+  "url": "https://ieasyclick.com/iosdocs/tools/download_resources/",
+  "title": "下载开发工具",
+  "groups": [
+   "开始使用"
+  ],
+  "file": "tools/download_resources.md",
+  "html": "tools/download_resources.html"
+ },
+ {
+  "path": "tools/signagent",
+  "url": "https://ieasyclick.com/iosdocs/tools/signagent/",
+  "title": "安装代理ipa",
+  "groups": [
+   "开始使用",
+   "安装开发工具"
+  ],
+  "file": "tools/signagent.md",
+  "html": "tools/signagent.html"
+ },
+ {
+  "path": "tools/installcenter",
+  "url": "https://ieasyclick.com/iosdocs/tools/installcenter/",
+  "title": "安装中控程序",
+  "groups": [
+   "开始使用",
+   "安装开发工具"
+  ],
+  "file": "tools/installcenter.md",
+  "html": "tools/installcenter.html"
+ },
+ {
+  "path": "tools/installdevtools",
+  "url": "https://ieasyclick.com/iosdocs/tools/installdevtools/",
+  "title": "安装开发插件",
+  "groups": [
+   "开始使用",
+   "安装开发工具"
+  ],
+  "file": "tools/installdevtools.md",
+  "html": "tools/installdevtools.html"
+ },
+ {
+  "path": "firstproject",
+  "url": "https://ieasyclick.com/iosdocs/firstproject/",
+  "title": "创建第一个工程",
+  "groups": [
+   "开始使用"
+  ],
+  "file": "firstproject.md",
+  "html": "firstproject.html"
+ },
+ {
+  "path": "advance/ai-agent/prerequisites",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/prerequisites/",
+  "title": "环境与授权",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/prerequisites.md",
+  "html": "advance/ai-agent/prerequisites.html"
+ },
+ {
+  "path": "advance/ai-agent/faq",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/faq/",
+  "title": "常见问题速查",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/faq.md",
+  "html": "advance/ai-agent/faq.html"
+ },
+ {
+  "path": "advance/ai-agent/getting-started",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/getting-started/",
+  "title": "快速开始",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/getting-started.md",
+  "html": "advance/ai-agent/getting-started.html"
+ },
+ {
+  "path": "advance/ai-agent/screenshots",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/screenshots/",
+  "title": "界面预览",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/screenshots.md",
+  "html": "advance/ai-agent/screenshots.html"
+ },
+ {
+  "path": "advance/ai-agent/ai-chat",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/ai-chat/",
+  "title": "AI 对话",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/ai-chat.md",
+  "html": "advance/ai-agent/ai-chat.html"
+ },
+ {
+  "path": "advance/ai-agent/workflow-editor",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/workflow-editor/",
+  "title": "工作流编辑器",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/workflow-editor.md",
+  "html": "advance/ai-agent/workflow-editor.html"
+ },
+ {
+  "path": "advance/ai-agent/workflow-spk",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/workflow-spk/",
+  "title": "工作流 .spk",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/workflow-spk.md",
+  "html": "advance/ai-agent/workflow-spk.html"
+ },
+ {
+  "path": "advance/ai-agent/workflow-spk-license",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/workflow-spk-license/",
+  "title": "工作流 .spl 授权",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/workflow-spk-license.md",
+  "html": "advance/ai-agent/workflow-spk-license.html"
+ },
+ {
+  "path": "advance/ai-agent/image-match",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/image-match/",
+  "title": "图色找图",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/image-match.md",
+  "html": "advance/ai-agent/image-match.html"
+ },
+ {
+  "path": "advance/ai-agent/workflow-steps",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/workflow-steps/",
+  "title": "工作流步骤参考",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/workflow-steps.md",
+  "html": "advance/ai-agent/workflow-steps.html"
+ },
+ {
+  "path": "advance/ai-agent/config",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/config/",
+  "title": "配置与数据目录",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/config.md",
+  "html": "advance/ai-agent/config.html"
+ },
+ {
+  "path": "advance/ai-agent/external-integration",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/external-integration/",
+  "title": "外部集成",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/external-integration.md",
+  "html": "advance/ai-agent/external-integration.html"
+ },
+ {
+  "path": "advance/ai-agent/workflow-schedule",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/workflow-schedule/",
+  "title": "定时任务",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/workflow-schedule.md",
+  "html": "advance/ai-agent/workflow-schedule.html"
+ },
+ {
+  "path": "advance/ai-agent/tasks",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/tasks/",
+  "title": "任务与监控",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/tasks.md",
+  "html": "advance/ai-agent/tasks.html"
+ },
+ {
+  "path": "advance/ai-agent/troubleshooting",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/troubleshooting/",
+  "title": "常见问题",
+  "groups": [
+   "指南",
+   "AI 智能体"
+  ],
+  "file": "advance/ai-agent/troubleshooting.md",
+  "html": "advance/ai-agent/troubleshooting.html"
+ },
+ {
+  "path": "advance/ios-usb-beginner-install",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-beginner-install/",
+  "title": "苹果群控投屏新手安装",
+  "groups": [
+   "指南"
+  ],
+  "file": "advance/ios-usb-beginner-install.md",
+  "html": "advance/ios-usb-beginner-install.html"
+ },
+ {
+  "path": "advance/ios-usb-pc-config",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-pc-config/",
+  "title": "电脑配置与客户案例",
+  "groups": [
+   "指南",
+   "投屏操作教程"
+  ],
+  "file": "advance/ios-usb-pc-config.md",
+  "html": "advance/ios-usb-pc-config.html"
+ },
+ {
+  "path": "advance/ios-usb-screen-new",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-screen-new/",
+  "title": "新界面操作指引",
+  "groups": [
+   "指南",
+   "投屏操作教程"
+  ],
+  "file": "advance/ios-usb-screen-new.md",
+  "html": "advance/ios-usb-screen-new.html"
+ },
+ {
+  "path": "advance/ios-usb-screen-legacy",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-screen-legacy/",
+  "title": "经典界面操作指引",
+  "groups": [
+   "指南",
+   "投屏操作教程"
+  ],
+  "file": "advance/ios-usb-screen-legacy.md",
+  "html": "advance/ios-usb-screen-legacy.html"
+ },
+ {
+  "path": "advance/ios-usb-ai",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-ai/",
+  "title": "与AI结合辅助编程",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/ios-usb-ai.md",
+  "html": "advance/ios-usb-ai.html"
+ },
+ {
+  "path": "advance/ios-usb-activator",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-activator/",
+  "title": "脱机激活器",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/ios-usb-activator.md",
+  "html": "advance/ios-usb-activator.html"
+ },
+ {
+  "path": "advance/ios-usb-ble",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-ble/",
+  "title": "蓝牙BLE教程",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/ios-usb-ble.md",
+  "html": "advance/ios-usb-ble.html"
+ },
+ {
+  "path": "advance/ios-usb-otg",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-otg/",
+  "title": "OTG HID教程",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/ios-usb-otg.md",
+  "html": "advance/ios-usb-otg.html"
+ },
+ {
+  "path": "advance/centerconfig",
+  "url": "https://ieasyclick.com/iosdocs/advance/centerconfig/",
+  "title": "系统配置",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/centerconfig.md",
+  "html": "advance/centerconfig.html"
+ },
+ {
+  "path": "advance/webtools",
+  "url": "https://ieasyclick.com/iosdocs/advance/webtools/",
+  "title": "网页工具",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/webtools.md",
+  "html": "advance/webtools.html"
+ },
+ {
+  "path": "advance/xcoderemote",
+  "url": "https://ieasyclick.com/iosdocs/advance/xcoderemote/",
+  "title": "远程安装IPA",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/xcoderemote.md",
+  "html": "advance/xcoderemote.html"
+ },
+ {
+  "path": "advance/deploy",
+  "url": "https://ieasyclick.com/iosdocs/advance/deploy/",
+  "title": "系统部署",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/deploy.md",
+  "html": "advance/deploy.html"
+ },
+ {
+  "path": "funcs/plugin/plugins",
+  "url": "https://ieasyclick.com/iosdocs/funcs/plugin/plugins/",
+  "title": "插件开发",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "funcs/plugin/plugins.md",
+  "html": "funcs/plugin/plugins.html"
+ },
+ {
+  "path": "funcs/plugin/javajs",
+  "url": "https://ieasyclick.com/iosdocs/funcs/plugin/javajs/",
+  "title": "Java-JS混合开发",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "funcs/plugin/javajs.md",
+  "html": "funcs/plugin/javajs.html"
+ },
+ {
+  "path": "advance/keyboard",
+  "url": "https://ieasyclick.com/iosdocs/advance/keyboard/",
+  "title": "键盘输入码表",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/keyboard.md",
+  "html": "advance/keyboard.html"
+ },
+ {
+  "path": "advance/jsobfuscator",
+  "url": "https://ieasyclick.com/iosdocs/advance/jsobfuscator/",
+  "title": "代码混淆",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/jsobfuscator.md",
+  "html": "advance/jsobfuscator.html"
+ },
+ {
+  "path": "advance/npmandtypescript",
+  "url": "https://ieasyclick.com/iosdocs/advance/npmandtypescript/",
+  "title": "NPM和TypeScript支持",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "advance/npmandtypescript.md",
+  "html": "advance/npmandtypescript.html"
+ },
+ {
+  "path": "remotedebug",
+  "url": "https://ieasyclick.com/iosdocs/remotedebug/",
+  "title": "远程调试",
+  "groups": [
+   "指南",
+   "高级功能"
+  ],
+  "file": "remotedebug.md",
+  "html": "remotedebug.html"
+ },
+ {
+  "path": "funcs/global",
+  "url": "https://ieasyclick.com/iosdocs/funcs/global/",
+  "title": "全局模块",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/global/index.md",
+  "html": "funcs/global/index.html"
+ },
+ {
+  "path": "funcs/global/global-shortcut",
+  "url": "https://ieasyclick.com/iosdocs/funcs/global/global-shortcut/",
+  "title": "全局快捷事件",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/global/global-shortcut.md",
+  "html": "funcs/global/global-shortcut.html"
+ },
+ {
+  "path": "funcs/node-agent-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/node-agent-api/",
+  "title": "节点函数-手机内执行",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/node-agent-api.md",
+  "html": "funcs/node-agent-api.html"
+ },
+ {
+  "path": "funcs/node-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/node-api/",
+  "title": "节点函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/node-api.md",
+  "html": "funcs/node-api.html"
+ },
+ {
+  "path": "funcs/event-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/event-api/",
+  "title": "代理事件",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/event-api.md",
+  "html": "funcs/event-api.html"
+ },
+ {
+  "path": "funcs/image-agent-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/image-agent-api/",
+  "title": "图色函数-手机内执行",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/image-agent-api.md",
+  "html": "funcs/image-agent-api.html"
+ },
+ {
+  "path": "funcs/image-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/image-api/",
+  "title": "图色函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/image-api.md",
+  "html": "funcs/image-api.html"
+ },
+ {
+  "path": "funcs/ble-event-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/ble-event-api/",
+  "title": "蓝牙BLE函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/ble-event-api.md",
+  "html": "funcs/ble-event-api.html"
+ },
+ {
+  "path": "funcs/otg-event-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/otg-event-api/",
+  "title": "OTG HID函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/otg-event-api.md",
+  "html": "funcs/otg-event-api.html"
+ },
+ {
+  "path": "funcs/usb-hid-event-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/usb-hid-event-api/",
+  "title": "USB HID函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/usb-hid-event-api.md",
+  "html": "funcs/usb-hid-event-api.html"
+ },
+ {
+  "path": "funcs/aux-event-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/aux-event-api/",
+  "title": "Aux 远程辅助函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/aux-event-api.md",
+  "html": "funcs/aux-event-api.html"
+ },
+ {
+  "path": "funcs/yolo-agent-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/yolo-agent-api/",
+  "title": "YOLO函数-手机内执行",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/yolo-agent-api.md",
+  "html": "funcs/yolo-agent-api.html"
+ },
+ {
+  "path": "funcs/yolo-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/yolo-api/",
+  "title": "YOLO函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/yolo-api.md",
+  "html": "funcs/yolo-api.html"
+ },
+ {
+  "path": "funcs/ocr-agent-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/ocr-agent-api/",
+  "title": "OCR识别-手机内执行",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/ocr-agent-api.md",
+  "html": "funcs/ocr-agent-api.html"
+ },
+ {
+  "path": "funcs/ocr-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/ocr-api/",
+  "title": "OCR识别",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/ocr-api.md",
+  "html": "funcs/ocr-api.html"
+ },
+ {
+  "path": "funcs/ime-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/ime-api/",
+  "title": "输入法函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/ime-api.md",
+  "html": "funcs/ime-api.html"
+ },
+ {
+  "path": "funcs/apphelper-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/apphelper-api/",
+  "title": "辅助模块",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/apphelper-api.md",
+  "html": "funcs/apphelper-api.html"
+ },
+ {
+  "path": "funcs/device-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/device-api/",
+  "title": "设备函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/device-api.md",
+  "html": "funcs/device-api.html"
+ },
+ {
+  "path": "funcs/file-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/file-api/",
+  "title": "文件函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/file-api.md",
+  "html": "funcs/file-api.html"
+ },
+ {
+  "path": "funcs/storage-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/storage-api/",
+  "title": "存储函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/storage-api.md",
+  "html": "funcs/storage-api.html"
+ },
+ {
+  "path": "funcs/http-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/http-api/",
+  "title": "网络函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/http-api.md",
+  "html": "funcs/http-api.html"
+ },
+ {
+  "path": "funcs/thread-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/thread-api/",
+  "title": "线程函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/thread-api.md",
+  "html": "funcs/thread-api.html"
+ },
+ {
+  "path": "funcs/utils-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/utils-api/",
+  "title": "工具函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/utils-api.md",
+  "html": "funcs/utils-api.html"
+ },
+ {
+  "path": "funcs/jdbcmysql-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/jdbcmysql-api/",
+  "title": "JDBC MySQL函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/jdbcmysql-api.md",
+  "html": "funcs/jdbcmysql-api.html"
+ },
+ {
+  "path": "funcs/netcard-api",
+  "url": "https://ieasyclick.com/iosdocs/funcs/netcard-api/",
+  "title": "网络验证函数",
+  "groups": [
+   "参考",
+   "脚本函数"
+  ],
+  "file": "funcs/netcard-api.md",
+  "html": "funcs/netcard-api.html"
+ },
+ {
+  "path": "advance/openapi/screenshot",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/screenshot/",
+  "title": "截图接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/screenshot.md",
+  "html": "advance/openapi/screenshot.html"
+ },
+ {
+  "path": "advance/openapi/action",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/action/",
+  "title": "动作接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/action.md",
+  "html": "advance/openapi/action.html"
+ },
+ {
+  "path": "advance/openapi/auto-env",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/auto-env/",
+  "title": "启停自动化接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/auto-env.md",
+  "html": "advance/openapi/auto-env.html"
+ },
+ {
+  "path": "advance/openapi/album",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/album/",
+  "title": "相册接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/album.md",
+  "html": "advance/openapi/album.html"
+ },
+ {
+  "path": "advance/openapi/files",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/files/",
+  "title": "文件操作接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/files.md",
+  "html": "advance/openapi/files.html"
+ },
+ {
+  "path": "advance/openapi/ime",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/ime/",
+  "title": "IME 输入法接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/ime.md",
+  "html": "advance/openapi/ime.html"
+ },
+ {
+  "path": "advance/openapi/ble",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/ble/",
+  "title": "蓝牙 BLE 接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/ble.md",
+  "html": "advance/openapi/ble.html"
+ },
+ {
+  "path": "advance/openapi/usbhid",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/usbhid/",
+  "title": "USB HID 接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/usbhid.md",
+  "html": "advance/openapi/usbhid.html"
+ },
+ {
+  "path": "advance/openapi/dev-image",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/dev-image/",
+  "title": "开发者镜像接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/dev-image.md",
+  "html": "advance/openapi/dev-image.html"
+ },
+ {
+  "path": "advance/openapi/center",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/center/",
+  "title": "中控接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/center.md",
+  "html": "advance/openapi/center.html"
+ },
+ {
+  "path": "advance/openapi/app-helper",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/app-helper/",
+  "title": "辅助助手接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/app-helper.md",
+  "html": "advance/openapi/app-helper.html"
+ },
+ {
+  "path": "advance/openapi/shortcuts",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapi/shortcuts/",
+  "title": "快捷指令助手接口",
+  "groups": [
+   "企业版",
+   "企业版开放接口"
+  ],
+  "file": "advance/openapi/shortcuts.md",
+  "html": "advance/openapi/shortcuts.html"
+ },
+ {
+  "path": "otherinc/ios17",
+  "url": "https://ieasyclick.com/iosdocs/otherinc/ios17/",
+  "title": "iOS 17+使用说明",
+  "groups": [
+   "资源与支持",
+   "其他说明"
+  ],
+  "file": "otherinc/ios17.md",
+  "html": "otherinc/ios17.html"
+ },
+ {
+  "path": "question-answer",
+  "url": "https://ieasyclick.com/iosdocs/question-answer/",
+  "title": "常见问题",
+  "groups": [
+   "资源与支持"
+  ],
+  "file": "question-answer.md",
+  "html": "question-answer.html"
+ },
+ {
+  "path": "allplugin",
+  "url": "https://ieasyclick.com/iosdocs/allplugin/",
+  "title": "全部插件",
+  "groups": [
+   "资源与支持"
+  ],
+  "file": "allplugin.md",
+  "html": "allplugin.html"
+ },
+ {
+  "path": "changelog",
+  "url": "https://ieasyclick.com/iosdocs/changelog/",
+  "title": "版本更新记录",
+  "groups": [
+   "资源与支持"
+  ],
+  "file": "changelog.md",
+  "html": "changelog.html"
+ },
+ {
+  "path": "joinus",
+  "url": "https://ieasyclick.com/iosdocs/joinus/",
+  "title": "加入我们",
+  "groups": [
+   "资源与支持"
+  ],
+  "file": "joinus.md",
+  "html": "joinus.html"
+ },
+ {
+  "path": "advance",
+  "url": "https://ieasyclick.com/iosdocs/advance/",
+  "title": "advance",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "advance/index.md",
+  "html": "advance/index.html"
+ },
+ {
+  "path": "advance/ai-agent",
+  "url": "https://ieasyclick.com/iosdocs/advance/ai-agent/",
+  "title": "advance/ai-agent",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "advance/ai-agent/index.md",
+  "html": "advance/ai-agent/index.html"
+ },
+ {
+  "path": "advance/ios-usb-screen",
+  "url": "https://ieasyclick.com/iosdocs/advance/ios-usb-screen/",
+  "title": "advance/ios-usb-screen",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "advance/ios-usb-screen.md",
+  "html": "advance/ios-usb-screen.html"
+ },
+ {
+  "path": "advance/openapiintro",
+  "url": "https://ieasyclick.com/iosdocs/advance/openapiintro/",
+  "title": "advance/openapiintro",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "advance/openapiintro.md",
+  "html": "advance/openapiintro.html"
+ },
+ {
+  "path": "agreement",
+  "url": "https://ieasyclick.com/iosdocs/agreement/",
+  "title": "agreement",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "agreement.md",
+  "html": "agreement.html"
+ },
+ {
+  "path": "declare",
+  "url": "https://ieasyclick.com/iosdocs/declare/",
+  "title": "declare",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "declare.md",
+  "html": "declare.html"
+ },
+ {
+  "path": "device_solution",
+  "url": "https://ieasyclick.com/iosdocs/device_solution/",
+  "title": "device_solution",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "device_solution.md",
+  "html": "device_solution.html"
+ },
+ {
+  "path": "funcs",
+  "url": "https://ieasyclick.com/iosdocs/funcs/",
+  "title": "funcs",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "funcs/index.md",
+  "html": "funcs/index.html"
+ },
+ {
+  "path": "funcs/devtools/dev-tools",
+  "url": "https://ieasyclick.com/iosdocs/funcs/devtools/dev-tools/",
+  "title": "funcs/devtools/dev-tools",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "funcs/devtools/dev-tools.md",
+  "html": "funcs/devtools/dev-tools.html"
+ },
+ {
+  "path": "funcs/devtools/dev-tools-device",
+  "url": "https://ieasyclick.com/iosdocs/funcs/devtools/dev-tools-device/",
+  "title": "funcs/devtools/dev-tools-device",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "funcs/devtools/dev-tools-device.md",
+  "html": "funcs/devtools/dev-tools-device.html"
+ },
+ {
+  "path": "funcs/devtools/dev-tools-install",
+  "url": "https://ieasyclick.com/iosdocs/funcs/devtools/dev-tools-install/",
+  "title": "funcs/devtools/dev-tools-install",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "funcs/devtools/dev-tools-install.md",
+  "html": "funcs/devtools/dev-tools-install.html"
+ },
+ {
+  "path": "funcs/devtools/dev-tools-project",
+  "url": "https://ieasyclick.com/iosdocs/funcs/devtools/dev-tools-project/",
+  "title": "funcs/devtools/dev-tools-project",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "funcs/devtools/dev-tools-project.md",
+  "html": "funcs/devtools/dev-tools-project.html"
+ },
+ {
+  "path": "funcs/devtools/dev-tools-remote",
+  "url": "https://ieasyclick.com/iosdocs/funcs/devtools/dev-tools-remote/",
+  "title": "funcs/devtools/dev-tools-remote",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "funcs/devtools/dev-tools-remote.md",
+  "html": "funcs/devtools/dev-tools-remote.html"
+ },
+ {
+  "path": "funcs/devtools/dev-tools-screen",
+  "url": "https://ieasyclick.com/iosdocs/funcs/devtools/dev-tools-screen/",
+  "title": "funcs/devtools/dev-tools-screen",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "funcs/devtools/dev-tools-screen.md",
+  "html": "funcs/devtools/dev-tools-screen.html"
+ },
+ {
+  "path": "funcs/devtools/dev-tools-settings",
+  "url": "https://ieasyclick.com/iosdocs/funcs/devtools/dev-tools-settings/",
+  "title": "funcs/devtools/dev-tools-settings",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "funcs/devtools/dev-tools-settings.md",
+  "html": "funcs/devtools/dev-tools-settings.html"
+ },
+ {
+  "path": "otherinc",
+  "url": "https://ieasyclick.com/iosdocs/otherinc/",
+  "title": "otherinc",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "otherinc/index.md",
+  "html": "otherinc/index.html"
+ },
+ {
+  "path": "tools/installreadme",
+  "url": "https://ieasyclick.com/iosdocs/tools/installreadme/",
+  "title": "tools/installreadme",
+  "groups": [
+   "侧栏未列出"
+  ],
+  "file": "tools/installreadme.md",
+  "html": "tools/installreadme.html"
+ }
+]

@@ -1,0 +1,1550 @@
+[
+ {
+  "id": 2,
+  "title": "钧界编程学院",
+  "parent": null,
+  "depth": 0,
+  "order": 1,
+  "file": "01-钧界编程学院.md",
+  "children": 2
+ },
+ {
+  "id": 605,
+  "title": "钧界编程学院VIP 教程汇总",
+  "parent": 2,
+  "depth": 1,
+  "order": 1,
+  "file": "01-钧界编程学院/01-钧界编程学院VIP 教程汇总.md",
+  "children": 0
+ },
+ {
+  "id": 892,
+  "title": "AI 编程智能体服务",
+  "parent": 2,
+  "depth": 1,
+  "order": 2,
+  "file": "01-钧界编程学院/02-AI 编程智能体服务.md",
+  "children": 0
+ },
+ {
+  "id": 840,
+  "title": "EasyClick 官方",
+  "parent": null,
+  "depth": 0,
+  "order": 2,
+  "file": "02-EasyClick 官方.md",
+  "children": 1
+ },
+ {
+  "id": 3,
+  "title": "EasyClick 教程",
+  "parent": 840,
+  "depth": 1,
+  "order": 1,
+  "file": "02-EasyClick 官方/01-EasyClick 教程.md",
+  "children": 0
+ },
+ {
+  "id": 62,
+  "title": "原生UI 教程展示",
+  "parent": null,
+  "depth": 0,
+  "order": 3,
+  "file": "03-原生UI 教程展示.md",
+  "children": 14
+ },
+ {
+  "id": 63,
+  "title": "原生UI 教程总纲",
+  "parent": 62,
+  "depth": 1,
+  "order": 1,
+  "file": "03-原生UI 教程展示/01-原生UI 教程总纲.md",
+  "children": 0
+ },
+ {
+  "id": 377,
+  "title": "原生UI VIP 教程目录",
+  "parent": 62,
+  "depth": 1,
+  "order": 2,
+  "file": "03-原生UI 教程展示/02-原生UI VIP 教程目录.md",
+  "children": 0
+ },
+ {
+  "id": 44,
+  "title": "原生UI 模版展示",
+  "parent": 62,
+  "depth": 1,
+  "order": 3,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示.md",
+  "children": 35
+ },
+ {
+  "id": 67,
+  "title": "模版一",
+  "parent": 44,
+  "depth": 2,
+  "order": 1,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/01-模版一.md",
+  "children": 0
+ },
+ {
+  "id": 68,
+  "title": "模板二",
+  "parent": 44,
+  "depth": 2,
+  "order": 2,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/02-模板二.md",
+  "children": 0
+ },
+ {
+  "id": 69,
+  "title": "模板三",
+  "parent": 44,
+  "depth": 2,
+  "order": 3,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/03-模板三.md",
+  "children": 0
+ },
+ {
+  "id": 70,
+  "title": "模板四（暂未完成只有界面数据未处理）",
+  "parent": 44,
+  "depth": 2,
+  "order": 4,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/04-模板四（暂未完成只有界面数据未处理）.md",
+  "children": 0
+ },
+ {
+  "id": 71,
+  "title": "模板   悬浮窗 获取点击坐标",
+  "parent": 44,
+  "depth": 2,
+  "order": 5,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/05-模板   悬浮窗 获取点击坐标.md",
+  "children": 0
+ },
+ {
+  "id": 72,
+  "title": "模板 进度条",
+  "parent": 44,
+  "depth": 2,
+  "order": 6,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/06-模板 进度条.md",
+  "children": 0
+ },
+ {
+  "id": 73,
+  "title": "模板  搜索框",
+  "parent": 44,
+  "depth": 2,
+  "order": 7,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/07-模板  搜索框.md",
+  "children": 0
+ },
+ {
+  "id": 74,
+  "title": "模板 卡密验证",
+  "parent": 44,
+  "depth": 2,
+  "order": 8,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/08-模板 卡密验证.md",
+  "children": 0
+ },
+ {
+  "id": 75,
+  "title": "模板  登录界面",
+  "parent": 44,
+  "depth": 2,
+  "order": 9,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/09-模板  登录界面.md",
+  "children": 0
+ },
+ {
+  "id": 76,
+  "title": "模板  登录 主页联动",
+  "parent": 44,
+  "depth": 2,
+  "order": 10,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/10-模板  登录 主页联动.md",
+  "children": 0
+ },
+ {
+  "id": 77,
+  "title": "模板  浮窗启停",
+  "parent": 44,
+  "depth": 2,
+  "order": 11,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/11-模板  浮窗启停.md",
+  "children": 0
+ },
+ {
+  "id": 78,
+  "title": "模板  运行模式检测",
+  "parent": 44,
+  "depth": 2,
+  "order": 12,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/12-模板  运行模式检测.md",
+  "children": 0
+ },
+ {
+  "id": 81,
+  "title": "模板  搜索模板美化",
+  "parent": 44,
+  "depth": 2,
+  "order": 13,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/13-模板  搜索模板美化.md",
+  "children": 0
+ },
+ {
+  "id": 163,
+  "title": "模板 日期时间模版",
+  "parent": 44,
+  "depth": 2,
+  "order": 14,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/14-模板 日期时间模版.md",
+  "children": 0
+ },
+ {
+  "id": 218,
+  "title": "模板  动态排版之加载三方应用列表",
+  "parent": 44,
+  "depth": 2,
+  "order": 15,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/15-模板  动态排版之加载三方应用列表.md",
+  "children": 0
+ },
+ {
+  "id": 222,
+  "title": "模板  UI执行 脚本任务显示",
+  "parent": 44,
+  "depth": 2,
+  "order": 16,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/16-模板  UI执行 脚本任务显示.md",
+  "children": 0
+ },
+ {
+  "id": 232,
+  "title": "模板 旋转特效启停浮窗按钮加UI假启动",
+  "parent": 44,
+  "depth": 2,
+  "order": 17,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/17-模板 旋转特效启停浮窗按钮加UI假启动.md",
+  "children": 0
+ },
+ {
+  "id": 235,
+  "title": "模板  对话框大全",
+  "parent": 44,
+  "depth": 2,
+  "order": 18,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/18-模板  对话框大全.md",
+  "children": 0
+ },
+ {
+  "id": 239,
+  "title": "模板  自定义对话框大全",
+  "parent": 44,
+  "depth": 2,
+  "order": 19,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/19-模板  自定义对话框大全.md",
+  "children": 0
+ },
+ {
+  "id": 241,
+  "title": "模板 复用xml 高级对话框",
+  "parent": 44,
+  "depth": 2,
+  "order": 20,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/20-模板 复用xml 高级对话框.md",
+  "children": 0
+ },
+ {
+  "id": 275,
+  "title": "模板 自定义listview",
+  "parent": 44,
+  "depth": 2,
+  "order": 21,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/21-模板 自定义listview.md",
+  "children": 0
+ },
+ {
+  "id": 278,
+  "title": "模板 浮窗日志",
+  "parent": 44,
+  "depth": 2,
+  "order": 22,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/22-模板 浮窗日志.md",
+  "children": 0
+ },
+ {
+  "id": 301,
+  "title": "模版 自定义悬浮启停按钮",
+  "parent": 44,
+  "depth": 2,
+  "order": 23,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/23-模版 自定义悬浮启停按钮.md",
+  "children": 0
+ },
+ {
+  "id": 306,
+  "title": "模版   脚本休息全屏",
+  "parent": 44,
+  "depth": 2,
+  "order": 24,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/24-模版   脚本休息全屏.md",
+  "children": 0
+ },
+ {
+  "id": 343,
+  "title": "模板 SeekBar组件",
+  "parent": 44,
+  "depth": 2,
+  "order": 25,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/25-模板 SeekBar组件.md",
+  "children": 0
+ },
+ {
+  "id": 344,
+  "title": "模板 任务首页",
+  "parent": 44,
+  "depth": 2,
+  "order": 26,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/26-模板 任务首页.md",
+  "children": 0
+ },
+ {
+  "id": 376,
+  "title": "模版 圆角悬浮窗日志",
+  "parent": 44,
+  "depth": 2,
+  "order": 27,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/27-模版 圆角悬浮窗日志.md",
+  "children": 0
+ },
+ {
+  "id": 396,
+  "title": "坐标拾取器",
+  "parent": 44,
+  "depth": 2,
+  "order": 28,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/28-坐标拾取器.md",
+  "children": 0
+ },
+ {
+  "id": 403,
+  "title": "卡片分组模版",
+  "parent": 44,
+  "depth": 2,
+  "order": 29,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/29-卡片分组模版.md",
+  "children": 0
+ },
+ {
+  "id": 432,
+  "title": "模板 定时任务",
+  "parent": 44,
+  "depth": 2,
+  "order": 30,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/30-模板 定时任务.md",
+  "children": 0
+ },
+ {
+  "id": 436,
+  "title": "模板 自定义菜单多页面切换",
+  "parent": 44,
+  "depth": 2,
+  "order": 31,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/31-模板 自定义菜单多页面切换.md",
+  "children": 0
+ },
+ {
+  "id": 438,
+  "title": "模板 viewpager 抖音脚本界面",
+  "parent": 44,
+  "depth": 2,
+  "order": 32,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/32-模板 viewpager 抖音脚本界面.md",
+  "children": 0
+ },
+ {
+  "id": 453,
+  "title": "模板 可编辑表格",
+  "parent": 44,
+  "depth": 2,
+  "order": 33,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/33-模板 可编辑表格.md",
+  "children": 0
+ },
+ {
+  "id": 462,
+  "title": "模板 侧边悬浮菜单弹窗",
+  "parent": 44,
+  "depth": 2,
+  "order": 34,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/34-模板 侧边悬浮菜单弹窗.md",
+  "children": 0
+ },
+ {
+  "id": 483,
+  "title": "登录模版 字体引入",
+  "parent": 44,
+  "depth": 2,
+  "order": 35,
+  "file": "03-原生UI 教程展示/03-原生UI 模版展示/35-登录模版 字体引入.md",
+  "children": 0
+ },
+ {
+  "id": 60,
+  "title": "番外避坑",
+  "parent": 62,
+  "depth": 1,
+  "order": 4,
+  "file": "03-原生UI 教程展示/04-番外避坑.md",
+  "children": 1
+ },
+ {
+  "id": 61,
+  "title": "EasyClick 原生UI 避坑指南",
+  "parent": 60,
+  "depth": 2,
+  "order": 1,
+  "file": "03-原生UI 教程展示/04-番外避坑/01-EasyClick 原生UI 避坑指南.md",
+  "children": 0
+ },
+ {
+  "id": 329,
+  "title": "商用模板",
+  "parent": 62,
+  "depth": 1,
+  "order": 5,
+  "file": "03-原生UI 教程展示/05-商用模板.md",
+  "children": 21
+ },
+ {
+  "id": 45,
+  "title": "商用模版一",
+  "parent": 329,
+  "depth": 2,
+  "order": 1,
+  "file": "03-原生UI 教程展示/05-商用模板/01-商用模版一.md",
+  "children": 0
+ },
+ {
+  "id": 79,
+  "title": "商用模板二",
+  "parent": 329,
+  "depth": 2,
+  "order": 2,
+  "file": "03-原生UI 教程展示/05-商用模板/02-商用模板二.md",
+  "children": 0
+ },
+ {
+  "id": 80,
+  "title": "商用模板三",
+  "parent": 329,
+  "depth": 2,
+  "order": 3,
+  "file": "03-原生UI 教程展示/05-商用模板/03-商用模板三.md",
+  "children": 0
+ },
+ {
+  "id": 82,
+  "title": "商用模板四",
+  "parent": 329,
+  "depth": 2,
+  "order": 4,
+  "file": "03-原生UI 教程展示/05-商用模板/04-商用模板四.md",
+  "children": 0
+ },
+ {
+  "id": 330,
+  "title": "商用模板五",
+  "parent": 329,
+  "depth": 2,
+  "order": 5,
+  "file": "03-原生UI 教程展示/05-商用模板/05-商用模板五.md",
+  "children": 0
+ },
+ {
+  "id": 331,
+  "title": "商用模板六",
+  "parent": 329,
+  "depth": 2,
+  "order": 6,
+  "file": "03-原生UI 教程展示/05-商用模板/06-商用模板六.md",
+  "children": 0
+ },
+ {
+  "id": 347,
+  "title": "商用模板七",
+  "parent": 329,
+  "depth": 2,
+  "order": 7,
+  "file": "03-原生UI 教程展示/05-商用模板/07-商用模板七.md",
+  "children": 0
+ },
+ {
+  "id": 353,
+  "title": "商用模版八（徒弟作品）",
+  "parent": 329,
+  "depth": 2,
+  "order": 8,
+  "file": "03-原生UI 教程展示/05-商用模板/08-商用模版八（徒弟作品）.md",
+  "children": 0
+ },
+ {
+  "id": 358,
+  "title": "商用模版九",
+  "parent": 329,
+  "depth": 2,
+  "order": 9,
+  "file": "03-原生UI 教程展示/05-商用模板/09-商用模版九.md",
+  "children": 0
+ },
+ {
+  "id": 421,
+  "title": "商用模版十",
+  "parent": 329,
+  "depth": 2,
+  "order": 10,
+  "file": "03-原生UI 教程展示/05-商用模板/10-商用模版十.md",
+  "children": 0
+ },
+ {
+  "id": 448,
+  "title": "商用模版十一(游戏)",
+  "parent": 329,
+  "depth": 2,
+  "order": 11,
+  "file": "03-原生UI 教程展示/05-商用模板/11-商用模版十一(游戏).md",
+  "children": 0
+ },
+ {
+  "id": 449,
+  "title": "商用模版 十二 (小游戏阅读)",
+  "parent": 329,
+  "depth": 2,
+  "order": 12,
+  "file": "03-原生UI 教程展示/05-商用模板/12-商用模版 十二 (小游戏阅读).md",
+  "children": 0
+ },
+ {
+  "id": 450,
+  "title": "商用模版 十三 (小游戏阅读)",
+  "parent": 329,
+  "depth": 2,
+  "order": 13,
+  "file": "03-原生UI 教程展示/05-商用模板/13-商用模版 十三 (小游戏阅读).md",
+  "children": 0
+ },
+ {
+  "id": 451,
+  "title": "商用模版 十四(小游戏)",
+  "parent": 329,
+  "depth": 2,
+  "order": 14,
+  "file": "03-原生UI 教程展示/05-商用模板/14-商用模版 十四(小游戏).md",
+  "children": 0
+ },
+ {
+  "id": 452,
+  "title": "商用模版 十五(TK)",
+  "parent": 329,
+  "depth": 2,
+  "order": 15,
+  "file": "03-原生UI 教程展示/05-商用模板/15-商用模版 十五(TK).md",
+  "children": 0
+ },
+ {
+  "id": 556,
+  "title": "商用模版十六 (DY)",
+  "parent": 329,
+  "depth": 2,
+  "order": 16,
+  "file": "03-原生UI 教程展示/05-商用模板/16-商用模版十六 (DY).md",
+  "children": 0
+ },
+ {
+  "id": 665,
+  "title": "商用模版十七(徒弟作品)",
+  "parent": 329,
+  "depth": 2,
+  "order": 17,
+  "file": "03-原生UI 教程展示/05-商用模板/17-商用模版十七(徒弟作品).md",
+  "children": 0
+ },
+ {
+  "id": 856,
+  "title": "商用模板十八",
+  "parent": 329,
+  "depth": 2,
+  "order": 18,
+  "file": "03-原生UI 教程展示/05-商用模板/18-商用模板十八.md",
+  "children": 0
+ },
+ {
+  "id": 857,
+  "title": "商用模板十九",
+  "parent": 329,
+  "depth": 2,
+  "order": 19,
+  "file": "03-原生UI 教程展示/05-商用模板/19-商用模板十九.md",
+  "children": 0
+ },
+ {
+  "id": 858,
+  "title": "商用模板二十",
+  "parent": 329,
+  "depth": 2,
+  "order": 20,
+  "file": "03-原生UI 教程展示/05-商用模板/20-商用模板二十.md",
+  "children": 0
+ },
+ {
+  "id": 859,
+  "title": "商用模板二十一",
+  "parent": 329,
+  "depth": 2,
+  "order": 21,
+  "file": "03-原生UI 教程展示/05-商用模板/21-商用模板二十一.md",
+  "children": 0
+ },
+ {
+  "id": 365,
+  "title": "原生UI xml文件 标签解释",
+  "parent": 62,
+  "depth": 1,
+  "order": 6,
+  "file": "03-原生UI 教程展示/06-原生UI xml文件 标签解释.md",
+  "children": 0
+ },
+ {
+  "id": 366,
+  "title": "原生UI教程xml扫盲篇",
+  "parent": 62,
+  "depth": 1,
+  "order": 7,
+  "file": "03-原生UI 教程展示/07-原生UI教程xml扫盲篇.md",
+  "children": 0
+ },
+ {
+  "id": 367,
+  "title": "EasyClick 原生UI与Android UI XML的区别",
+  "parent": 62,
+  "depth": 1,
+  "order": 8,
+  "file": "03-原生UI 教程展示/08-EasyClick 原生UI与Android UI XML的区别.md",
+  "children": 0
+ },
+ {
+  "id": 368,
+  "title": "原生UI 之常用控件一",
+  "parent": 62,
+  "depth": 1,
+  "order": 9,
+  "file": "03-原生UI 教程展示/09-原生UI 之常用控件一.md",
+  "children": 0
+ },
+ {
+  "id": 369,
+  "title": "原生UI 之常用控件二",
+  "parent": 62,
+  "depth": 1,
+  "order": 10,
+  "file": "03-原生UI 教程展示/10-原生UI 之常用控件二.md",
+  "children": 0
+ },
+ {
+  "id": 370,
+  "title": "原生UI 公有属性",
+  "parent": 62,
+  "depth": 1,
+  "order": 11,
+  "file": "03-原生UI 教程展示/11-原生UI 公有属性.md",
+  "children": 0
+ },
+ {
+  "id": 371,
+  "title": "原生UI之布局",
+  "parent": 62,
+  "depth": 1,
+  "order": 12,
+  "file": "03-原生UI 教程展示/12-原生UI之布局.md",
+  "children": 0
+ },
+ {
+  "id": 388,
+  "title": "XML 特殊符号转义",
+  "parent": 62,
+  "depth": 1,
+  "order": 13,
+  "file": "03-原生UI 教程展示/13-XML 特殊符号转义.md",
+  "children": 0
+ },
+ {
+  "id": 467,
+  "title": "原生UI 学习思路",
+  "parent": 62,
+  "depth": 1,
+  "order": 14,
+  "file": "03-原生UI 教程展示/14-原生UI 学习思路.md",
+  "children": 0
+ },
+ {
+  "id": 389,
+  "title": "EasyClick auto.js 懒人精灵 对比",
+  "parent": null,
+  "depth": 0,
+  "order": 4,
+  "file": "04-EasyClick auto.js 懒人精灵 对比.md",
+  "children": 0
+ },
+ {
+  "id": 391,
+  "title": "UI  xml和H5的对比",
+  "parent": null,
+  "depth": 0,
+  "order": 5,
+  "file": "05-UI  xml和H5的对比.md",
+  "children": 0
+ },
+ {
+  "id": 46,
+  "title": "EasyClick 通用教程",
+  "parent": null,
+  "depth": 0,
+  "order": 6,
+  "file": "06-EasyClick 通用教程.md",
+  "children": 21
+ },
+ {
+  "id": 47,
+  "title": "JavaScript基础教程",
+  "parent": 46,
+  "depth": 1,
+  "order": 1,
+  "file": "06-EasyClick 通用教程/01-JavaScript基础教程.md",
+  "children": 0
+ },
+ {
+  "id": 48,
+  "title": "JavaScript调用java函数",
+  "parent": 46,
+  "depth": 1,
+  "order": 2,
+  "file": "06-EasyClick 通用教程/02-JavaScript调用java函数.md",
+  "children": 0
+ },
+ {
+  "id": 59,
+  "title": "JavaScript 调用java函数检测服务器连通性",
+  "parent": 46,
+  "depth": 1,
+  "order": 3,
+  "file": "06-EasyClick 通用教程/03-JavaScript 调用java函数检测服务器连通性.md",
+  "children": 0
+ },
+ {
+  "id": 161,
+  "title": "JavaScript中的正则表达式总结",
+  "parent": 46,
+  "depth": 1,
+  "order": 4,
+  "file": "06-EasyClick 通用教程/04-JavaScript中的正则表达式总结.md",
+  "children": 0
+ },
+ {
+  "id": 170,
+  "title": "JavaScript 异常处理（try+catch+finally+throw）",
+  "parent": 46,
+  "depth": 1,
+  "order": 5,
+  "file": "06-EasyClick 通用教程/05-JavaScript 异常处理（try+catch+finally+throw）.md",
+  "children": 0
+ },
+ {
+  "id": 171,
+  "title": "常用数据类型检测结果表",
+  "parent": 46,
+  "depth": 1,
+  "order": 6,
+  "file": "06-EasyClick 通用教程/06-常用数据类型检测结果表.md",
+  "children": 0
+ },
+ {
+  "id": 173,
+  "title": "JavaScript 常见问题集锦",
+  "parent": 46,
+  "depth": 1,
+  "order": 7,
+  "file": "06-EasyClick 通用教程/07-JavaScript 常见问题集锦.md",
+  "children": 0
+ },
+ {
+  "id": 210,
+  "title": "JavaScript调用java函数获取MP3文件时长",
+  "parent": 46,
+  "depth": 1,
+  "order": 8,
+  "file": "06-EasyClick 通用教程/08-JavaScript调用java函数获取MP3文件时长.md",
+  "children": 0
+ },
+ {
+  "id": 230,
+  "title": "JavaScript判断变量类型",
+  "parent": 46,
+  "depth": 1,
+  "order": 9,
+  "file": "06-EasyClick 通用教程/09-JavaScript判断变量类型.md",
+  "children": 0
+ },
+ {
+  "id": 247,
+  "title": "JavaScript 提取数字",
+  "parent": 46,
+  "depth": 1,
+  "order": 10,
+  "file": "06-EasyClick 通用教程/10-JavaScript 提取数字.md",
+  "children": 0
+ },
+ {
+  "id": 248,
+  "title": "JavaScript 正则Replace方法",
+  "parent": 46,
+  "depth": 1,
+  "order": 11,
+  "file": "06-EasyClick 通用教程/11-JavaScript 正则Replace方法.md",
+  "children": 0
+ },
+ {
+  "id": 253,
+  "title": "JavaScript 运算符使用技巧",
+  "parent": 46,
+  "depth": 1,
+  "order": 12,
+  "file": "06-EasyClick 通用教程/12-JavaScript 运算符使用技巧.md",
+  "children": 0
+ },
+ {
+  "id": 265,
+  "title": "JavaScript 字符串 转数组",
+  "parent": 46,
+  "depth": 1,
+  "order": 13,
+  "file": "06-EasyClick 通用教程/13-JavaScript 字符串 转数组.md",
+  "children": 0
+ },
+ {
+  "id": 311,
+  "title": "JavaScript取整取余数的方法",
+  "parent": 46,
+  "depth": 1,
+  "order": 14,
+  "file": "06-EasyClick 通用教程/14-JavaScript取整取余数的方法.md",
+  "children": 0
+ },
+ {
+  "id": 318,
+  "title": "JavaScript 数组随机取值",
+  "parent": 46,
+  "depth": 1,
+  "order": 15,
+  "file": "06-EasyClick 通用教程/15-JavaScript 数组随机取值.md",
+  "children": 0
+ },
+ {
+  "id": 323,
+  "title": "JavaScript 随机生成汉字",
+  "parent": 46,
+  "depth": 1,
+  "order": 16,
+  "file": "06-EasyClick 通用教程/16-JavaScript 随机生成汉字.md",
+  "children": 0
+ },
+ {
+  "id": 324,
+  "title": "JSON 基础",
+  "parent": 46,
+  "depth": 1,
+  "order": 17,
+  "file": "06-EasyClick 通用教程/17-JSON 基础.md",
+  "children": 0
+ },
+ {
+  "id": 339,
+  "title": "JavaScript 随机生成字符串",
+  "parent": 46,
+  "depth": 1,
+  "order": 18,
+  "file": "06-EasyClick 通用教程/18-JavaScript 随机生成字符串.md",
+  "children": 0
+ },
+ {
+  "id": 469,
+  "title": "JavaScript 正则 常用写法",
+  "parent": 46,
+  "depth": 1,
+  "order": 19,
+  "file": "06-EasyClick 通用教程/19-JavaScript 正则 常用写法.md",
+  "children": 0
+ },
+ {
+  "id": 851,
+  "title": "EC 生成UUID",
+  "parent": 46,
+  "depth": 1,
+  "order": 20,
+  "file": "06-EasyClick 通用教程/20-EC 生成UUID.md",
+  "children": 0
+ },
+ {
+  "id": 891,
+  "title": "EC 官方 CLI 与 Trae 智能体介绍",
+  "parent": 46,
+  "depth": 1,
+  "order": 21,
+  "file": "06-EasyClick 通用教程/21-EC 官方 CLI 与 Trae 智能体介绍.md",
+  "children": 0
+ },
+ {
+  "id": 268,
+  "title": "EasyClick Android相关教程",
+  "parent": null,
+  "depth": 0,
+  "order": 7,
+  "file": "07-EasyClick Android相关教程.md",
+  "children": 13
+ },
+ {
+  "id": 52,
+  "title": "ADB shell 之 adb shell之am、pm、dpm命令大全",
+  "parent": 268,
+  "depth": 1,
+  "order": 1,
+  "file": "07-EasyClick Android相关教程/01-ADB shell 之 adb shell之am、pm、dpm命令大全.md",
+  "children": 0
+ },
+ {
+  "id": 53,
+  "title": "EasyClick adb、shell命令大全",
+  "parent": 268,
+  "depth": 1,
+  "order": 2,
+  "file": "07-EasyClick Android相关教程/02-EasyClick adb、shell命令大全.md",
+  "children": 0
+ },
+ {
+  "id": 54,
+  "title": "EasyClick 执行 shell命令",
+  "parent": 268,
+  "depth": 1,
+  "order": 3,
+  "file": "07-EasyClick Android相关教程/03-EasyClick 执行 shell命令.md",
+  "children": 0
+ },
+ {
+  "id": 55,
+  "title": "EasyClick shell 命令压缩文件",
+  "parent": 268,
+  "depth": 1,
+  "order": 4,
+  "file": "07-EasyClick Android相关教程/04-EasyClick shell 命令压缩文件.md",
+  "children": 0
+ },
+ {
+  "id": 56,
+  "title": "EasyClick shell分割大文件",
+  "parent": 268,
+  "depth": 1,
+  "order": 5,
+  "file": "07-EasyClick Android相关教程/05-EasyClick shell分割大文件.md",
+  "children": 0
+ },
+ {
+  "id": 266,
+  "title": "Android Intent action 介绍",
+  "parent": 268,
+  "depth": 1,
+  "order": 6,
+  "file": "07-EasyClick Android相关教程/06-Android Intent action 介绍.md",
+  "children": 0
+ },
+ {
+  "id": 267,
+  "title": "Android FLAG标志位解释",
+  "parent": 268,
+  "depth": 1,
+  "order": 7,
+  "file": "07-EasyClick Android相关教程/07-Android FLAG标志位解释.md",
+  "children": 0
+ },
+ {
+  "id": 269,
+  "title": "EasyClick Intent 打开应用详情页",
+  "parent": 268,
+  "depth": 1,
+  "order": 8,
+  "file": "07-EasyClick Android相关教程/08-EasyClick Intent 打开应用详情页.md",
+  "children": 0
+ },
+ {
+  "id": 270,
+  "title": "EasyClick intent方式安装卸载APP",
+  "parent": 268,
+  "depth": 1,
+  "order": 9,
+  "file": "07-EasyClick Android相关教程/09-EasyClick intent方式安装卸载APP.md",
+  "children": 0
+ },
+ {
+  "id": 373,
+  "title": "Intent教学培训",
+  "parent": 268,
+  "depth": 1,
+  "order": 10,
+  "file": "07-EasyClick Android相关教程/10-Intent教学培训.md",
+  "children": 0
+ },
+ {
+  "id": 374,
+  "title": "Activity",
+  "parent": 268,
+  "depth": 1,
+  "order": 11,
+  "file": "07-EasyClick Android相关教程/11-Activity.md",
+  "children": 0
+ },
+ {
+  "id": 375,
+  "title": "Android",
+  "parent": 268,
+  "depth": 1,
+  "order": 12,
+  "file": "07-EasyClick Android相关教程/12-Android.md",
+  "children": 0
+ },
+ {
+  "id": 463,
+  "title": "安卓 版本API 对照表",
+  "parent": 268,
+  "depth": 1,
+  "order": 13,
+  "file": "07-EasyClick Android相关教程/13-安卓 版本API 对照表.md",
+  "children": 0
+ },
+ {
+  "id": 227,
+  "title": "EasyClick Java插件教程",
+  "parent": null,
+  "depth": 0,
+  "order": 8,
+  "file": "08-EasyClick Java插件教程.md",
+  "children": 0
+ },
+ {
+  "id": 51,
+  "title": "EasyClick Android常用文档",
+  "parent": null,
+  "depth": 0,
+  "order": 9,
+  "file": "09-EasyClick Android常用文档.md",
+  "children": 18
+ },
+ {
+  "id": 193,
+  "title": "EasyClick 常见错误",
+  "parent": 51,
+  "depth": 1,
+  "order": 1,
+  "file": "09-EasyClick Android常用文档/01-EasyClick 常见错误.md",
+  "children": 0
+ },
+ {
+  "id": 50,
+  "title": "常见网络返回代码解释",
+  "parent": 51,
+  "depth": 1,
+  "order": 2,
+  "file": "09-EasyClick Android常用文档/02-常见网络返回代码解释.md",
+  "children": 0
+ },
+ {
+  "id": 57,
+  "title": "模拟器连接端口汇总",
+  "parent": 51,
+  "depth": 1,
+  "order": 3,
+  "file": "09-EasyClick Android常用文档/03-模拟器连接端口汇总.md",
+  "children": 0
+ },
+ {
+  "id": 58,
+  "title": "EasyClick官网文档",
+  "parent": 51,
+  "depth": 1,
+  "order": 4,
+  "file": "09-EasyClick Android常用文档/04-EasyClick官网文档.md",
+  "children": 0
+ },
+ {
+  "id": 166,
+  "title": "EC无法停止的问题",
+  "parent": 51,
+  "depth": 1,
+  "order": 5,
+  "file": "09-EasyClick Android常用文档/05-EC无法停止的问题.md",
+  "children": 0
+ },
+ {
+  "id": 168,
+  "title": "模拟器自动获取root权限",
+  "parent": 51,
+  "depth": 1,
+  "order": 6,
+  "file": "09-EasyClick Android常用文档/06-模拟器自动获取root权限.md",
+  "children": 0
+ },
+ {
+  "id": 209,
+  "title": "夜神截图黑图解决办法",
+  "parent": 51,
+  "depth": 1,
+  "order": 7,
+  "file": "09-EasyClick Android常用文档/07-夜神截图黑图解决办法.md",
+  "children": 0
+ },
+ {
+  "id": 233,
+  "title": "去除Windows文件^M的办法",
+  "parent": 51,
+  "depth": 1,
+  "order": 8,
+  "file": "09-EasyClick Android常用文档/08-去除Windows文件^M的办法.md",
+  "children": 0
+ },
+ {
+  "id": 243,
+  "title": "EC设置为默认输入法",
+  "parent": 51,
+  "depth": 1,
+  "order": 9,
+  "file": "09-EasyClick Android常用文档/09-EC设置为默认输入法.md",
+  "children": 0
+ },
+ {
+  "id": 263,
+  "title": "EasyClick 启动APP 替代方法",
+  "parent": 51,
+  "depth": 1,
+  "order": 10,
+  "file": "09-EasyClick Android常用文档/10-EasyClick 启动APP 替代方法.md",
+  "children": 0
+ },
+ {
+  "id": 273,
+  "title": "EasyClick 插件项目问题",
+  "parent": 51,
+  "depth": 1,
+  "order": 11,
+  "file": "09-EasyClick Android常用文档/11-EasyClick 插件项目问题.md",
+  "children": 0
+ },
+ {
+  "id": 341,
+  "title": "EasyClick 热更乱码问题",
+  "parent": 51,
+  "depth": 1,
+  "order": 12,
+  "file": "09-EasyClick Android常用文档/12-EasyClick 热更乱码问题.md",
+  "children": 0
+ },
+ {
+  "id": 351,
+  "title": "EasyClick IEC 热更新 问题",
+  "parent": 51,
+  "depth": 1,
+  "order": 13,
+  "file": "09-EasyClick Android常用文档/13-EasyClick IEC 热更新 问题.md",
+  "children": 0
+ },
+ {
+  "id": 357,
+  "title": "EC 编译错误",
+  "parent": 51,
+  "depth": 1,
+  "order": 14,
+  "file": "09-EasyClick Android常用文档/14-EC 编译错误.md",
+  "children": 0
+ },
+ {
+  "id": 437,
+  "title": "打包选项和APP 设置属性对比",
+  "parent": 51,
+  "depth": 1,
+  "order": 15,
+  "file": "09-EasyClick Android常用文档/15-打包选项和APP 设置属性对比.md",
+  "children": 0
+ },
+ {
+  "id": 473,
+  "title": "常用时间戳API",
+  "parent": 51,
+  "depth": 1,
+  "order": 16,
+  "file": "09-EasyClick Android常用文档/16-常用时间戳API.md",
+  "children": 0
+ },
+ {
+  "id": 478,
+  "title": "雷电模拟器开启指针",
+  "parent": 51,
+  "depth": 1,
+  "order": 17,
+  "file": "09-EasyClick Android常用文档/17-雷电模拟器开启指针.md",
+  "children": 0
+ },
+ {
+  "id": 658,
+  "title": "无障碍音量下键停止脚本",
+  "parent": 51,
+  "depth": 1,
+  "order": 18,
+  "file": "09-EasyClick Android常用文档/18-无障碍音量下键停止脚本.md",
+  "children": 0
+ },
+ {
+  "id": 413,
+  "title": "EasyClick IOS 常见问题",
+  "parent": null,
+  "depth": 0,
+  "order": 10,
+  "file": "10-EasyClick IOS 常见问题.md",
+  "children": 7
+ },
+ {
+  "id": 406,
+  "title": "EasyClick IOS 2.X  环境安装 教程",
+  "parent": 413,
+  "depth": 1,
+  "order": 1,
+  "file": "10-EasyClick IOS 常见问题/01-EasyClick IOS 2.X  环境安装 教程.md",
+  "children": 0
+ },
+ {
+  "id": 394,
+  "title": "EasyClick 黑苹果安装教程、资源、坑点处理",
+  "parent": 413,
+  "depth": 1,
+  "order": 2,
+  "file": "10-EasyClick IOS 常见问题/02-EasyClick 黑苹果安装教程、资源、坑点处理.md",
+  "children": 0
+ },
+ {
+  "id": 410,
+  "title": "MAC OS Monterey 支持机型列表",
+  "parent": 413,
+  "depth": 1,
+  "order": 3,
+  "file": "10-EasyClick IOS 常见问题/03-MAC OS Monterey 支持机型列表.md",
+  "children": 0
+ },
+ {
+  "id": 414,
+  "title": "工作室环境问题",
+  "parent": 413,
+  "depth": 1,
+  "order": 4,
+  "file": "10-EasyClick IOS 常见问题/04-工作室环境问题.md",
+  "children": 0
+ },
+ {
+  "id": 415,
+  "title": "XCODE签名问题",
+  "parent": 413,
+  "depth": 1,
+  "order": 5,
+  "file": "10-EasyClick IOS 常见问题/05-XCODE签名问题.md",
+  "children": 0
+ },
+ {
+  "id": 419,
+  "title": "Windows10 系统盘 节省7G以上",
+  "parent": 413,
+  "depth": 1,
+  "order": 6,
+  "file": "10-EasyClick IOS 常见问题/06-Windows10 系统盘 节省7G以上.md",
+  "children": 0
+ },
+ {
+  "id": 881,
+  "title": "VMware25H2汉化",
+  "parent": 413,
+  "depth": 1,
+  "order": 7,
+  "file": "10-EasyClick IOS 常见问题/07-VMware25H2汉化.md",
+  "children": 0
+ },
+ {
+  "id": 430,
+  "title": "EasyClick 远程调试内网穿透工具",
+  "parent": null,
+  "depth": 0,
+  "order": 11,
+  "file": "11-EasyClick 远程调试内网穿透工具.md",
+  "children": 0
+ },
+ {
+  "id": 445,
+  "title": "IDEA 教程",
+  "parent": null,
+  "depth": 0,
+  "order": 12,
+  "file": "12-IDEA 教程.md",
+  "children": 7
+ },
+ {
+  "id": 212,
+  "title": "EasyClick IDEA 教程",
+  "parent": 445,
+  "depth": 1,
+  "order": 1,
+  "file": "12-IDEA 教程/01-EasyClick IDEA 教程.md",
+  "children": 0
+ },
+ {
+  "id": 165,
+  "title": "EasyClick IDEA 汉化",
+  "parent": 445,
+  "depth": 1,
+  "order": 2,
+  "file": "12-IDEA 教程/02-EasyClick IDEA 汉化.md",
+  "children": 0
+ },
+ {
+  "id": 425,
+  "title": "IDEA 常用快捷键",
+  "parent": 445,
+  "depth": 1,
+  "order": 3,
+  "file": "12-IDEA 教程/03-IDEA 常用快捷键.md",
+  "children": 0
+ },
+ {
+  "id": 446,
+  "title": "IDEA 常用开发插件",
+  "parent": 445,
+  "depth": 1,
+  "order": 4,
+  "file": "12-IDEA 教程/04-IDEA 常用开发插件.md",
+  "children": 0
+ },
+ {
+  "id": 481,
+  "title": "IDEA 创建多项目",
+  "parent": 445,
+  "depth": 1,
+  "order": 5,
+  "file": "12-IDEA 教程/05-IDEA 创建多项目.md",
+  "children": 0
+ },
+ {
+  "id": 495,
+  "title": "IDEA 恢复历史记录",
+  "parent": 445,
+  "depth": 1,
+  "order": 6,
+  "file": "12-IDEA 教程/06-IDEA 恢复历史记录.md",
+  "children": 0
+ },
+ {
+  "id": 668,
+  "title": "IDEA 常见问题",
+  "parent": 445,
+  "depth": 1,
+  "order": 7,
+  "file": "12-IDEA 教程/07-IDEA 常见问题.md",
+  "children": 0
+ },
+ {
+  "id": 524,
+  "title": "EasyClick 安卓Intent URL scheme VIP 教程",
+  "parent": null,
+  "depth": 0,
+  "order": 13,
+  "file": "13-EasyClick 安卓Intent URL scheme VIP 教程.md",
+  "children": 0
+ },
+ {
+  "id": 673,
+  "title": "付费产品",
+  "parent": null,
+  "depth": 0,
+  "order": 14,
+  "file": "14-付费产品.md",
+  "children": 13
+ },
+ {
+  "id": 409,
+  "title": "EasyClick   Android 自动化测试 ROM定制",
+  "parent": 673,
+  "depth": 1,
+  "order": 1,
+  "file": "14-付费产品/01-EasyClick   Android 自动化测试 ROM定制.md",
+  "children": 0
+ },
+ {
+  "id": 428,
+  "title": "EasyClick bug反馈工具 OSS版",
+  "parent": 673,
+  "depth": 1,
+  "order": 2,
+  "file": "14-付费产品/02-EasyClick bug反馈工具 OSS版.md",
+  "children": 0
+ },
+ {
+  "id": 674,
+  "title": "卡密管理系统",
+  "parent": 673,
+  "depth": 1,
+  "order": 3,
+  "file": "14-付费产品/03-卡密管理系统.md",
+  "children": 0
+ },
+ {
+  "id": 675,
+  "title": "卡密二次验证系统",
+  "parent": 673,
+  "depth": 1,
+  "order": 4,
+  "file": "14-付费产品/04-卡密二次验证系统.md",
+  "children": 0
+ },
+ {
+  "id": 676,
+  "title": "EasyClick BUG 反馈 公共版",
+  "parent": 673,
+  "depth": 1,
+  "order": 5,
+  "file": "14-付费产品/05-EasyClick BUG 反馈 公共版.md",
+  "children": 0
+ },
+ {
+  "id": 691,
+  "title": "云控定制",
+  "parent": 673,
+  "depth": 1,
+  "order": 6,
+  "file": "14-付费产品/06-云控定制.md",
+  "children": 0
+ },
+ {
+  "id": 860,
+  "title": "积分管理系统",
+  "parent": 673,
+  "depth": 1,
+  "order": 7,
+  "file": "14-付费产品/07-积分管理系统.md",
+  "children": 0
+ },
+ {
+  "id": 870,
+  "title": "EasyClick 热更新版本管理系统",
+  "parent": 673,
+  "depth": 1,
+  "order": 8,
+  "file": "14-付费产品/08-EasyClick 热更新版本管理系统.md",
+  "children": 0
+ },
+ {
+  "id": 875,
+  "title": "文件上传下载删除查询接口",
+  "parent": 673,
+  "depth": 1,
+  "order": 9,
+  "file": "14-付费产品/09-文件上传下载删除查询接口.md",
+  "children": 0
+ },
+ {
+  "id": 878,
+  "title": "项目管理系统",
+  "parent": 673,
+  "depth": 1,
+  "order": 10,
+  "file": "14-付费产品/10-项目管理系统.md",
+  "children": 0
+ },
+ {
+  "id": 882,
+  "title": "用户业务端认证系统",
+  "parent": 673,
+  "depth": 1,
+  "order": 11,
+  "file": "14-付费产品/11-用户业务端认证系统.md",
+  "children": 0
+ },
+ {
+  "id": 883,
+  "title": "通用云控系统",
+  "parent": 673,
+  "depth": 1,
+  "order": 12,
+  "file": "14-付费产品/12-通用云控系统.md",
+  "children": 0
+ },
+ {
+  "id": 886,
+  "title": "EC 项目管理系统开源免费",
+  "parent": 673,
+  "depth": 1,
+  "order": 13,
+  "file": "14-付费产品/13-EC 项目管理系统开源免费.md",
+  "children": 0
+ },
+ {
+  "id": 677,
+  "title": "设备购买",
+  "parent": null,
+  "depth": 0,
+  "order": 15,
+  "file": "15-设备购买.md",
+  "children": 4
+ },
+ {
+  "id": 393,
+  "title": "二手手机资源",
+  "parent": 677,
+  "depth": 1,
+  "order": 1,
+  "file": "15-设备购买/01-二手手机资源.md",
+  "children": 0
+ },
+ {
+  "id": 411,
+  "title": "Android 一手新机货源表",
+  "parent": 677,
+  "depth": 1,
+  "order": 2,
+  "file": "15-设备购买/02-Android 一手新机货源表.md",
+  "children": 0
+ },
+ {
+  "id": 416,
+  "title": "IOS推荐集线器西普莱厂家直供集线器",
+  "parent": 677,
+  "depth": 1,
+  "order": 3,
+  "file": "15-设备购买/03-IOS推荐集线器西普莱厂家直供集线器.md",
+  "children": 0
+ },
+ {
+  "id": 893,
+  "title": "ec 适配ESP 32 板子",
+  "parent": 677,
+  "depth": 1,
+  "order": 4,
+  "file": "15-设备购买/04-ec 适配ESP 32 板子.md",
+  "children": 0
+ }
+]
